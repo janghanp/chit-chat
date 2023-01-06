@@ -1,0 +1,10 @@
+version: "3"
+services:
+  backend:
+    build:
+      context: ./
+    ports:
+      - "8080:8080"
+    volumes:
+      - /app/node_modules # volume mounts without name 
+      - ./:/app # bind mounts to reflect changes from local machine(docker client)
