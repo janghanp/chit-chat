@@ -5,6 +5,17 @@ services:
       context: ./
     ports:
       - "8080:8080"
+    depends_on:
+      - "db"
     volumes:
-      - /app/node_modules # volume mounts without name 
+      - /app/node_modules # volume mounts without name
       - ./:/app # bind mounts to reflect changes from local machine(docker client)
+  db:
+    image: postgres:14-alpine
+    restart: always
+    volumes:
+      - postgres-db:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=wkd123
+volumes:
+  postgres-db:
