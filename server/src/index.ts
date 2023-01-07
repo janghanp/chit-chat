@@ -26,6 +26,8 @@ app.get("/", (_req: Request, res: Response) => {
 io.on("connection", (socket: Socket) => {
   console.log(`A user connected ${socket.id}`);
 
+  socket.emit("welcome", { message: "Welcome to chit-chat" });
+
   socket.on("ping", () => {
     socket.emit("pong");
   });

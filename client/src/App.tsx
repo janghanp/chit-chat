@@ -1,23 +1,24 @@
 import { useEffect, useState } from "react";
-import reactLogo from "./assets/react.svg";
 import { io } from "socket.io-client";
-import "./App.css";
 
 const socket = io("http://localhost:8080");
 
 function App() {
   const [isConnected, setIsConnected] = useState<boolean>(socket.connected);
   const [lastPong, setLastPong] = useState<string>("");
+  const [welcomeMessage, setWelcomeMessage] = useState<string>("");
 
   useEffect(() => {
     socket.on("connect", () => {
-      console.log("connected!");
-
       setIsConnected(true);
     });
 
     socket.on("pong", () => {
       setLastPong(new Date().toISOString());
+    });
+
+    socket.on("welcome", (arg) => {
+      setWelcomeMessage(arg.message);
     });
 
     return () => {
@@ -31,22 +32,22 @@ function App() {
   };
 
   return (
-    <div className="App">
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src="/vite.svg" className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://reactjs.org" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <div className="conatiner mx-auto min-h-screen">
+      <div className="flex flex-col justify-center items-center gap-y-3">
+        <p>Connected: {"" + isConnected}</p>
+        <p>Last pong: {lastPong || "-"}</p>
+        <button className="border p-1 rounded-md " onClick={sendPing}>
+          Send Ping
+        </button>
       </div>
-      <h1>Vite + React</h1>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-      <p>Connected: {"" + isConnected}</p>
-      <p>Last pong: {lastPong || "-"}</p>
-      <button onClick={sendPing}>Send Ping</button>
+
+      <div className="flex flex-col border border-teal-500 mt-5 justify-start items-center min-h-screen p-5">
+        {welcomeMessage && (
+          <span className="border p-1 rounded-md bg-gray-200">
+            Welcome, u have joined a chat room.
+          </span>
+        )}
+      </div>
     </div>
   );
 }
