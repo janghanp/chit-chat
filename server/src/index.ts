@@ -1,27 +1,38 @@
 import express, { Request, Response } from "express";
 import morgan from "morgan";
+import http from "http";
+import { Server, Socket } from "socket.io";
+import cors from "cors";
+
 import { PrismaClient } from "@prisma/client";
 
 const app = express();
-const prisma = new PrismaClient();
 
 app.use(morgan("dev"));
+app.use(cors());
+
+const server = http.createServer(app);
+
+const io = new Server(server, {
+  cors: {
+    origin: "http://localhost:5173",
+  },
+});
 
 app.get("/", (_req: Request, res: Response) => {
-  res.json({ hello: "what about this one" });
+  res.json({ hello: "world" });
 });
 
-app.get("/users", async (_req: Request, res: Response) => {
-  const users = await prisma.user.findMany();
+io.on("connection", (socket: Socket) => {
+  console.log(`A user connected ${socket.id}`);
 
-  console.log(users);
-
-  res.status(200).json({ message: "success", data: users });
+  socket.on("ping", () => {
+    socket.emit("pong");
+  });
 });
 
-const port = Number(process.env.PORT) || 8080;
-const host = "0.0.0.0";
+const port = process.env.PORT || 8080;
 
-app.listen(port, host, () => {
+server.listen(port, () => {
   console.log(`Listening on port ${port}`);
 });
