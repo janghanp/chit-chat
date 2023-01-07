@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
-  "type": "module",
   "scripts": {
     "build": "rimraf dist && swc ./src -d dist",
     "dev": "nodemon src/index.ts",
