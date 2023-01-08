@@ -55,7 +55,13 @@ router.post("/register", async (req: Request, res: Response) => {
     // Generate a token
     const token = generateToken(username);
 
-    return res.status(200).json({ token });
+    // Set a cookie for 1 day
+    res.cookie("token", token, {
+      expires: new Date(Date.now() + 86400000),
+      httpOnly: true,
+    });
+
+    return res.status(200).json({ username: user.username, email: user.email });
   } catch (error) {
     return res.json({ message: "Something went wrong, please try again..." });
   }
@@ -89,9 +95,13 @@ router.post("/login", async (req: Request, res: Response) => {
     // Generate a token
     const token = generateToken(user.username);
 
-    res.cookie("token", token, { httpOnly: true });
+    // Set a cookie for 1 day
+    res.cookie("token", token, {
+      expires: new Date(Date.now() + 86400000),
+      httpOnly: true,
+    });
 
-    return res.status(200).json({ token });
+    return res.status(200).json({ username: user.username, email: user.email });
   } catch (error) {
     return res
       .status(400)

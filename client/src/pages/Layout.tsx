@@ -1,4 +1,4 @@
-import { Outlet } from "react-router-dom";
+import { Outlet, Link } from "react-router-dom";
 
 const Layout = () => {
   return (
@@ -13,7 +13,7 @@ const Layout = () => {
         {/* <!-- Sidebar content here --> */}
         <ul className="menu p-4 w-80 bg-base-100 text-base-content">
           <li>
-            <a>Sidebar Item 1</a>
+            <Link to="/protected">Sidebar Item 1</Link>
           </li>
           <li>
             <a>Sidebar Item 2</a>
