@@ -1,15 +1,20 @@
+import * as dotenv from "dotenv";
+dotenv.config();
 import express, { Request, Response } from "express";
 import morgan from "morgan";
 import http from "http";
 import { Server, Socket } from "socket.io";
 import cors from "cors";
+import cookieParser from "cookie-parser";
 
-import { PrismaClient } from "@prisma/client";
+import authRoute from "./routes/authRoute";
 
 const app = express();
 
 app.use(morgan("dev"));
-app.use(cors());
+app.use(cors({ origin: "http://localhost:5173", credentials: true }));
+app.use(express.json());
+app.use(cookieParser());
 
 const server = http.createServer(app);
 
@@ -22,6 +27,8 @@ const io = new Server(server, {
 app.get("/", (_req: Request, res: Response) => {
   res.json({ hello: "world" });
 });
+
+app.use(authRoute);
 
 io.on("connection", (socket: Socket) => {
   console.log(`A user connected ${socket.id}`);
