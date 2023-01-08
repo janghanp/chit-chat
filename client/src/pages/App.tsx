@@ -6,25 +6,26 @@ import Layout from "./Layout";
 import Home from "./Home";
 import Login from "./Login";
 import Register from "./Register";
-import Protected from "./Protected";
+import AutoLogin from "../components/AutoLogin";
 
 function App() {
   return (
     <AuthProvider>
       <Routes>
         <Route path="/" element={<Layout />}>
-          <Route index element={<Home />} />
+          <Route element={<AutoLogin />}>
+            <Route
+              index
+              element={
+                <RequireAuth>
+                  <Home />
+                </RequireAuth>
+              }
+            />
+          </Route>
         </Route>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route
-          path="/protected"
-          element={
-            <RequireAuth>
-              <Protected />
-            </RequireAuth>
-          }
-        />
       </Routes>
     </AuthProvider>
   );

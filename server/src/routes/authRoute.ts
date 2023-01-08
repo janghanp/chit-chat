@@ -1,8 +1,9 @@
 import { Request, Response, Router } from "express";
 import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
 
 import { PrismaClient } from "@prisma/client";
-import { generateToken } from "../utils/token";
+import { generateToken, verifyToken } from "../utils/token";
 
 const router = Router();
 
@@ -53,7 +54,7 @@ router.post("/register", async (req: Request, res: Response) => {
     });
 
     // Generate a token
-    const token = generateToken(username);
+    const token = generateToken(username, email);
 
     // Set a cookie for 1 day
     res.cookie("token", token, {
@@ -93,7 +94,7 @@ router.post("/login", async (req: Request, res: Response) => {
     }
 
     // Generate a token
-    const token = generateToken(user.username);
+    const token = generateToken(user.username, user.email);
 
     // Set a cookie for 1 day
     res.cookie("token", token, {
@@ -107,6 +108,31 @@ router.post("/login", async (req: Request, res: Response) => {
       .status(400)
       .json({ message: "Something went wrong, please try again..." });
   }
+});
+
+router.get("/refresh", async (req: Request, res: Response) => {
+  const token: string | null = req.cookies.token;
+
+  if (token) {
+    const decode: any = verifyToken(token);
+
+    if (decode) {
+      // Generate a token
+      const { username, email } = decode;
+
+      const newToken = generateToken(username, email);
+
+      // Set a cookie for 1 day
+      res.cookie("token", newToken, {
+        expires: new Date(Date.now() + 86400000),
+        httpOnly: true,
+      });
+
+      return res.status(200).json({ username: username, email: email });
+    }
+  }
+
+  return res.sendStatus(200);
 });
 
 export default router;

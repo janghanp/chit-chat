@@ -30,13 +30,17 @@ app.get("/", (_req: Request, res: Response) => {
 
 app.use(authRoute);
 
-io.on("connection", (socket: Socket) => {
-  console.log(`A user connected ${socket.id}`);
+io.on("connect", (socket: Socket) => {
+  console.log("A user connected");
 
   socket.emit("welcome", { message: "Welcome to chit-chat!!", id: socket.id });
 
   socket.on("ping", () => {
     socket.emit("pong");
+  });
+
+  socket.on("disconnect", () => {
+    console.log("A user disconnected");
   });
 });
 

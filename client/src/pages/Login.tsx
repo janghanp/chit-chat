@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 
 import { useAuth } from "../context/AuthContext";
 
@@ -19,8 +19,9 @@ const Login = () => {
     });
   };
 
-  console.log(auth.user);
-  
+  if (auth.currentUser.email) {
+    return <Navigate to={"/"}></Navigate>;
+  }
 
   return (
     <div>

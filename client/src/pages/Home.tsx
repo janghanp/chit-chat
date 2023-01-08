@@ -2,27 +2,29 @@ import { useEffect, useState } from "react";
 import { io } from "socket.io-client";
 import { useAuth } from "../context/AuthContext";
 
-const socket = io("http://localhost:8080");
-
 const Home = () => {
   const auth = useAuth();
 
-  const [isConnected, setIsConnected] = useState<boolean>(socket.connected);
   const [welcomeMessage, setWelcomeMessage] = useState<string>("");
   const [socketId, setSocketId] = useState<string>("");
 
   useEffect(() => {
+    const socket = io("http://localhost:8080");
+
     socket.on("connect", () => {
-      setIsConnected(true);
+      console.log("connected to the server");
     });
 
     socket.on("welcome", (arg) => {
+      console.log(arg);
+
       setWelcomeMessage(arg.message);
       setSocketId(arg.id);
     });
 
     return () => {
       socket.off("connect");
+      socket.off("welcome");
     };
   }, []);
 

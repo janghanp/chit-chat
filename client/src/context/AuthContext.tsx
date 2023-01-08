@@ -1,14 +1,18 @@
 import axios from "axios";
-import { useState, createContext, useContext } from "react";
+import { useState, createContext, useContext, SetStateAction } from "react";
 
 interface AuthContextType {
-  user: any;
+  currentUser: { username: string; email: string };
+  setCurrentUser: React.Dispatch<
+    SetStateAction<{ username: string; email: string }>
+  >;
   login: (email: string, password: string, callback: VoidFunction) => void;
   logout: (callback: VoidFunction) => void;
 }
 
 const defaultValue = {
-  user: {},
+  currentUser: { username: "", email: "" },
+  setCurrentUser: () => {},
   login: () => {},
   logout: () => {},
 };
@@ -16,7 +20,10 @@ const defaultValue = {
 let authContext = createContext<AuthContextType>(defaultValue);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [user, setUser] = useState<any>(null);
+  const [currentUser, setCurrentUser] = useState<{
+    username: string;
+    email: string;
+  }>({ username: "", email: "" });
 
   const login = async (
     email: string,
@@ -33,7 +40,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         { withCredentials: true }
       );
 
-      setUser(data);
+      setCurrentUser(data);
       callback();
     } catch (error) {
       console.log(error);
@@ -45,7 +52,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   return (
-    <authContext.Provider value={{ user, login, logout }}>
+    <authContext.Provider
+      value={{ currentUser, setCurrentUser, login, logout }}
+    >
       {children}
     </authContext.Provider>
   );
