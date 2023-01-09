@@ -18,23 +18,28 @@ const Layout = () => {
         {/* <!-- Sidebar content here --> */}
         <ul className="menu p-4 w-80 bg-base-100 text-base-content">
           <li>
-            <Link to="/protected">Sidebar Item 1</Link>
+            <a>Sidebar Item 1</a>
           </li>
           <li>
             <a>Sidebar Item 2</a>
           </li>
 
           {auth.currentUser.email && (
-            <button
-              className="border"
-              onClick={() => {
-                auth.logout(() => {
-                  window.location.reload();
-                });
-              }}
-            >
-              Log out
-            </button>
+            <>
+              <button
+                className="border"
+                onClick={() => {
+                  auth.logout(() => {
+                    window.location.reload();
+                  });
+                }}
+              >
+                Log out
+              </button>
+              <Link to="/settings">
+                <button className="border w-full">config</button>
+              </Link>
+            </>
           )}
         </ul>
       </div>

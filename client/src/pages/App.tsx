@@ -7,6 +7,7 @@ import Home from "./Home";
 import Login from "./Login";
 import Register from "./Register";
 import AutoLogin from "../components/AutoLogin";
+import Settings from "./Settings";
 
 function App() {
   return (
@@ -26,6 +27,14 @@ function App() {
 
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route
+            path="/settings"
+            element={
+              <RequireAuth>
+                <Settings />
+              </RequireAuth>
+            }
+          />
         </Route>
       </Routes>
     </AuthProvider>

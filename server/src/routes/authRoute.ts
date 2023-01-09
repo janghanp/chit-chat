@@ -139,8 +139,6 @@ router.delete("/logout", (req: Request, res: Response) => {
 
   if (token) {
     res.clearCookie("token");
-
-    console.log("clear cookie");
   }
 
   res.end();

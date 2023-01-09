@@ -8,6 +8,7 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 
 import authRoute from "./routes/authRoute";
+import profileRoute from "./routes/profileRoute";
 
 const app = express();
 
@@ -26,9 +27,10 @@ const io = new Server(server, {
 });
 
 app.use(authRoute);
+app.use(profileRoute);
 
 io.on("connect", (socket: Socket) => {
-  console.log(`User connected ${socket.id}`);
+  console.log(`🔌 User connected  |  socket id: ${socket.id}`);
 
   socket.on("join_room", (data) => {
     // socket.join(data);
@@ -36,7 +38,7 @@ io.on("connect", (socket: Socket) => {
   });
 
   socket.on("disconnect", () => {
-    console.log("User disconnected");
+    console.log("👋 User disconnected");
   });
 });
 
