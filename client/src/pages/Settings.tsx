@@ -1,9 +1,10 @@
-import { ChangeEvent, useRef, useState } from "react";
+import { ChangeEvent, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 
 import { useAuth } from "../context/AuthContext";
 import defaultImageUrl from "/default.jpg";
+import axios from "axios";
 
 type FormData = {
   email: string;
@@ -33,6 +34,22 @@ const Settings = () => {
       username: auth.currentUser.username,
     },
   });
+
+  // Upload an image when the image value is chagned.
+  useEffect(() => {
+    const uploadImage = async () => {
+      const formData = new FormData();
+      formData.append("file", image!);
+
+      await axios.post("http://localhost:8080/profile", formData, {
+        withCredentials: true,
+      });
+    };
+
+    if (image && !imageError) {
+      uploadImage();
+    }
+  }, [image]);
 
   const onSubmit = handleSubmit(async (data) => {
     const { email, password, confirmPassword, username } = data;

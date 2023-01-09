@@ -112,25 +112,33 @@ router.post("/login", async (req: Request, res: Response) => {
 router.get("/refresh", async (req: Request, res: Response) => {
   const token: string | null = req.cookies.token;
 
-  if (token) {
-    const decode: any = verifyToken(token);
+  try {
+    // Refresh page with a token.
+    if (token) {
+      const decodedToken = verifyToken(token);
 
-    if (decode) {
-      // Generate a token
-      const { username, email } = decode;
+      if (decodedToken) {
+        // Generate a token
+        const { username, email } = decodedToken;
 
-      const newToken = generateToken(username, email);
+        const newToken = generateToken(username, email);
 
-      // Set a cookie for 1 day
-      res.cookie("token", newToken, {
-        expires: new Date(Date.now() + 86400000),
-        httpOnly: true,
-      });
+        // Set a cookie for 1 day
+        res.cookie("token", newToken, {
+          expires: new Date(Date.now() + 86400000),
+          httpOnly: true,
+        });
 
-      return res.status(200).json({ username: username, email: email });
+        return res.status(200).json({ username: username, email: email });
+      }
     }
+  } catch (error) {
+    console.log(error);
+
+    return res.sendStatus(401);
   }
 
+  // Refresh page wihout a token
   return res.sendStatus(200);
 });
 

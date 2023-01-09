@@ -1,25 +1,23 @@
 import { Request, Response, NextFunction } from "express";
-import jwt from "jsonwebtoken";
+
+import { TokenType, verifyToken } from "../utils/token";
 
 export const checkToken = (req: Request, res: Response, next: NextFunction) => {
-  const authHeader = req.headers["authorization"];
-  const token = authHeader && authHeader.split(" ")[1];
+  const token: string | null = req.cookies.token;
 
-  if (token == null) {
+  if (!token) {
     return res.sendStatus(401);
   }
 
-  jwt.verify(
-    token,
-    process.env.JWT_SECRET as string,
-    (err: any, decoded: any) => {
-      console.log(err);
+  try {
+    const decodedToken = verifyToken(token);
 
-      if (err) {
-        return res.sendStatus(401);
-      }
-    }
-  );
+    req.token = decodedToken;
 
-  next();
+    next();
+  } catch (error) {
+    console.log(error);
+
+    return res.sendStatus(401);
+  }
 };
