@@ -1,6 +1,11 @@
-import { Outlet, Link } from "react-router-dom";
+import { Outlet, Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 const Layout = () => {
+  const auth = useAuth();
+
+  const navigate = useNavigate();
+
   return (
     <div className="drawer drawer-mobile">
       <input id="my-drawer-2" type="checkbox" className="drawer-toggle" />
@@ -18,6 +23,19 @@ const Layout = () => {
           <li>
             <a>Sidebar Item 2</a>
           </li>
+
+          {auth.currentUser.email && (
+            <button
+              className="border"
+              onClick={() => {
+                auth.logout(() => {
+                  window.location.reload();
+                });
+              }}
+            >
+              Log out
+            </button>
+          )}
         </ul>
       </div>
     </div>

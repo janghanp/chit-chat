@@ -1,6 +1,5 @@
 import { Request, Response, Router } from "express";
 import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
 
 import { PrismaClient } from "@prisma/client";
 import { generateToken, verifyToken } from "../utils/token";
@@ -31,13 +30,13 @@ router.post("/register", async (req: Request, res: Response) => {
     });
 
     if (userWithEmail) {
-      return res.status(400).json({ message: "The email is already in use." });
+      return res.status(400).json({ message: "This email is already in use." });
     }
 
     if (userWithUsername) {
       return res
         .status(400)
-        .json({ message: "The username is already in use." });
+        .json({ message: "This username is already in use." });
     }
 
     // Hash password
@@ -133,6 +132,18 @@ router.get("/refresh", async (req: Request, res: Response) => {
   }
 
   return res.sendStatus(200);
+});
+
+router.delete("/logout", (req: Request, res: Response) => {
+  const token: string | null = req.cookies.token;
+
+  if (token) {
+    res.clearCookie("token");
+
+    console.log("clear cookie");
+  }
+
+  res.end();
 });
 
 export default router;

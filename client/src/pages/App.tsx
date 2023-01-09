@@ -12,8 +12,8 @@ function App() {
   return (
     <AuthProvider>
       <Routes>
-        <Route path="/" element={<Layout />}>
-          <Route element={<AutoLogin />}>
+        <Route element={<AutoLogin />}>
+          <Route path="/" element={<Layout />}>
             <Route
               index
               element={
@@ -23,9 +23,10 @@ function App() {
               }
             />
           </Route>
+
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
         </Route>
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
       </Routes>
     </AuthProvider>
   );
