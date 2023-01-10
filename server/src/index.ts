@@ -30,7 +30,6 @@ const io = new Server(server, {
   },
 });
 
-// TODO: Add a prefix for these routes.
 app.use("/auth", authRoute);
 app.use("/user", userRoute);
 

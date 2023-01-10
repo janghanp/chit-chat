@@ -14,6 +14,7 @@ function App() {
     <AuthProvider>
       <Routes>
         <Route element={<AutoLogin />}>
+          {/* with Layout */}
           <Route path="/" element={<Layout />}>
             <Route
               index
@@ -23,7 +24,6 @@ function App() {
                 </RequireAuth>
               }
             />
-
             <Route
               path="/settings"
               element={
@@ -33,10 +33,11 @@ function App() {
               }
             />
           </Route>
-        </Route>
+          {/* with Layout */}
 
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+        </Route>
       </Routes>
     </AuthProvider>
   );

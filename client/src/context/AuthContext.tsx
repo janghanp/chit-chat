@@ -6,7 +6,7 @@ interface AuthSuccessResponse {
   username: string;
 }
 
-interface AuthErrorResponse {
+export interface AuthErrorResponse {
   message: string;
 }
 // When a user creates an account for the first time, they don't have an avatar and public_id valuse.

@@ -2,7 +2,7 @@ import { ChangeEvent, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 
-import { useAuth } from "../context/AuthContext";
+import { AuthErrorResponse, useAuth } from "../context/AuthContext";
 import defaultImageUrl from "/default.jpg";
 import axios from "axios";
 
@@ -32,6 +32,7 @@ const Settings = () => {
   const [image, setImage] = useState<File | null>();
   const [preview, setPreview] = useState<string>(auth.currentUser.avatar || "");
   const [imageError, setImageError] = useState<string>();
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -39,6 +40,7 @@ const Settings = () => {
     register,
     handleSubmit,
     setError,
+    watch,
     formState: { errors },
   } = useForm<FormData>({
     defaultValues: {
@@ -47,11 +49,24 @@ const Settings = () => {
     },
   });
 
+  // Determining permission of submit button.
+  let isDisable = true;
+  const watchNewPassword = watch("newPassword");
+  const watchConfirmNewPassword = watch("confirmNewPassword");
+  const watchUsername = watch("username");
+
+  if ((auth.currentUser.username !== watchUsername && watchUsername) || watchNewPassword || watchConfirmNewPassword) {
+    isDisable = false;
+  }
+
   // Upload an image when the image is chagned.
   useEffect(() => {
     const uploadImage = async () => {
+      setIsLoading(true);
+
       const formData = new FormData();
       formData.append("file", image!);
+      formData.append("public_id", auth.currentUser.public_id || "");
 
       const { data } = await axios.post<AxiosResponseWithUser>("http://localhost:8080/user/profile", formData, {
         withCredentials: true,
@@ -59,8 +74,11 @@ const Settings = () => {
 
       // Chagne currentUser state in AuthContext.
       auth.setCurrentUser(data);
+
+      setIsLoading(false);
     };
 
+    //Since the avatar string is set to preview state, even if a use has an avatar, uploadImage won't be executed.
     if (image && !imageError) {
       uploadImage();
     }
@@ -91,15 +109,25 @@ const Settings = () => {
       dataToUpdate.username = username;
     }
 
-    // Send a http request
-    const { data } = await axios.patch<AxiosResponseWithUsername>("http://localhost:8080/user", dataToUpdate, {
-      withCredentials: true,
-    });
+    try {
+      const { data } = await axios.patch<AxiosResponseWithUsername>("http://localhost:8080/user", dataToUpdate, {
+        withCredentials: true,
+      });
 
-    // Change currentUser state.
-    auth.setCurrentUser((prev) => ({ ...prev, username: data.username }));
+      // Change currentUser state.
+      auth.setCurrentUser((prev) => ({ ...prev, username: data.username }));
 
-    navigate("/");
+      navigate("/");
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response?.status === 400) {
+        // Set an error into username field.
+        const serverError = error.response.data as AuthErrorResponse;
+
+        setError("username", { type: "taken", message: serverError.message });
+      } else if (error instanceof Error) {
+        console.log(error);
+      }
+    }
   });
 
   const changeFileHandler = (event: ChangeEvent<HTMLInputElement>) => {
@@ -171,9 +199,13 @@ const Settings = () => {
           })}
         />
 
+        {errors.username?.type === "required" && <p role="alert">{errors.username.message}</p>}
+
         {errors.username?.type === "taken" && <p role="alert">{errors.username.message}</p>}
 
-        <button type="submit">Sign Up</button>
+        <button type="submit" className="disabled:cursor-not-allowed disabled:text-gray-300" disabled={isDisable}>
+          Sign Up
+        </button>
       </form>
     </div>
   );
