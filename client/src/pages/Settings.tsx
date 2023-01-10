@@ -106,6 +106,8 @@ const Settings = () => {
 
     // User tyring to chagne their username.
     if (username && username !== auth.currentUser.username) {
+      console.log(username, auth.currentUser.username);
+      
       dataToUpdate.username = username;
     }
 
@@ -204,7 +206,7 @@ const Settings = () => {
         {errors.username?.type === "taken" && <p role="alert">{errors.username.message}</p>}
 
         <button type="submit" className="disabled:cursor-not-allowed disabled:text-gray-300" disabled={isDisable}>
-          Sign Up
+          Update
         </button>
       </form>
     </div>

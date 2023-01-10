@@ -22,28 +22,31 @@ router.patch("/", checkToken, async (req: Request, res: Response) => {
   try {
     let data: Prisma.UserUpdateInput = {};
 
-    // Set new password to update.
     if (newPassword) {
       // Hash newPassword
       const salt = bcrypt.genSaltSync(10);
       const hashedNewPassword = bcrypt.hashSync(newPassword, salt);
 
+      // Set newPassword to update.
       data.password = hashedNewPassword;
     }
 
-    //Check if the username is not taken.
-    const foundUser = await prisma.user.findFirst({
-      where: {
-        username,
-      },
-    });
-
-    if (foundUser) {
-      return res.status(400).json({ message: "This username is already in use." });
-    }
-
-    // Set username to update.
     if (username) {
+      //Check if the username is not taken by other people except for the currentUser.
+      const user = await prisma.user.findFirst({
+        where: {
+          username,
+          NOT: {
+            email,
+          },
+        },
+      });
+
+      if (user) {
+        return res.status(400).json({ message: "This username is already in use." });
+      }
+
+      // Set username to update.
       data.username = username;
     }
 
