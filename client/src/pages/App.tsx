@@ -8,6 +8,8 @@ import Login from "./Login";
 import Register from "./Register";
 import AutoLogin from "../components/AutoLogin";
 import Settings from "./Settings";
+import Chat from "./Chat";
+import NoMatch from "./NoMatch";
 
 function App() {
   return (
@@ -32,11 +34,21 @@ function App() {
                 </RequireAuth>
               }
             />
+            <Route
+              path="/chat/:roomId"
+              element={
+                <RequireAuth>
+                  <Chat />
+                </RequireAuth>
+              }
+            />
           </Route>
           {/* with Layout */}
 
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+
+          <Route path="*" element={<NoMatch />} />
         </Route>
       </Routes>
     </AuthProvider>

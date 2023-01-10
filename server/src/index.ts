@@ -36,9 +36,13 @@ app.use("/user", userRoute);
 io.on("connect", (socket: Socket) => {
   console.log(`🔌 User connected  |  socket id: ${socket.id}`);
 
-  socket.on("join_room", (data) => {
-    // socket.join(data);
-    console.log(`User with ID: ${socket.id} joined room: ${data}`);
+  socket.on("join_room", (data: {username: string, roomId: string}) => {
+    socket.join(data.roomId);
+    console.log(`📦 ${data.username} with ID: ${socket.id} joined room: ${data.roomId}`);
+  });
+
+  socket.on("send_message", (data) => {
+    socket.to(data.room).emit("receive_message", data);
   });
 
   socket.on("disconnect", () => {
