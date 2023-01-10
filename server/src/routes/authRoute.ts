@@ -9,11 +9,7 @@ const router = Router();
 const prisma = new PrismaClient();
 
 router.post("/register", async (req: Request, res: Response) => {
-  const {
-    email,
-    password,
-    username,
-  }: { email: string; password: string; username: string } = req.body;
+  const { email, password, username }: { email: string; password: string; username: string } = req.body;
 
   try {
     // Check if the email is already in use.
@@ -23,6 +19,7 @@ router.post("/register", async (req: Request, res: Response) => {
       },
     });
 
+    // Check if the username is already in use.
     const userWithUsername = await prisma.user.findFirst({
       where: {
         username,
@@ -34,9 +31,7 @@ router.post("/register", async (req: Request, res: Response) => {
     }
 
     if (userWithUsername) {
-      return res
-        .status(400)
-        .json({ message: "This username is already in use." });
+      return res.status(400).json({ message: "This username is already in use." });
     }
 
     // Hash password
@@ -78,18 +73,14 @@ router.post("/login", async (req: Request, res: Response) => {
     });
 
     if (!user) {
-      return res
-        .status(401)
-        .json({ message: "Incorrect email address or password" });
+      return res.status(401).json({ message: "Incorrect email address or password" });
     }
 
     // Compare passwords
     const isMatch = bcrypt.compareSync(password, user.password);
 
     if (!isMatch) {
-      return res
-        .status(401)
-        .json({ message: "Incorrect email address or password" });
+      return res.status(401).json({ message: "Incorrect email address or password" });
     }
 
     // Generate a token
@@ -101,11 +92,11 @@ router.post("/login", async (req: Request, res: Response) => {
       httpOnly: true,
     });
 
-    return res.status(200).json({ username: user.username, email: user.email });
-  } catch (error) {
     return res
-      .status(400)
-      .json({ message: "Something went wrong, please try again..." });
+      .status(200)
+      .json({ username: user.username, email: user.email, avatar: user.avatar, public_id: user.public_id });
+  } catch (error) {
+    return res.status(400).json({ message: "Something went wrong, please try again..." });
   }
 });
 
@@ -118,10 +109,21 @@ router.get("/refresh", async (req: Request, res: Response) => {
       const decodedToken = verifyToken(token);
 
       if (decodedToken) {
-        // Generate a token
         const { username, email } = decodedToken;
 
+        // Generate a new token
         const newToken = generateToken(username, email);
+
+        // Find a user to get avatar and public_id.
+        const user = await prisma.user.findUnique({
+          where: {
+            email,
+          },
+        });
+
+        if (!user) {
+          return res.status(500).json({ message: "Somthing went wrong, please try again..." });
+        }
 
         // Set a cookie for 1 day
         res.cookie("token", newToken, {
@@ -129,7 +131,9 @@ router.get("/refresh", async (req: Request, res: Response) => {
           httpOnly: true,
         });
 
-        return res.status(200).json({ username: username, email: email });
+        return res
+          .status(200)
+          .json({ username: user.username, email: user.email, avatar: user.avatar, public_id: user.public_id });
       }
     }
   } catch (error) {

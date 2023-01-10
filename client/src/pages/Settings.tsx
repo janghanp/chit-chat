@@ -6,19 +6,27 @@ import { useAuth } from "../context/AuthContext";
 import defaultImageUrl from "/default.jpg";
 import axios from "axios";
 
-type FormData = {
+interface FormData {
   email: string;
   password: string;
   confirmPassword: string;
   username: string;
-};
+}
+
+export interface AxiosResponseWithUser {
+  email: string;
+  username: string;
+  avatar: string;
+  public_id: string;
+}
+
 const Settings = () => {
   const auth = useAuth();
 
   const navigate = useNavigate();
 
   const [image, setImage] = useState<File | null>();
-  const [preview, setPreview] = useState<string>();
+  const [preview, setPreview] = useState<string>(auth.currentUser.avatar || "");
   const [imageError, setImageError] = useState<string>();
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -35,15 +43,18 @@ const Settings = () => {
     },
   });
 
-  // Upload an image when the image value is chagned.
+  // Upload an image when the image is chagned.
   useEffect(() => {
     const uploadImage = async () => {
       const formData = new FormData();
       formData.append("file", image!);
 
-      await axios.post("http://localhost:8080/profile", formData, {
+      const { data } = await axios.post<AxiosResponseWithUser>("http://localhost:8080/profile", formData, {
         withCredentials: true,
       });
+
+      // Chagne currentUser state in AuthContext.
+      auth.setCurrentUser(data);
     };
 
     if (image && !imageError) {
@@ -63,6 +74,8 @@ const Settings = () => {
 
       return;
     }
+
+    // TODO: Implment updating user information (changing password or username).
   });
 
   const changeFileHandler = (event: ChangeEvent<HTMLInputElement>) => {
@@ -89,13 +102,7 @@ const Settings = () => {
 
   return (
     <div>
-      <img
-        className="border"
-        src={preview || defaultImageUrl}
-        alt="avatar"
-        width={50}
-        height={50}
-      />
+      <img className="border" src={preview || defaultImageUrl} alt="avatar" width={50} height={50} />
 
       {imageError && <p>{imageError}</p>}
 
@@ -121,9 +128,7 @@ const Settings = () => {
           })}
           aria-invalid={errors.email ? "true" : "false"}
         />
-        {errors.email?.type === "taken" && (
-          <p role="alert">{errors.email.message}</p>
-        )}
+        {errors.email?.type === "taken" && <p role="alert">{errors.email.message}</p>}
         <label>Password</label>
         <input
           className="border"
@@ -133,9 +138,7 @@ const Settings = () => {
           })}
         />
 
-        {errors.password?.type === "match" && (
-          <p role="alert">{errors.password.message}</p>
-        )}
+        {errors.password?.type === "match" && <p role="alert">{errors.password.message}</p>}
 
         <label>ConfirmPassword</label>
         <input
@@ -153,9 +156,7 @@ const Settings = () => {
           })}
         />
 
-        {errors.username?.type === "taken" && (
-          <p role="alert">{errors.username.message}</p>
-        )}
+        {errors.username?.type === "taken" && <p role="alert">{errors.username.message}</p>}
 
         <button type="submit">Sign Up</button>
       </form>

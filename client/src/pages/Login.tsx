@@ -3,10 +3,10 @@ import { useForm } from "react-hook-form";
 
 import { useAuth } from "../context/AuthContext";
 
-type FormData = {
+interface FormData {
   email: string;
   password: string;
-};
+}
 
 const Login = () => {
   const auth = useAuth();
@@ -54,17 +54,11 @@ const Login = () => {
           aria-invalid={errors.email ? "true" : "false"}
         />
 
-        {errors.email?.type === "required" && (
-          <p role="alert">{errors.email.message}</p>
-        )}
+        {errors.email?.type === "required" && <p role="alert">{errors.email.message}</p>}
 
-        {errors.email?.type === "pattern" && (
-          <p role="alert">{errors.email.message}</p>
-        )}
+        {errors.email?.type === "pattern" && <p role="alert">{errors.email.message}</p>}
 
-        {errors.email?.type === "incorrect" && (
-          <p role="alert">{errors.email.message}</p>
-        )}
+        {errors.email?.type === "incorrect" && <p role="alert">{errors.email.message}</p>}
 
         <label>Password</label>
         <input
@@ -75,13 +69,9 @@ const Login = () => {
           })}
         />
 
-        {errors.password?.type === "required" && (
-          <p role="alert">{errors.password.message}</p>
-        )}
+        {errors.password?.type === "required" && <p role="alert">{errors.password.message}</p>}
 
-        {errors.password?.type === "incorrect" && (
-          <p role="alert">{errors.password.message}</p>
-        )}
+        {errors.password?.type === "incorrect" && <p role="alert">{errors.password.message}</p>}
 
         <button type="submit">Log In</button>
       </form>

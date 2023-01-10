@@ -3,12 +3,12 @@ import { useForm } from "react-hook-form";
 
 import { useAuth } from "../context/AuthContext";
 
-type FormData = {
+interface FormData {
   email: string;
   password: string;
   confirmPassword: string;
   username: string;
-};
+}
 
 const Register = () => {
   const auth = useAuth();
@@ -67,9 +67,7 @@ const Register = () => {
           })}
           aria-invalid={errors.email ? "true" : "false"}
         />
-        {errors.email?.type === "taken" && (
-          <p role="alert">{errors.email.message}</p>
-        )}
+        {errors.email?.type === "taken" && <p role="alert">{errors.email.message}</p>}
         <label>Password</label>
         <input
           className="border"
@@ -79,9 +77,7 @@ const Register = () => {
           })}
         />
 
-        {errors.password?.type === "match" && (
-          <p role="alert">{errors.password.message}</p>
-        )}
+        {errors.password?.type === "match" && <p role="alert">{errors.password.message}</p>}
 
         <label>ConfirmPassword</label>
         <input
@@ -99,9 +95,7 @@ const Register = () => {
           })}
         />
 
-        {errors.username?.type === "taken" && (
-          <p role="alert">{errors.username.message}</p>
-        )}
+        {errors.username?.type === "taken" && <p role="alert">{errors.username.message}</p>}
 
         <button type="submit">Sign Up</button>
       </form>

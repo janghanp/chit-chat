@@ -16,6 +16,7 @@ model User {
   username  String
   password  String
   avatar    String?
+  public_id String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

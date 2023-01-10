@@ -1,41 +1,39 @@
 import axios from "axios";
 import { useState, createContext, useContext, SetStateAction } from "react";
 
-type AuthSuccessResponse = {
+interface AuthSuccessResponse {
   email: string;
   username: string;
-};
+}
 
-type AuthErrorResponse = {
+interface AuthErrorResponse {
   message: string;
-};
+}
+// When a user creates an account for the first time, they don't have an avatar and public_id valuse.
+interface currentUserType {
+  username: string;
+  email: string;
+  avatar?: string;
+  public_id?: string;
+}
 
 interface AuthContextType {
-  currentUser: { username: string; email: string };
-  setCurrentUser: React.Dispatch<
-    SetStateAction<{ username: string; email: string }>
-  >;
+  currentUser: currentUserType;
+  setCurrentUser: React.Dispatch<SetStateAction<currentUserType>>;
   register: (
     email: string,
     password: string,
     username: string,
     callback: VoidFunction
   ) => Promise<AuthErrorResponse | null>;
-  login: (
-    email: string,
-    password: string,
-    callback: VoidFunction
-  ) => Promise<AuthErrorResponse | null>;
+  login: (email: string, password: string, callback: VoidFunction) => Promise<AuthErrorResponse | null>;
   logout: (callback: VoidFunction) => void;
 }
 
 let authContext = createContext<AuthContextType>({} as AuthContextType);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [currentUser, setCurrentUser] = useState<{
-    username: string;
-    email: string;
-  }>({ username: "", email: "" });
+  const [currentUser, setCurrentUser] = useState<currentUserType>({} as currentUserType);
 
   const register = async (
     email: string,
@@ -69,11 +67,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     return errorFromServer;
   };
 
-  const login = async (
-    email: string,
-    password: string,
-    callback: VoidFunction
-  ): Promise<AuthErrorResponse | null> => {
+  const login = async (email: string, password: string, callback: VoidFunction): Promise<AuthErrorResponse | null> => {
     let errorFromServer = null;
 
     try {
@@ -104,19 +98,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       await axios.delete("http://localhost:8080/logout", {
         withCredentials: true,
       });
-
-      callback();
     } catch (error) {
       console.log(error);
+    } finally {
+      callback();
     }
-
-    callback();
   };
 
   return (
-    <authContext.Provider
-      value={{ currentUser, setCurrentUser, register, login, logout }}
-    >
+    <authContext.Provider value={{ currentUser, setCurrentUser, register, login, logout }}>
       {children}
     </authContext.Provider>
   );

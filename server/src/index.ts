@@ -1,6 +1,6 @@
 import * as dotenv from "dotenv";
 dotenv.config();
-import express, { Request, Response } from "express";
+import express from "express";
 import morgan from "morgan";
 import http from "http";
 import { Server, Socket } from "socket.io";

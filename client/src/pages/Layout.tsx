@@ -1,10 +1,10 @@
 import { Outlet, Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
+import defaultAvatar from "/default.jpg";
+
 const Layout = () => {
   const auth = useAuth();
-
-  const navigate = useNavigate();
 
   return (
     <div className="drawer drawer-mobile">
@@ -26,6 +26,7 @@ const Layout = () => {
 
           {auth.currentUser.email && (
             <>
+              <img className="border" src={auth.currentUser.avatar || defaultAvatar} width={50} height={50} />
               <button
                 className="border"
                 onClick={() => {

@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
 
-export type TokenType = {
+export interface TokenType {
   email: string;
   username: string;
   iat: number;
