@@ -8,8 +8,8 @@ import axios from "axios";
 
 interface FormData {
   email: string;
-  password: string;
-  confirmPassword: string;
+  newPassword: string;
+  confirmNewPassword: string;
   username: string;
 }
 
@@ -18,6 +18,10 @@ export interface AxiosResponseWithUser {
   username: string;
   avatar: string;
   public_id: string;
+}
+
+interface AxiosResponseWithUsername {
+  username: string;
 }
 
 const Settings = () => {
@@ -49,7 +53,7 @@ const Settings = () => {
       const formData = new FormData();
       formData.append("file", image!);
 
-      const { data } = await axios.post<AxiosResponseWithUser>("http://localhost:8080/profile", formData, {
+      const { data } = await axios.post<AxiosResponseWithUser>("http://localhost:8080/user/profile", formData, {
         withCredentials: true,
       });
 
@@ -62,12 +66,12 @@ const Settings = () => {
     }
   }, [image]);
 
-  const onSubmit = handleSubmit(async (data) => {
-    const { email, password, confirmPassword, username } = data;
+  const onSubmit = handleSubmit(async (formData) => {
+    const { newPassword, confirmNewPassword, username } = formData;
 
     // Check if password and confirmPassword match
-    if (password !== confirmPassword) {
-      setError("password", {
+    if (newPassword !== confirmNewPassword) {
+      setError("newPassword", {
         type: "match",
         message: "Passwords should match",
       });
@@ -75,7 +79,27 @@ const Settings = () => {
       return;
     }
 
-    // TODO: Implment updating user information (changing password or username).
+    let dataToUpdate: { newPassword?: string; username?: string } = {};
+
+    // User trying to chagne their password.
+    if (newPassword && confirmNewPassword) {
+      dataToUpdate.newPassword = newPassword;
+    }
+
+    // User tyring to chagne their username.
+    if (username && username !== auth.currentUser.username) {
+      dataToUpdate.username = username;
+    }
+
+    // Send a http request
+    const { data } = await axios.patch<AxiosResponseWithUsername>("http://localhost:8080/user", dataToUpdate, {
+      withCredentials: true,
+    });
+
+    // Change currentUser state.
+    auth.setCurrentUser((prev) => ({ ...prev, username: data.username }));
+
+    navigate("/");
   });
 
   const changeFileHandler = (event: ChangeEvent<HTMLInputElement>) => {
@@ -128,26 +152,17 @@ const Settings = () => {
           })}
           aria-invalid={errors.email ? "true" : "false"}
         />
+
         {errors.email?.type === "taken" && <p role="alert">{errors.email.message}</p>}
-        <label>Password</label>
-        <input
-          className="border"
-          type="password"
-          {...register("password", {
-            required: { value: true, message: "Password is required" },
-          })}
-        />
 
-        {errors.password?.type === "match" && <p role="alert">{errors.password.message}</p>}
+        <label>New Password</label>
+        <input className="border" type="password" {...register("newPassword")} />
 
-        <label>ConfirmPassword</label>
-        <input
-          className="border"
-          type="password"
-          {...register("confirmPassword", {
-            required: { value: true, message: "Password is required" },
-          })}
-        />
+        {errors.newPassword?.type === "match" && <p role="alert">{errors.newPassword.message}</p>}
+
+        <label>Confirm New Password</label>
+        <input className="border" type="password" {...register("confirmNewPassword")} />
+
         <label>Username</label>
         <input
           className="border"

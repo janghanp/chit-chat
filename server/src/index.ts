@@ -9,7 +9,7 @@ import cookieParser from "cookie-parser";
 import cloudinary from "cloudinary";
 
 import authRoute from "./routes/authRoute";
-import profileRoute from "./routes/profileRoute";
+import userRoute from "./routes/userRoute";
 
 const app = express();
 
@@ -30,8 +30,9 @@ const io = new Server(server, {
   },
 });
 
-app.use(authRoute);
-app.use(profileRoute);
+// TODO: Add a prefix for these routes.
+app.use("/auth", authRoute);
+app.use("/user", userRoute);
 
 io.on("connect", (socket: Socket) => {
   console.log(`🔌 User connected  |  socket id: ${socket.id}`);

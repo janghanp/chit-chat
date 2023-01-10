@@ -2,8 +2,9 @@ import { Request, Response, Router } from "express";
 import { checkToken } from "../middleware/auth";
 import cloudinary from "cloudinary";
 import multer from "multer";
+import bcrypt from "bcryptjs";
 
-import { PrismaClient } from "@prisma/client";
+import { Prisma, PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
@@ -14,8 +15,42 @@ const uploader = multer({
 
 const router = Router();
 
+router.patch("/", checkToken, async (req: Request, res: Response) => {
+  const { email } = req.token;
+  const { newPassword, username } = req.body;
+
+  let data: Prisma.UserUpdateInput = {};
+
+  if (newPassword) {
+    // Hash newPassword
+    const salt = bcrypt.genSaltSync(10);
+    const hashedNewPassword = bcrypt.hashSync(newPassword, salt);
+
+    data.password = hashedNewPassword;
+  }
+
+  if (username) {
+    data.username = username;
+  }
+
+  try {
+    const user = await prisma.user.update({
+      where: {
+        email,
+      },
+      data,
+    });
+
+    return res.status(200).json({ username: user.username });
+  } catch (error) {
+    console.log(error);
+
+    return res.status(500).json({ message: "Something went wrong, please try again..." });
+  }
+});
+
 router.post("/profile", checkToken, uploader.single("file"), async (req: Request, res: Response) => {
-  const { username, email } = req.token;
+  const { email } = req.token;
 
   if (!req.file) {
     return res.status(500).json({ message: "Something went wrong, please try again..." });
@@ -25,6 +60,7 @@ router.post("/profile", checkToken, uploader.single("file"), async (req: Request
     // Upload an image to cloudinary.
     const upload = await cloudinary.v2.uploader.upload(req.file.path);
 
+    // Update a user with information from cloudinary.
     const user = await prisma.user.update({
       where: {
         email,

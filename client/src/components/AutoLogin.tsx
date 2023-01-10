@@ -14,7 +14,7 @@ const AutoLogin = () => {
     //send a http request if the current jwt token in cookie is still valid
     const refresh = async () => {
       try {
-        const { data } = await axios.get<AxiosResponseWithUser>("http://localhost:8080/refresh", {
+        const { data } = await axios.get<AxiosResponseWithUser>("http://localhost:8080/auth/refresh", {
           withCredentials: true,
         });
 

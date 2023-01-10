@@ -45,7 +45,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     try {
       const { data } = await axios.post<AuthSuccessResponse>(
-        "http://localhost:8080/register",
+        "http://localhost:8080/auth/register",
         {
           email,
           password,
@@ -72,7 +72,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     try {
       const { data } = await axios.post<AuthSuccessResponse>(
-        "http://localhost:8080/login",
+        "http://localhost:8080/auth/login",
         {
           email,
           password,
@@ -95,7 +95,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const logout = async (callback: VoidFunction) => {
     try {
-      await axios.delete("http://localhost:8080/logout", {
+      await axios.delete("http://localhost:8080/auth/logout", {
         withCredentials: true,
       });
     } catch (error) {
