@@ -4,15 +4,6 @@ import { io, Socket } from "socket.io-client";
 
 import { useAuth } from "../context/AuthContext";
 
-//TODO: Previous messages should be loaded.
-//TODO: Notify people who were already in the room that a new person has joined.
-//TODO: User should be able to send a mesasge.
-//TODO: Global socker instance. -> It dose not have to be global since it is used inside of Chat component. Children components of Chat can get it as a prop. if it is getting deep, use context then.
-
-//* Send a message to the server.
-//* Store the mesage in the chat table.
-//* Send back that message to the chat room.
-
 const Chat = () => {
   const params = useParams();
 
@@ -26,7 +17,7 @@ const Chat = () => {
     // Connect to the socket server.
     socketRef.current = io("http://localhost:8080");
 
-    // Join a specific room.
+    // Join a room.
     socketRef.current.emit("join_room", { roomName: params.roomName, username: auth.currentUser.username });
   }, []);
 
@@ -41,8 +32,6 @@ const Chat = () => {
 
     setMessage("");
   };
-
-  console.log("render");
 
   return (
     <div>
