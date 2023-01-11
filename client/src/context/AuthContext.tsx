@@ -2,6 +2,7 @@ import axios from "axios";
 import { useState, createContext, useContext, SetStateAction } from "react";
 
 interface AuthSuccessResponse {
+  id: string;
   email: string;
   username: string;
 }
@@ -11,6 +12,7 @@ export interface AuthErrorResponse {
 }
 // When a user creates an account for the first time, they don't have an avatar and public_id valuse.
 interface currentUserType {
+  id: string;
   username: string;
   email: string;
   avatar?: string;

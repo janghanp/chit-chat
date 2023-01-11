@@ -14,6 +14,7 @@ interface FormData {
 }
 
 export interface AxiosResponseWithUser {
+  id: string;
   email: string;
   username: string;
   avatar: string;

@@ -35,7 +35,7 @@ function App() {
               }
             />
             <Route
-              path="/chat/:roomId"
+              path="/chat/:roomName"
               element={
                 <RequireAuth>
                   <Chat />

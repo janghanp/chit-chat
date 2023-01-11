@@ -98,7 +98,13 @@ router.post("/profile", checkToken, uploader.single("file"), async (req: Request
 
     return res
       .status(200)
-      .json({ email: user.email, username: user.username, avatar: user.avatar, public_id: user.public_id });
+      .json({
+        id: user.id,
+        email: user.email,
+        username: user.username,
+        avatar: user.avatar,
+        public_id: user.public_id,
+      });
   } catch (error) {
     console.log(error);
 
