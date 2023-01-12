@@ -1,7 +1,8 @@
 import { Navigate, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 
-import { useAuth } from "../context/AuthContext";
+import useAuth, { isAuthSuccessResponse, isAuthErrorResponse } from "../hooks/useAuth";
+import { useUser } from "../context/UserContext";
 
 interface FormData {
   email: string;
@@ -9,9 +10,11 @@ interface FormData {
 }
 
 const Login = () => {
+  const navigate = useNavigate();
+
   const auth = useAuth();
 
-  const navigate = useNavigate();
+  const { currentUser, setCurrentUser } = useUser();
 
   const {
     register,
@@ -23,18 +26,20 @@ const Login = () => {
   const onSubmit = handleSubmit(async (data) => {
     const { email, password } = data;
 
-    const error = await auth.login(email, password, () => {
-      navigate("/");
-    });
+    const result = await auth.login(email, password);
 
-    // Set errors when failing to login with wrong credentials
-    if (error) {
-      setError("email", { type: "incorrect", message: error.message });
-      setError("password", { type: "incorrect", message: error.message });
+    if (isAuthSuccessResponse(result)) {
+      setCurrentUser(result);
+      navigate("/");
+    }
+
+    if (isAuthErrorResponse(result)) {
+      setError("email", { type: "incorrect", message: result.message });
+      setError("password", { type: "incorrect", message: result.message });
     }
   });
 
-  if (auth.currentUser.email) {
+  if (currentUser) {
     return <Navigate to={"/"}></Navigate>;
   }
 

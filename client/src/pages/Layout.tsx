@@ -1,17 +1,18 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { Outlet, Link, useNavigate } from "react-router-dom";
+import { Outlet, Link } from "react-router-dom";
 
-import { useAuth } from "../context/AuthContext";
+import { Chat } from "../types";
+import useAuth from "../hooks/useAuth";
+import { useUser } from "../context/UserContext";
 import defaultAvatar from "/default.jpg";
 
-interface Chat {
-  id: string;
-  name: string;
-}
-
+// TODO: How to update chats whene a user joins or leaves a chat room.
+// Put the chats data into the AuthContext.
 const Layout = () => {
   const auth = useAuth();
+
+  const { currentUser } = useUser();
 
   const [chats, steChats] = useState<Chat[]>([]);
 
@@ -53,15 +54,14 @@ const Layout = () => {
           </div>
 
           {/* User Info */}
-          {auth.currentUser.email && (
+          {currentUser.email && (
             <div>
-              <img className="border" src={auth.currentUser.avatar || defaultAvatar} width={50} height={50} />
+              <img className="border" src={currentUser.avatar || defaultAvatar} width={50} height={50} />
               <button
                 className="border w-full"
                 onClick={() => {
-                  auth.logout(() => {
-                    window.location.reload();
-                  });
+                  auth.logout();
+                  window.location.reload();
                 }}
               >
                 Log out

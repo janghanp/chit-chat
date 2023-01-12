@@ -1,6 +1,6 @@
 import { Routes, Route } from "react-router-dom";
 
-import { AuthProvider } from "../context/AuthContext";
+import { UserProvider } from "../context/UserContext";
 import RequireAuth from "../components/RequiredAuth";
 import Layout from "./Layout";
 import Home from "./Home";
@@ -13,7 +13,7 @@ import NoMatch from "./NoMatch";
 
 function App() {
   return (
-    <AuthProvider>
+    <UserProvider>
       <Routes>
         <Route element={<AutoLogin />}>
           {/* with Layout */}
@@ -51,7 +51,7 @@ function App() {
           <Route path="*" element={<NoMatch />} />
         </Route>
       </Routes>
-    </AuthProvider>
+    </UserProvider>
   );
 }
 

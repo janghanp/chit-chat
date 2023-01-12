@@ -1,10 +1,11 @@
 import { ChangeEvent, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
-
-import { AuthErrorResponse, useAuth } from "../context/AuthContext";
-import defaultImageUrl from "/default.jpg";
 import axios from "axios";
+
+import { AuthErrorResponse, AxiosResponseWithUser, AxiosResponseWithUsername } from "../types";
+import { useUser } from "../context/UserContext";
+import defaultImageUrl from "/default.jpg";
 
 interface FormData {
   email: string;
@@ -13,25 +14,13 @@ interface FormData {
   username: string;
 }
 
-export interface AxiosResponseWithUser {
-  id: string;
-  email: string;
-  username: string;
-  avatar: string;
-  public_id: string;
-}
-
-interface AxiosResponseWithUsername {
-  username: string;
-}
-
 const Settings = () => {
-  const auth = useAuth();
+  const { currentUser, setCurrentUser } = useUser();
 
   const navigate = useNavigate();
 
   const [image, setImage] = useState<File | null>();
-  const [preview, setPreview] = useState<string>(auth.currentUser.avatar || "");
+  const [preview, setPreview] = useState<string>(currentUser.avatar || "");
   const [imageError, setImageError] = useState<string>();
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
@@ -45,8 +34,8 @@ const Settings = () => {
     formState: { errors },
   } = useForm<FormData>({
     defaultValues: {
-      email: auth.currentUser.email,
-      username: auth.currentUser.username,
+      email: currentUser.email,
+      username: currentUser.username,
     },
   });
 
@@ -56,7 +45,7 @@ const Settings = () => {
   const watchConfirmNewPassword = watch("confirmNewPassword");
   const watchUsername = watch("username");
 
-  if ((auth.currentUser.username !== watchUsername && watchUsername) || watchNewPassword || watchConfirmNewPassword) {
+  if ((currentUser.username !== watchUsername && watchUsername) || watchNewPassword || watchConfirmNewPassword) {
     isDisable = false;
   }
 
@@ -67,14 +56,14 @@ const Settings = () => {
 
       const formData = new FormData();
       formData.append("file", image!);
-      formData.append("public_id", auth.currentUser.public_id || "");
+      formData.append("public_id", currentUser.public_id || "");
 
       const { data } = await axios.post<AxiosResponseWithUser>("http://localhost:8080/user/profile", formData, {
         withCredentials: true,
       });
 
-      // Chagne currentUser state in AuthContext.
-      auth.setCurrentUser(data);
+      // Chagne currentUser state in UserContext.
+      setCurrentUser(data);
 
       setIsLoading(false);
     };
@@ -106,9 +95,9 @@ const Settings = () => {
     }
 
     // User tyring to chagne their username.
-    if (username && username !== auth.currentUser.username) {
-      console.log(username, auth.currentUser.username);
-      
+    if (username && username !== currentUser.username) {
+      console.log(username, currentUser.username);
+
       dataToUpdate.username = username;
     }
 
@@ -118,7 +107,7 @@ const Settings = () => {
       });
 
       // Change currentUser state.
-      auth.setCurrentUser((prev) => ({ ...prev, username: data.username }));
+      setCurrentUser((prev) => ({ ...prev, username: data.username }));
 
       navigate("/");
     } catch (error) {

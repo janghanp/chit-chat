@@ -1,19 +1,16 @@
 import { Navigate, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 
-import { useAuth } from "../context/AuthContext";
-
-interface FormData {
-  email: string;
-  password: string;
-  confirmPassword: string;
-  username: string;
-}
+import { FormData } from "../types";
+import useAuth, { isAuthSuccessResponse, isAuthErrorResponse } from "../hooks/useAuth";
+import { useUser } from "../context/UserContext";
 
 const Register = () => {
+  const navigate = useNavigate();
+
   const auth = useAuth();
 
-  const navigate = useNavigate();
+  const { currentUser, setCurrentUser } = useUser();
 
   const {
     register,
@@ -35,20 +32,23 @@ const Register = () => {
       return;
     }
 
-    const error = await auth.register(email, password, username, () => {
-      navigate("/");
-    });
+    const result = await auth.register(email, password, username);
 
-    if (error) {
-      if (error.message.includes("email")) {
-        setError("email", { type: "taken", message: error.message });
-      } else if (error.message.includes("username")) {
-        setError("username", { type: "taken", message: error.message });
+    if (isAuthSuccessResponse(result)) {
+      setCurrentUser(result);
+      navigate("/");
+    }
+
+    if (isAuthErrorResponse(result)) {
+      if (result.message.includes("email")) {
+        setError("email", { type: "taken", message: result.message });
+      } else if (result.message.includes("username")) {
+        setError("username", { type: "taken", message: result.message });
       }
     }
   });
 
-  if (auth.currentUser.email) {
+  if (currentUser) {
     return <Navigate to={"/"}></Navigate>;
   }
 

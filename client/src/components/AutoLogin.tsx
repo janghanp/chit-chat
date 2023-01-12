@@ -1,24 +1,26 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { Outlet } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
 
-import { AxiosResponseWithUser } from "../pages/Settings";
+import { useUser } from "../context/UserContext";
+import { AxiosResponseWithUser } from "../types";
 
 const AutoLogin = () => {
-  const auth = useAuth();
+  const { setCurrentUser } = useUser();
 
   const [isAuthenticating, setIsAuthenticating] = useState<boolean>(true);
 
   useEffect(() => {
     //send a http request if the current jwt token in cookie is still valid
+    //? Putting this refresh function in the useAuth? -> it makes more sense.
+    //? Then isAuthentication state needs to be in useAuth.ts as well.
     const refresh = async () => {
       try {
         const { data } = await axios.get<AxiosResponseWithUser>("http://localhost:8080/auth/refresh", {
           withCredentials: true,
         });
 
-        auth.setCurrentUser({
+        setCurrentUser({
           id: data.id,
           username: data.username,
           email: data.email,

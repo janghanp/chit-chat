@@ -1,35 +1,23 @@
-import axios from "axios";
 import { useEffect, useRef, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import axios from "axios";
 import { io, Socket } from "socket.io-client";
 import { formatDistance } from "date-fns";
 
-import { AuthErrorResponse, useAuth } from "../context/AuthContext";
-
-interface MessageInfo {
-  id: string;
-  text: string;
-  senderId: string;
-  senderName: string;
-  createdAt: Date | string;
-}
-
-// TODO: User should be able to leave a chat completely.
-// Disconnect a socket.
-// Update Chat table.
-//? Messages that was created by a user that is trying to leave the room should be deleted as well? or leave them in a chat?
+import { AuthErrorResponse, Message } from "../types";
+import { useUser } from "../context/UserContext";
 
 const Chat = () => {
   const params = useParams();
 
-  const auth = useAuth();
+  const { currentUser } = useUser();
 
   const navigate = useNavigate();
 
   const socketRef = useRef<Socket>();
 
   const [message, setMessage] = useState<string>("");
-  const [messages, setMessages] = useState<MessageInfo[]>([]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   const setupSocket = () => {
@@ -37,10 +25,10 @@ const Chat = () => {
     socketRef.current = io("http://localhost:8080");
 
     // Join a specific room.
-    socketRef.current?.emit("join_room", { roomName: params.roomName, username: auth.currentUser.username });
+    socketRef.current?.emit("join_room", { roomName: params.roomName, username: currentUser.username });
 
     // Listen for "receive_message" event
-    socketRef.current?.on("receive_message", (data: MessageInfo) => {
+    socketRef.current?.on("receive_message", (data: Message) => {
       const { id, senderId, senderName, text, createdAt } = data;
 
       setMessages((prev) => [...prev, { id, senderId, senderName, text, createdAt }]);
@@ -105,9 +93,9 @@ const Chat = () => {
   const sendMessage = () => {
     // Send a message to the socket server.
     socketRef.current!.emit("send_message", {
-      senderId: auth.currentUser.id,
+      senderId: currentUser.id,
       roomName: params.roomName,
-      senderName: auth.currentUser.username,
+      senderName: currentUser.username,
       text: message,
     });
 
@@ -119,7 +107,7 @@ const Chat = () => {
 
     if (result) {
       // Leave the chat room.
-      socketRef.current?.emit("leave_room", { roomName: params.roomName, username: auth.currentUser.username });
+      socketRef.current?.emit("leave_room", { roomName: params.roomName, username: currentUser.username });
 
       // Since this component is going to be unomunted ouf of the dom, the clear function in useEffect is going to fire and consequently socket gets disconnected.
       navigate("/");

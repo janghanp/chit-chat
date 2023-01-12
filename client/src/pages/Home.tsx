@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
-import { AuthErrorResponse } from "../context/AuthContext";
+import { AuthErrorResponse } from "../types";
 
 const Home = () => {
   const [roomToCreate, setRoomToCreate] = useState<string>("");
