@@ -13,7 +13,6 @@ interface MessageInfo {
   senderName: string;
   createdAt: Date | string;
 }
-// TODO: Show the previous messages when a new user entered the room.
 const Chat = () => {
   const params = useParams();
 
@@ -27,7 +26,7 @@ const Chat = () => {
   const [messages, setMessages] = useState<MessageInfo[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  const connectSocket = () => {
+  const setupSocket = () => {
     // Connect to the socket server.
     socketRef.current = io("http://localhost:8080");
 
@@ -43,12 +42,37 @@ const Chat = () => {
   };
 
   useEffect(() => {
-    // Check the presence of a chat room.
+    const fetchMessages = async () => {
+      const { data } = await axios.get("http://localhost:8080/chat/messages", {
+        params: { roomName: params.roomName },
+        withCredentials: true,
+      });
+
+      console.log(data);
+
+      const previousMessage = data.map((message: any) => {
+        return {
+          id: message.id,
+          text: message.text,
+          createdAt: message.createdAt,
+          senderId: message.senderId,
+          senderName: message.sender.username,
+        };
+      });
+
+      setMessages(previousMessage);
+    };
+
     const checkThePresenceOfChat = async () => {
       try {
+        // Check the presence of a chat room.
         await axios.get("http://localhost:8080/chat", { params: { roomName: params.roomName }, withCredentials: true });
 
-        connectSocket();
+        // Connect a socket and register events for later use.
+        setupSocket();
+
+        // Set previous messages.
+        fetchMessages();
       } catch (error) {
         if (axios.isAxiosError(error) && error.response?.status === 400) {
           //No chat room found to join
@@ -72,7 +96,7 @@ const Chat = () => {
     return () => {
       socketRef.current?.disconnect();
     };
-  }, []);
+  }, [params.roomName]);
 
   const sendMessage = () => {
     // Send a message to the socket server.

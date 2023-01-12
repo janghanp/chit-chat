@@ -28,6 +28,35 @@ router.get("/", async (req: Request, res: Response) => {
   }
 });
 
+router.get("/messages", async (req: Request, res: Response) => {
+  const { roomName } = req.query;
+
+  try {
+    const chat = await prisma.chat.findUnique({
+      where: {
+        name: roomName as string,
+      },
+      include: {
+        messages: {
+          include: {
+            sender: true,
+          },
+        },
+      },
+    });
+
+    if (!chat) {
+      return res.status(400).json({ message: "No chat found" });
+    }
+
+    return res.status(200).json(chat.messages);
+  } catch (error) {
+    console.log(error);
+
+    return res.sendStatus(500);
+  }
+});
+
 router.post("/", async (req: Request, res: Response) => {
   const { roomName }: { roomName: string } = req.body;
 
