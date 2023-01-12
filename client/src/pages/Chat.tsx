@@ -2,8 +2,17 @@ import axios from "axios";
 import { useEffect, useRef, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { io, Socket } from "socket.io-client";
+import { formatDistance, subDays } from "date-fns";
 
 import { AuthErrorResponse, useAuth } from "../context/AuthContext";
+
+interface MessageInfo {
+  id: string;
+  text: string;
+  senderId: string;
+  senderName: string;
+  createdAt: Date | string;
+}
 
 const Chat = () => {
   const params = useParams();
@@ -15,6 +24,7 @@ const Chat = () => {
   const socketRef = useRef<Socket>();
 
   const [message, setMessage] = useState<string>("");
+  const [messages, setMessages] = useState<MessageInfo[]>([]);
 
   const connectSocket = () => {
     // Connect to the socket server.
@@ -22,6 +32,13 @@ const Chat = () => {
 
     // Join a specific room.
     socketRef.current?.emit("join_room", { roomName: params.roomName, username: auth.currentUser.username });
+
+    // Listen for "receive_message" event
+    socketRef.current?.on("receive_message", (data: MessageInfo) => {
+      const { id, senderId, senderName, text, createdAt } = data;
+
+      setMessages((prev) => [...prev, { id, senderId, senderName, text, createdAt }]);
+    });
   };
 
   useEffect(() => {
@@ -57,9 +74,9 @@ const Chat = () => {
   const sendMessage = () => {
     // Send a message to the socket server.
     socketRef.current!.emit("send_message", {
-      userId: auth.currentUser.id,
+      senderId: auth.currentUser.id,
       roomName: params.roomName,
-      username: auth.currentUser.username,
+      senderName: auth.currentUser.username,
       text: message,
     });
 
@@ -69,6 +86,17 @@ const Chat = () => {
   return (
     <div>
       <p>Chat room</p>
+
+      {messages &&
+        messages.map((msg) => {
+          return (
+            <div key={msg.id}>
+              <p>{msg.senderName}</p>
+              <p>{formatDistance(new Date(msg.createdAt), Date.now(), { addSuffix: true })}</p>
+            </div>
+          );
+        })}
+
       <input className="border" type="text" value={message} onChange={(e) => setMessage(e.target.value)} />
       <button className="border" onClick={sendMessage}>
         Send

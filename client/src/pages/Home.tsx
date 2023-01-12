@@ -5,8 +5,8 @@ import axios from "axios";
 import { AuthErrorResponse } from "../context/AuthContext";
 
 const Home = () => {
-  const [roomToCreate, setRoomToCreate] = useState<string>();
-  const [roomToJoin, setRoomToJoin] = useState<string>();
+  const [roomToCreate, setRoomToCreate] = useState<string>("");
+  const [roomToJoin, setRoomToJoin] = useState<string>("");
 
   const navigate = useNavigate();
 

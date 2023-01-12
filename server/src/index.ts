@@ -20,9 +20,9 @@ interface JoinRoom {
 }
 
 interface Message {
-  userId: string;
+  senderId: string;
   roomName: string;
-  username: string;
+  senderName: string;
   text: string;
 }
 
@@ -113,29 +113,42 @@ io.on("connect", (socket: Socket) => {
   });
 
   socket.on("send_message", async (data: Message) => {
-    const { text, userId } = data;
+    const { text, senderId, senderName } = data;
 
-    // Create Message
-    const message = await prisma.message.create({
-      data: {
-        text,
-        senderId: userId,
-      },
-    });
+    try {
+      // Create Message
+      const message = await prisma.message.create({
+        data: {
+          text,
+          senderId,
+        },
+      });
 
-    // Update Chat table
-    const chat = await prisma.chat.update({
-      where: {
-        name: data.roomName,
-      },
-      data: {
-        messages: {
-          connect: {
-            id: message.id,
+      // Update Chat table by connecting a message to the chat table.
+      const chat = await prisma.chat.update({
+        where: {
+          name: data.roomName,
+        },
+        data: {
+          messages: {
+            connect: {
+              id: message.id,
+            },
           },
         },
-      },
-    });
+      });
+
+      // Send back a message that was just created to the client so that everyone in the chat room can see the message on the screen.
+      io.to(chat.name).emit("receive_message", {
+        id: message.id,
+        text: message.text,
+        senderId,
+        senderName,
+        createdAt: message.createdAt,
+      });
+    } catch (error) {
+      console.log(error);
+    }
   });
 
   socket.on("disconnect", () => {
@@ -156,7 +169,6 @@ io.on("connect", (socket: Socket) => {
       }
     }
 
-    console.log(usersWithSockets);
     console.log(`👋 User disconnected  |  socket id: ${socket.id}`);
     console.log("-------------------------------------------------------------");
     console.log("\n");
