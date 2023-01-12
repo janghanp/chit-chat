@@ -14,7 +14,7 @@ import authRoute from "./routes/authRoute";
 import userRoute from "./routes/userRoute";
 import chatRoute from "./routes/chatRoute";
 
-interface JoinRoom {
+interface Room {
   username: string;
   roomName: string;
 }
@@ -61,7 +61,7 @@ const usersWithSockets: UserWithSockets[] = [];
 io.on("connect", (socket: Socket) => {
   console.log(`🔌 User connected  |  socket id: ${socket.id}`);
 
-  socket.on("join_room", async (data: JoinRoom) => {
+  socket.on("join_room", async (data: Room) => {
     const targetIndex = usersWithSockets.findIndex((userWithSockets) => userWithSockets.username === data.username);
 
     if (targetIndex >= 0) {
@@ -151,6 +151,27 @@ io.on("connect", (socket: Socket) => {
     }
   });
 
+  socket.on("leave_room", async (data: Room) => {
+    // Update Chat table by disconnecting a user from a chat.
+    await prisma.chat.update({
+      where: {
+        name: data.roomName,
+      },
+      data: {
+        users: {
+          disconnect: {
+            username: data.username,
+          },
+        },
+      },
+    });
+
+    socket.leave(data.roomName);
+    console.log(`👻 ${data.username} with ID: ${socket.id} left room: ${data.roomName}`);
+
+    console.log(usersWithSockets);
+  });
+
   socket.on("disconnect", () => {
     // Remove the socketId from usersWithSocketIds array.
     for (const [index, userWithSockets] of usersWithSockets.entries()) {
@@ -169,6 +190,7 @@ io.on("connect", (socket: Socket) => {
       }
     }
 
+    console.log(usersWithSockets);
     console.log(`👋 User disconnected  |  socket id: ${socket.id}`);
     console.log("-------------------------------------------------------------");
     console.log("\n");

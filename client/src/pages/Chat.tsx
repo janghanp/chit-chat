@@ -2,7 +2,7 @@ import axios from "axios";
 import { useEffect, useRef, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { io, Socket } from "socket.io-client";
-import { formatDistance, subDays } from "date-fns";
+import { formatDistance } from "date-fns";
 
 import { AuthErrorResponse, useAuth } from "../context/AuthContext";
 
@@ -13,6 +13,12 @@ interface MessageInfo {
   senderName: string;
   createdAt: Date | string;
 }
+
+// TODO: User should be able to leave a chat completely.
+// Disconnect a socket.
+// Update Chat table.
+//? Messages that was created by a user that is trying to leave the room should be deleted as well? or leave them in a chat?
+
 const Chat = () => {
   const params = useParams();
 
@@ -47,8 +53,6 @@ const Chat = () => {
         params: { roomName: params.roomName },
         withCredentials: true,
       });
-
-      console.log(data);
 
       const previousMessage = data.map((message: any) => {
         return {
@@ -110,19 +114,34 @@ const Chat = () => {
     setMessage("");
   };
 
+  const leaveChat = () => {
+    const result = confirm("Are you sure you want to leave the chat?");
+
+    if (result) {
+      // Leave the chat room.
+      socketRef.current?.emit("leave_room", { roomName: params.roomName, username: auth.currentUser.username });
+
+      // Since this component is going to be unomunted ouf of the dom, the clear function in useEffect is going to fire and consequently socket gets disconnected.
+      navigate("/");
+    }
+  };
+
   if (isLoading) {
     return <div>Loading...</div>;
   }
 
   return (
     <div>
-      <p>Chat room</p>
+      <button className="border p-2 rounded-md" onClick={leaveChat}>
+        Leave
+      </button>
 
       {messages &&
         messages.map((msg) => {
           return (
             <div key={msg.id}>
               <p>{msg.senderName}</p>
+              <p>{msg.text}</p>
               <p>{formatDistance(new Date(msg.createdAt), Date.now(), { addSuffix: true })}</p>
             </div>
           );
