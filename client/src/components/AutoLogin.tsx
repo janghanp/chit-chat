@@ -19,6 +19,7 @@ const AutoLogin = () => {
         });
 
         auth.setCurrentUser({
+          id: data.id,
           username: data.username,
           email: data.email,
           avatar: data.avatar,

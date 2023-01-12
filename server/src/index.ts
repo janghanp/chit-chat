@@ -51,22 +51,31 @@ app.use("/auth", authRoute);
 app.use("/user", userRoute);
 app.use("/chat", checkToken, chatRoute);
 
+interface UserWithSockets {
+  username: string;
+  socketIds: string[];
+}
+
+const usersWithSockets: UserWithSockets[] = [];
+
 io.on("connect", (socket: Socket) => {
   console.log(`🔌 User connected  |  socket id: ${socket.id}`);
 
   socket.on("join_room", async (data: JoinRoom) => {
-    try {
-      //Check wether the chat room that a user is trying to join exsits.
-      const chatUserTryingToJoin = await prisma.chat.findUnique({
-        where: {
-          name: data.roomName,
-        },
-      });
+    const targetIndex = usersWithSockets.findIndex((userWithSockets) => userWithSockets.username === data.username);
 
-      if (!chatUserTryingToJoin) {
-        throw new Error("No chat room found");
-        //? Emit error event?
-      }
+    if (targetIndex >= 0) {
+      // Whene there is an existing user.
+      usersWithSockets[targetIndex].socketIds.push(socket.id);
+    } else {
+      // A new user connection established.
+      usersWithSockets.push({ username: data.username, socketIds: [socket.id] });
+    }
+
+    console.log(usersWithSockets);
+
+    try {
+      // Checking the presence of a chat room was done on the client side right befor this logic by sending a http request.
 
       // Subscribe the socket channel
       socket.join(data.roomName);
@@ -96,16 +105,17 @@ io.on("connect", (socket: Socket) => {
         },
       });
 
-      console.log(`📦 ${data.username} with ID: ${socket.id} joined room: ${data.roomName}`);
+      console.log(`💬 ${data.username} with ID: ${socket.id} joined room: ${data.roomName}`);
+      console.log("\n");
     } catch (error) {
       console.log(error);
     }
   });
 
   socket.on("send_message", async (data: Message) => {
-    // Create Message
     const { text, userId } = data;
 
+    // Create Message
     const message = await prisma.message.create({
       data: {
         text,
@@ -113,12 +123,43 @@ io.on("connect", (socket: Socket) => {
       },
     });
 
-    // Send back the message to the chat room
-    // socket.to(data.room).emit("receive_message", data);
+    // Update Chat table
+    const chat = await prisma.chat.update({
+      where: {
+        name: data.roomName,
+      },
+      data: {
+        messages: {
+          connect: {
+            id: message.id,
+          },
+        },
+      },
+    });
   });
 
   socket.on("disconnect", () => {
-    console.log("👋 User disconnected");
+    // Remove the socketId from usersWithSocketIds array.
+    for (const [index, userWithSockets] of usersWithSockets.entries()) {
+      const targetIndex = userWithSockets.socketIds.findIndex((socketId) => {
+        return socketId === socket.id;
+      });
+
+      if (targetIndex >= 0) {
+        userWithSockets.socketIds.splice(targetIndex, 1);
+
+        if (userWithSockets.socketIds.length === 0) {
+          usersWithSockets.splice(index, 1);
+        }
+
+        break;
+      }
+    }
+
+    console.log(usersWithSockets);
+    console.log(`👋 User disconnected  |  socket id: ${socket.id}`);
+    console.log("-------------------------------------------------------------");
+    console.log("\n");
   });
 });
 

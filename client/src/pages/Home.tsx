@@ -15,24 +15,8 @@ const Home = () => {
       return;
     }
 
-    // Check the presence of a chat room.
-    try {
-      await axios.get("http://localhost:8080/chat", { params: { roomName: roomToJoin }, withCredentials: true });
-
-      // A chat room found and redirect a user to the Chat page.
-      navigate(`/chat/${roomToJoin}`);
-    } catch (error) {
-      if (axios.isAxiosError(error) && error.response?.status === 400) {
-        //No chat room found to join
-        const serverError = error.response.data as AuthErrorResponse;
-        alert(serverError.message);
-        return;
-      } else if (error instanceof Error) {
-        console.log(error);
-      }
-    } finally {
-      setRoomToJoin("");
-    }
+    navigate(`/chat/${roomToJoin}`);
+    setRoomToJoin("");
   };
 
   const createRoom = async () => {

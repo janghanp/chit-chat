@@ -32,7 +32,7 @@ model Message {
   senderId String
   sender   User   @relation(fields: [senderId], references: [id])
 
-  cahts Chat[]
+  chats Chat[]
 }
 
 model Chat {
