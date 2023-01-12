@@ -1,10 +1,33 @@
+import axios from "axios";
+import { useEffect, useState } from "react";
 import { Outlet, Link, useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
 
+import { useAuth } from "../context/AuthContext";
 import defaultAvatar from "/default.jpg";
+
+interface Chat {
+  id: string;
+  name: string;
+}
 
 const Layout = () => {
   const auth = useAuth();
+
+  const [chats, steChats] = useState<Chat[]>([]);
+
+  useEffect(() => {
+    const fetchChats = async () => {
+      const { data } = await axios.get("http://localhost:8080/user/chats", { withCredentials: true });
+
+      const chtasIdName = data.chats.map((chat: any) => {
+        return { id: chat.id, name: chat.name };
+      });
+
+      steChats(chtasIdName);
+    };
+
+    fetchChats();
+  }, []);
 
   return (
     <div className="drawer drawer-mobile">
@@ -19,12 +42,14 @@ const Layout = () => {
         <ul className="menu p-4 w-80 bg-base-100 text-base-content flex flex-col justify-between">
           {/* Room list */}
           <div>
-            <li>
-              <a>Room 1</a>
-            </li>
-            <li>
-              <a>Room 2</a>
-            </li>
+            {chats &&
+              chats.map((chat) => {
+                return (
+                  <li key={chat.id}>
+                    <Link to={`/chat/${chat.name}`}>{chat.name}</Link>
+                  </li>
+                );
+              })}
           </div>
 
           {/* User Info */}

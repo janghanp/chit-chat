@@ -13,7 +13,7 @@ interface MessageInfo {
   senderName: string;
   createdAt: Date | string;
 }
-
+// TODO: Show the previous messages when a new user entered the room.
 const Chat = () => {
   const params = useParams();
 
@@ -25,6 +25,7 @@ const Chat = () => {
 
   const [message, setMessage] = useState<string>("");
   const [messages, setMessages] = useState<MessageInfo[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   const connectSocket = () => {
     // Connect to the socket server.
@@ -59,12 +60,14 @@ const Chat = () => {
         } else if (error instanceof Error) {
           console.log(error);
         }
+      } finally {
+        setIsLoading(false);
       }
     };
 
     checkThePresenceOfChat();
 
-    // When a user is moving between pages, get rid of the previous socket instance and then establish new connection.
+    // When a user is moving between pages in the same tab, get rid of the previous socket instance and then establish a new connection.
     // This is different from leaving chat room. It is just changing socket instance but stay in the chat room.
     return () => {
       socketRef.current?.disconnect();
@@ -82,6 +85,10 @@ const Chat = () => {
 
     setMessage("");
   };
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div>

@@ -15,6 +15,31 @@ const uploader = multer({
 
 const router = Router();
 
+router.get("/chats", checkToken, async (req: Request, res: Response) => {
+  const { email } = req.token;
+
+  try {
+    const user = await prisma.user.findUnique({
+      where: {
+        email,
+      },
+      include: {
+        chats: true,
+      },
+    });
+
+    if (!user) {
+      return res.status(400).json({ message: "No user found" });
+    }
+
+    return res.status(200).json(user);
+  } catch (error) {
+    console.log(error);
+
+    return res.status(500).json({ message: "Something went wrong, please try again..." });
+  }
+});
+
 router.patch("/", checkToken, async (req: Request, res: Response) => {
   const { email } = req.token;
   const { newPassword, username } = req.body;
@@ -96,15 +121,13 @@ router.post("/profile", checkToken, uploader.single("file"), async (req: Request
       },
     });
 
-    return res
-      .status(200)
-      .json({
-        id: user.id,
-        email: user.email,
-        username: user.username,
-        avatar: user.avatar,
-        public_id: user.public_id,
-      });
+    return res.status(200).json({
+      id: user.id,
+      email: user.email,
+      username: user.username,
+      avatar: user.avatar,
+      public_id: user.public_id,
+    });
   } catch (error) {
     console.log(error);
 
