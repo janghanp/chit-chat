@@ -10,7 +10,7 @@ import { useUser } from "../context/UserContext";
 const Chat = () => {
   const params = useParams();
 
-  const { currentUser } = useUser();
+  const { currentUser, setCurrentUser } = useUser();
 
   const navigate = useNavigate();
 
@@ -25,7 +25,7 @@ const Chat = () => {
     socketRef.current = io("http://localhost:8080");
 
     // Join a specific room.
-    socketRef.current?.emit("join_room", { roomName: params.roomName, username: currentUser.username });
+    socketRef.current?.emit("join_room", { roomName: params.roomName, username: currentUser!.username });
 
     // Listen for "receive_message" event
     socketRef.current?.on("receive_message", (data: Message) => {
@@ -58,10 +58,21 @@ const Chat = () => {
     const checkThePresenceOfChat = async () => {
       try {
         // Check the presence of a chat room.
-        await axios.get("http://localhost:8080/chat", { params: { roomName: params.roomName }, withCredentials: true });
+        const { data } = await axios.get("http://localhost:8080/chat", {
+          params: { roomName: params.roomName },
+          withCredentials: true,
+        });
 
         // Connect a socket and register events for later use.
         setupSocket();
+
+        // Add a chat room in the sidebar conditionally.
+        if (currentUser?.chats?.findIndex((chat) => chat.name === params.roomName) === -1) {
+          setCurrentUser({
+            ...currentUser!,
+            chats: [...currentUser!.chats!, { name: data.name, id: data.id }],
+          });
+        }
 
         // Set previous messages.
         fetchMessages();
@@ -93,9 +104,9 @@ const Chat = () => {
   const sendMessage = () => {
     // Send a message to the socket server.
     socketRef.current!.emit("send_message", {
-      senderId: currentUser.id,
+      senderId: currentUser!.id,
       roomName: params.roomName,
-      senderName: currentUser.username,
+      senderName: currentUser!.username,
       text: message,
     });
 
@@ -107,7 +118,13 @@ const Chat = () => {
 
     if (result) {
       // Leave the chat room.
-      socketRef.current?.emit("leave_room", { roomName: params.roomName, username: currentUser.username });
+      socketRef.current?.emit("leave_room", { roomName: params.roomName, username: currentUser!.username });
+
+      // Remove chat room from user context.
+      setCurrentUser({
+        ...currentUser!,
+        chats: currentUser!.chats?.filter((chat) => chat.name !== params.roomName),
+      });
 
       // Since this component is going to be unomunted ouf of the dom, the clear function in useEffect is going to fire and consequently socket gets disconnected.
       navigate("/");

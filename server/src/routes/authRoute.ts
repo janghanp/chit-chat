@@ -135,15 +135,13 @@ router.get("/refresh", async (req: Request, res: Response) => {
           httpOnly: true,
         });
 
-        return res
-          .status(200)
-          .json({
-            id: user.id,
-            username: user.username,
-            email: user.email,
-            avatar: user.avatar,
-            public_id: user.public_id,
-          });
+        return res.status(200).json({
+          id: user.id,
+          username: user.username,
+          email: user.email,
+          avatar: user.avatar,
+          public_id: user.public_id,
+        });
       }
     }
   } catch (error) {

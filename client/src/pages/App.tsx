@@ -16,7 +16,6 @@ function App() {
     <UserProvider>
       <Routes>
         <Route element={<AutoLogin />}>
-          {/* with Layout */}
           <Route path="/" element={<Layout />}>
             <Route
               index
@@ -43,7 +42,6 @@ function App() {
               }
             />
           </Route>
-          {/* with Layout */}
 
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />

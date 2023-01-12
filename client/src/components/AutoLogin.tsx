@@ -1,6 +1,6 @@
-import axios from "axios";
 import { useEffect, useState } from "react";
 import { Outlet } from "react-router-dom";
+import axios from "axios";
 
 import { useUser } from "../context/UserContext";
 import { AxiosResponseWithUser } from "../types";
@@ -20,13 +20,15 @@ const AutoLogin = () => {
           withCredentials: true,
         });
 
-        setCurrentUser({
-          id: data.id,
-          username: data.username,
-          email: data.email,
-          avatar: data.avatar,
-          public_id: data.public_id,
-        });
+        if (data.email) {
+          setCurrentUser({
+            id: data.id,
+            username: data.username,
+            email: data.email,
+            avatar: data.avatar,
+            public_id: data.public_id,
+          });
+        }
       } catch (error) {
         console.log(error);
       } finally {

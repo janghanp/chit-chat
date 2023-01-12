@@ -3,14 +3,14 @@ import React, { createContext, SetStateAction, useContext, useState } from "reac
 import { CurrentUser } from "../types";
 
 interface UserContextType {
-  currentUser: CurrentUser;
-  setCurrentUser: React.Dispatch<SetStateAction<CurrentUser>>;
+  currentUser: CurrentUser | null;
+  setCurrentUser: React.Dispatch<SetStateAction<CurrentUser | null>>;
 }
 
-const userContext = createContext({} as UserContextType);
+const userContext = createContext<UserContextType>({} as UserContextType);
 
 export const UserProvider = ({ children }: { children: React.ReactNode }) => {
-  const [currentUser, setCurrentUser] = useState<CurrentUser>({} as CurrentUser);
+  const [currentUser, setCurrentUser] = useState<CurrentUser | null>(null);
 
   return <userContext.Provider value={{ currentUser, setCurrentUser }}>{children}</userContext.Provider>;
 };

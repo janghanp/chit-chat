@@ -12,9 +12,7 @@ import defaultAvatar from "/default.jpg";
 const Layout = () => {
   const auth = useAuth();
 
-  const { currentUser } = useUser();
-
-  const [chats, steChats] = useState<Chat[]>([]);
+  const { currentUser, setCurrentUser } = useUser();
 
   useEffect(() => {
     const fetchChats = async () => {
@@ -24,7 +22,7 @@ const Layout = () => {
         return { id: chat.id, name: chat.name };
       });
 
-      steChats(chtasIdName);
+      setCurrentUser({ ...currentUser!, chats: chtasIdName });
     };
 
     fetchChats();
@@ -43,8 +41,9 @@ const Layout = () => {
         <ul className="menu p-4 w-80 bg-base-100 text-base-content flex flex-col justify-between">
           {/* Room list */}
           <div>
-            {chats &&
-              chats.map((chat) => {
+            {currentUser &&
+              currentUser.chats &&
+              currentUser.chats.map((chat) => {
                 return (
                   <li key={chat.id}>
                     <Link to={`/chat/${chat.name}`}>{chat.name}</Link>
@@ -54,7 +53,7 @@ const Layout = () => {
           </div>
 
           {/* User Info */}
-          {currentUser.email && (
+          {currentUser && currentUser.email && (
             <div>
               <img className="border" src={currentUser.avatar || defaultAvatar} width={50} height={50} />
               <button

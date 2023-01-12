@@ -20,7 +20,7 @@ router.get("/", async (req: Request, res: Response) => {
       return res.status(400).json({ message: "No chat room found" });
     }
 
-    return res.sendStatus(200);
+    return res.status(200).json(chat);
   } catch (error) {
     console.log(error);
 
