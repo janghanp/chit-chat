@@ -43,8 +43,6 @@ const Login = () => {
     return <Navigate to={"/"}></Navigate>;
   }
 
-  console.log(currentUser);
-
   return (
     <div>
       <form onSubmit={onSubmit}>
