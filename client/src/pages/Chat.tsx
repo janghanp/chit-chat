@@ -113,7 +113,6 @@ const Chat = () => {
     setMessage("");
   };
 
-  // TODO: How to manage a chat when there is on one left in the chat.
   const leaveChat = () => {
     const result = confirm("Are you sure you want to leave the chat?");
 

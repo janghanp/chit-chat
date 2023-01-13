@@ -20,7 +20,7 @@ const Settings = () => {
   const navigate = useNavigate();
 
   const [image, setImage] = useState<File | null>();
-  const [preview, setPreview] = useState<string>(currentUser.avatar || "");
+  const [preview, setPreview] = useState<string>(currentUser!.avatar || "");
   const [imageError, setImageError] = useState<string>();
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
@@ -34,8 +34,8 @@ const Settings = () => {
     formState: { errors },
   } = useForm<FormData>({
     defaultValues: {
-      email: currentUser.email,
-      username: currentUser.username,
+      email: currentUser!.email,
+      username: currentUser!.username,
     },
   });
 
@@ -45,7 +45,7 @@ const Settings = () => {
   const watchConfirmNewPassword = watch("confirmNewPassword");
   const watchUsername = watch("username");
 
-  if ((currentUser.username !== watchUsername && watchUsername) || watchNewPassword || watchConfirmNewPassword) {
+  if ((currentUser!.username !== watchUsername && watchUsername) || watchNewPassword || watchConfirmNewPassword) {
     isDisable = false;
   }
 
@@ -56,7 +56,7 @@ const Settings = () => {
 
       const formData = new FormData();
       formData.append("file", image!);
-      formData.append("public_id", currentUser.public_id || "");
+      formData.append("public_id", currentUser!.public_id || "");
 
       const { data } = await axios.post<AxiosResponseWithUser>("http://localhost:8080/user/profile", formData, {
         withCredentials: true,
@@ -95,8 +95,8 @@ const Settings = () => {
     }
 
     // User tyring to chagne their username.
-    if (username && username !== currentUser.username) {
-      console.log(username, currentUser.username);
+    if (username && username !== currentUser!.username) {
+      console.log(username, currentUser!.username);
 
       dataToUpdate.username = username;
     }
@@ -107,7 +107,7 @@ const Settings = () => {
       });
 
       // Change currentUser state.
-      setCurrentUser((prev) => ({ ...prev, username: data.username }));
+      setCurrentUser((prev) => ({ ...prev!, username: data.username }));
 
       navigate("/");
     } catch (error) {

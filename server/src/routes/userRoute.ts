@@ -119,6 +119,9 @@ router.post("/profile", checkToken, uploader.single("file"), async (req: Request
         avatar: upload.secure_url,
         public_id: upload.public_id,
       },
+      include: {
+        chats: true,
+      },
     });
 
     return res.status(200).json({
@@ -127,6 +130,7 @@ router.post("/profile", checkToken, uploader.single("file"), async (req: Request
       username: user.username,
       avatar: user.avatar,
       public_id: user.public_id,
+      chats: user.chats,
     });
   } catch (error) {
     console.log(error);

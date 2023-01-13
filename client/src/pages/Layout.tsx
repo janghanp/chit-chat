@@ -40,6 +40,8 @@ const Layout = () => {
     try {
       await axios.post("http://localhost:8080/chat", { roomName: roomName }, { withCredentials: true });
 
+      setToggleModal(false);
+
       // A chat room has been created and redirect a user to the Chat page.
       navigate(`/chat/${roomName}`);
     } catch (error) {
@@ -87,7 +89,7 @@ const Layout = () => {
             {currentUser && currentUser.email && (
               <div>
                 <button className="border p-2 rounded-md" onClick={() => setToggleModal(!toggleModal)}>
-                  Creaet a server
+                  Creaet a chat
                 </button>
                 <img className="border" src={currentUser.avatar || defaultAvatar} width={50} height={50} />
                 <button
@@ -118,9 +120,9 @@ const Layout = () => {
             }}
           ></div>
           <div className="fixed border z-20 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-white">
-            <label>Create a room</label>
+            <label>Create a chat</label>
             <input className="border" type="text" value={roomName} onChange={(e) => setRoomName(e.target.value)} />
-            <button onClick={createChat}>Creat a room</button>
+            <button onClick={createChat}>Creat a chat</button>
           </div>
         </>
       )}

@@ -56,6 +56,7 @@ interface UserWithSockets {
   socketIds: string[];
 }
 
+//? What am I using this for? I am anyway sending a new message to the chat room so any sockets that are connected to the romm are going to be notified. Then what is this for?
 const usersWithSockets: UserWithSockets[] = [];
 
 io.on("connect", (socket: Socket) => {
@@ -153,7 +154,7 @@ io.on("connect", (socket: Socket) => {
 
   socket.on("leave_room", async (data: Room) => {
     // Update Chat table by disconnecting a user from a chat.
-    await prisma.chat.update({
+    const chat = await prisma.chat.update({
       where: {
         name: data.roomName,
       },
@@ -164,7 +165,21 @@ io.on("connect", (socket: Socket) => {
           },
         },
       },
+      include: {
+        users: true,
+      },
     });
+
+    if (chat.users.length === 0) {
+      // Delete a chat when there is no user left in the chat.
+      const result = await prisma.chat.delete({
+        where: {
+          name: data.roomName,
+        },
+      });
+
+      console.log(result);
+    }
 
     socket.leave(data.roomName);
     console.log(`👻 ${data.username} with ID: ${socket.id} left room: ${data.roomName}`);
