@@ -27,6 +27,7 @@ const AutoLogin = () => {
             email: data.email,
             avatar: data.avatar,
             public_id: data.public_id,
+            chats: data.chats,
           });
         }
       } catch (error) {

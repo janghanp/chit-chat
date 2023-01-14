@@ -7,6 +7,7 @@ import { Server, Socket } from "socket.io";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import cloudinary from "cloudinary";
+import { instrument } from "@socket.io/admin-ui";
 
 import { PrismaClient } from "@prisma/client";
 import { checkToken } from "./middleware/auth";
@@ -37,9 +38,15 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:5173",
+    origin: ["http://localhost:5173", "https://admin.socket.io"],
     methods: ["GET", "POST"],
+    credentials: true,
   },
+});
+
+instrument(io, {
+  auth: false,
+  mode: "development",
 });
 
 app.use(morgan("dev"));
@@ -56,11 +63,14 @@ interface UserWithSockets {
   socketIds: string[];
 }
 
+//TODO: Add an error handling for socket io processes.
+
 //? What am I using this for? I am anyway sending a new message to the chat room so any sockets that are connected to the romm are going to be notified. Then what is this for?
+//? How to maintain socket rooms and chat table in database?
 const usersWithSockets: UserWithSockets[] = [];
 
 io.on("connect", (socket: Socket) => {
-  console.log(`🔌 User connected  |  socket id: ${socket.id}`);
+  console.log(`🔌 socket id: ${socket.id}`);
 
   socket.on("join_room", async (data: Room) => {
     const targetIndex = usersWithSockets.findIndex((userWithSockets) => userWithSockets.username === data.username);
@@ -73,13 +83,15 @@ io.on("connect", (socket: Socket) => {
       usersWithSockets.push({ username: data.username, socketIds: [socket.id] });
     }
 
-    console.log(usersWithSockets);
-
     try {
-      // Checking the presence of a chat room was done on the client side right befor this logic by sending a http request.
-
       // Subscribe the socket channel
       socket.join(data.roomName);
+
+      // Notify users in a room that a new user has joined.
+      socket.to(data.roomName).emit("enter_new_user", {
+        message: `${data.username} has joined the chat room.`,
+        username: data.username,
+      });
 
       // Find a user who is trying to join the chat room.
       const user = await prisma.user.findUnique({
@@ -93,7 +105,7 @@ io.on("connect", (socket: Socket) => {
       }
 
       // Connect a user to the existing chat.
-      const chat = await prisma.chat.update({
+      await prisma.chat.update({
         where: {
           name: data.roomName,
         },
@@ -105,9 +117,6 @@ io.on("connect", (socket: Socket) => {
           },
         },
       });
-
-      console.log(`💬 ${data.username} with ID: ${socket.id} joined room: ${data.roomName}`);
-      console.log("\n");
     } catch (error) {
       console.log(error);
     }
@@ -139,7 +148,7 @@ io.on("connect", (socket: Socket) => {
         },
       });
 
-      // Send back a message that was just created to the client so that everyone in the chat room can see the message on the screen.
+      // Send back a message that was just created to a spefici chat room so that everyone in the chat room can see the message on the screen.
       io.to(chat.name).emit("receive_message", {
         id: message.id,
         text: message.text,
@@ -172,19 +181,14 @@ io.on("connect", (socket: Socket) => {
 
     if (chat.users.length === 0) {
       // Delete a chat when there is no user left in the chat.
-      const result = await prisma.chat.delete({
+      await prisma.chat.delete({
         where: {
           name: data.roomName,
         },
       });
-
-      console.log(result);
     }
 
     socket.leave(data.roomName);
-    console.log(`👻 ${data.username} with ID: ${socket.id} left room: ${data.roomName}`);
-
-    console.log(usersWithSockets);
   });
 
   socket.on("disconnect", () => {
@@ -205,8 +209,7 @@ io.on("connect", (socket: Socket) => {
       }
     }
 
-    console.log(usersWithSockets);
-    console.log(`👋 User disconnected  |  socket id: ${socket.id}`);
+    console.log(`👋 socket id: ${socket.id}`);
     console.log("-------------------------------------------------------------");
     console.log("\n");
   });

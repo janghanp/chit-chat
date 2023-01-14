@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Outlet, Link, useNavigate } from "react-router-dom";
 
 import { AuthErrorResponse } from "../types";
@@ -16,20 +16,6 @@ const Layout = () => {
 
   const [roomName, setRoomName] = useState<string>("");
   const [toggleModal, setToggleModal] = useState<boolean>(false);
-
-  useEffect(() => {
-    const fetchChats = async () => {
-      const { data } = await axios.get("http://localhost:8080/user/chats", { withCredentials: true });
-
-      const chtasIdName = data.chats.map((chat: any) => {
-        return { id: chat.id, name: chat.name };
-      });
-
-      setCurrentUser({ ...currentUser!, chats: chtasIdName });
-    };
-
-    fetchChats();
-  }, []);
 
   const createChat = async () => {
     if (!roomName) {

@@ -43,6 +43,7 @@ export interface AxiosResponseWithUser {
   username: string;
   avatar: string;
   public_id: string;
+  chats: Chat[];
 }
 
 export interface AxiosResponseWithUsername {

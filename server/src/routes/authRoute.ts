@@ -70,6 +70,9 @@ router.post("/login", async (req: Request, res: Response) => {
       where: {
         email,
       },
+      include: {
+        chats: true,
+      },
     });
 
     if (!user) {
@@ -98,6 +101,7 @@ router.post("/login", async (req: Request, res: Response) => {
       email: user.email,
       avatar: user.avatar,
       public_id: user.public_id,
+      chats: user.chats,
     });
   } catch (error) {
     return res.status(400).json({ message: "Something went wrong, please try again..." });
@@ -123,6 +127,9 @@ router.get("/refresh", async (req: Request, res: Response) => {
           where: {
             email,
           },
+          include: {
+            chats: true,
+          },
         });
 
         if (!user) {
@@ -141,6 +148,7 @@ router.get("/refresh", async (req: Request, res: Response) => {
           email: user.email,
           avatar: user.avatar,
           public_id: user.public_id,
+          chats: user.chats,
         });
       }
     }

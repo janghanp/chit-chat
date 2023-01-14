@@ -33,6 +33,10 @@ const Chat = () => {
 
       setMessages((prev) => [...prev, { id, senderId, senderName, text, createdAt }]);
     });
+
+    socketRef.current?.on("enter_new_user", (data) => {
+      console.log(data.message);
+    });
   };
 
   useEffect(() => {
