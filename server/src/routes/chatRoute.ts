@@ -42,14 +42,30 @@ router.get('/messages', async (req: Request, res: Response) => {
             sender: true,
           },
         },
+        users: true,
       },
+    });
+
+    const messages = chat?.messages;
+    const users = chat?.users.map((user) => {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      delete user.password;
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      delete user.createdAt;
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      delete user.updatedAt;
+
+      return user;
     });
 
     if (!chat) {
       return res.status(400).json({ message: 'No chat found' });
     }
 
-    return res.status(200).json(chat.messages);
+    return res.status(200).json({ messages, users });
   } catch (error) {
     console.log(error);
 

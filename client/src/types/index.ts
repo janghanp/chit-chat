@@ -7,6 +7,14 @@ export interface CurrentUser {
   chats?: Chat[];
 }
 
+export interface User {
+  id: string;
+  username: string;
+  email: string;
+  avatar?: string;
+  public_id?: string;
+}
+
 export interface Chat {
   id: string;
   name: string;

@@ -12,8 +12,6 @@ const AutoLogin = () => {
 
   useEffect(() => {
     //send a http request if the current jwt token in cookie is still valid
-    //? Putting this refresh function in the useAuth? -> it makes more sense.
-    //? Then isAuthentication state needs to be in useAuth.ts as well.
     const refresh = async () => {
       try {
         const { data } = await axios.get<AxiosResponseWithUser>('http://localhost:8080/auth/refresh', {

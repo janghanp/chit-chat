@@ -78,6 +78,7 @@ const Layout = () => {
                   Creaet a chat
                 </button>
                 <img className="border" src={currentUser.avatar || defaultAvatar} width={50} height={50} alt="avatar" />
+                <span>{currentUser.username}</span>
                 <button
                   className="border w-full"
                   onClick={() => {

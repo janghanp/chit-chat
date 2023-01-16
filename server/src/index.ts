@@ -63,9 +63,6 @@ interface UserWithSockets {
   socketIds: string[];
 }
 
-//TODO: Add an error handling for socket io processes.
-
-//? Is this variable necessary?
 const usersWithSockets: UserWithSockets[] = [];
 
 io.on('connect', (socket: Socket) => {
@@ -87,27 +84,29 @@ io.on('connect', (socket: Socket) => {
 
     console.log(usersWithSockets);
 
-    try {
-      // Subscribe the socket channel
-      socket.join(data.roomName);
+    // Subscribe the socket channel
+    socket.join(data.roomName);
 
-      // Notify users in a room that a new user has joined.
-      socket.to(data.roomName).emit('enter_new_user', {
-        message: `${data.username} has joined the chat room.`,
-        username: data.username,
-      });
+    // Check if a user joined the room for the first time.
+    const userInChat = await prisma.chat.findFirst({
+      where: {
+        AND: [
+          {
+            name: data.roomName,
+          },
+          {
+            users: {
+              some: {
+                username: data.username,
+              },
+            },
+          },
+        ],
+      },
+    });
 
-      // Find a user who is trying to join the chat room.
-      const user = await prisma.user.findUnique({
-        where: {
-          username: data.username,
-        },
-      });
-
-      if (!user) {
-        throw new Error('No user found');
-      }
-
+    // A new member to the room.
+    if (!userInChat) {
       // Connect a user to the existing chat.
       await prisma.chat.update({
         where: {
@@ -116,13 +115,23 @@ io.on('connect', (socket: Socket) => {
         data: {
           users: {
             connect: {
-              id: user.id,
+              username: data.username,
             },
           },
         },
       });
-    } catch (error) {
-      console.log(error);
+
+      const newUser = await prisma.user.findUnique({
+        where: {
+          username: data.username,
+        },
+      });
+
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      delete newUser.password;
+
+      io.to(data.roomName).emit('new_member', { newUser });
     }
   });
 

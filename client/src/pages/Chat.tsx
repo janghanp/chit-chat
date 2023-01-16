@@ -4,7 +4,7 @@ import axios from 'axios';
 import { io, Socket } from 'socket.io-client';
 import { formatDistance } from 'date-fns';
 
-import { AuthErrorResponse, Message } from '../types';
+import { AuthErrorResponse, Message, User } from '../types';
 import { useUser } from '../context/UserContext';
 
 const Chat = () => {
@@ -19,6 +19,7 @@ const Chat = () => {
   const [message, setMessage] = useState<string>('');
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [members, setMembers] = useState<User[]>([]);
 
   useEffect(() => {
     const setupSocket = () => {
@@ -26,7 +27,10 @@ const Chat = () => {
       socketRef.current = io('http://localhost:8080');
 
       // Join a specific room.
-      socketRef.current?.emit('join_room', { roomName: params.roomName, username: currentUser!.username });
+      socketRef.current?.emit('join_room', {
+        roomName: params.roomName,
+        username: currentUser!.username,
+      });
 
       // Listen for "receive_message" event
       socketRef.current?.on('receive_message', (data: Message) => {
@@ -35,18 +39,24 @@ const Chat = () => {
         setMessages((prev) => [...prev, { id, senderId, senderName, text, createdAt }]);
       });
 
-      socketRef.current?.on('enter_new_user', (data) => {
-        console.log(data.message);
+      // Listen for "new_member" event
+      socketRef.current?.on('new_member', (data: { newUser: User }) => {
+        console.log('new member joined');
+        console.log(data);
+
+        setMembers((prev) => {
+          return [...prev, data.newUser];
+        });
       });
     };
 
-    const fetchMessages = async () => {
+    const fetchMessagesAndMembers = async () => {
       const { data } = await axios.get('http://localhost:8080/chat/messages', {
         params: { roomName: params.roomName },
         withCredentials: true,
       });
 
-      const previousMessage = data.map((message: any) => {
+      const previousMessage = data.messages.map((message: any) => {
         return {
           id: message.id,
           text: message.text,
@@ -56,6 +66,7 @@ const Chat = () => {
         };
       });
 
+      setMembers(data.users);
       setMessages(previousMessage);
     };
 
@@ -78,8 +89,8 @@ const Chat = () => {
           });
         }
 
-        // Set previous messages.
-        fetchMessages();
+        // Set previous messages and current memebers of this chat.
+        fetchMessagesAndMembers();
       } catch (error) {
         if (axios.isAxiosError(error) && error.response?.status === 400) {
           //No chat room found to join
@@ -141,6 +152,12 @@ const Chat = () => {
 
   return (
     <div>
+      {members &&
+        members.length > 0 &&
+        members.map((member) => {
+          return <div key={member.id}>{member.username}</div>;
+        })}
+
       <button className="border p-2 rounded-md" onClick={leaveChat}>
         Leave
       </button>
