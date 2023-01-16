@@ -1,6 +1,6 @@
-import React, { createContext, SetStateAction, useContext, useState } from "react";
+import React, { createContext, SetStateAction, useContext, useState } from 'react';
 
-import { CurrentUser } from "../types";
+import { CurrentUser } from '../types';
 
 interface UserContextType {
   currentUser: CurrentUser | null;

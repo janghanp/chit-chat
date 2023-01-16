@@ -1,9 +1,9 @@
-import { useEffect, useState } from "react";
-import { Outlet } from "react-router-dom";
-import axios from "axios";
+import { useEffect, useState } from 'react';
+import { Outlet } from 'react-router-dom';
+import axios from 'axios';
 
-import { useUser } from "../context/UserContext";
-import { AxiosResponseWithUser } from "../types";
+import { useUser } from '../context/UserContext';
+import { AxiosResponseWithUser } from '../types';
 
 const AutoLogin = () => {
   const { setCurrentUser } = useUser();
@@ -16,7 +16,7 @@ const AutoLogin = () => {
     //? Then isAuthentication state needs to be in useAuth.ts as well.
     const refresh = async () => {
       try {
-        const { data } = await axios.get<AxiosResponseWithUser>("http://localhost:8080/auth/refresh", {
+        const { data } = await axios.get<AxiosResponseWithUser>('http://localhost:8080/auth/refresh', {
           withCredentials: true,
         });
 
@@ -38,7 +38,7 @@ const AutoLogin = () => {
     };
 
     refresh();
-  }, []);
+  }, [setCurrentUser]);
 
   return <>{isAuthenticating ? <div>loading...</div> : <Outlet />}</>;
 };

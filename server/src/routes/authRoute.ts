@@ -1,14 +1,14 @@
-import { Request, Response, Router } from "express";
-import bcrypt from "bcryptjs";
+import { Request, Response, Router } from 'express';
+import bcrypt from 'bcryptjs';
 
-import { PrismaClient } from "@prisma/client";
-import { generateToken, verifyToken } from "../utils/token";
+import { PrismaClient } from '@prisma/client';
+import { generateToken, verifyToken } from '../utils/token';
 
 const router = Router();
 
 const prisma = new PrismaClient();
 
-router.post("/register", async (req: Request, res: Response) => {
+router.post('/register', async (req: Request, res: Response) => {
   const { email, password, username }: { email: string; password: string; username: string } = req.body;
 
   try {
@@ -27,11 +27,11 @@ router.post("/register", async (req: Request, res: Response) => {
     });
 
     if (userWithEmail) {
-      return res.status(400).json({ message: "This email is already in use." });
+      return res.status(400).json({ message: 'This email is already in use.' });
     }
 
     if (userWithUsername) {
-      return res.status(400).json({ message: "This username is already in use." });
+      return res.status(400).json({ message: 'This username is already in use.' });
     }
 
     // Hash password
@@ -51,18 +51,18 @@ router.post("/register", async (req: Request, res: Response) => {
     const token = generateToken(username, email);
 
     // Set a cookie for 1 day
-    res.cookie("token", token, {
+    res.cookie('token', token, {
       expires: new Date(Date.now() + 86400000),
       httpOnly: true,
     });
 
     return res.status(200).json({ id: user.id, username: user.username, email: user.email });
   } catch (error) {
-    return res.json({ message: "Something went wrong, please try again..." });
+    return res.json({ message: 'Something went wrong, please try again...' });
   }
 });
 
-router.post("/login", async (req: Request, res: Response) => {
+router.post('/login', async (req: Request, res: Response) => {
   const { email, password }: { email: string; password: string } = req.body;
 
   try {
@@ -76,21 +76,21 @@ router.post("/login", async (req: Request, res: Response) => {
     });
 
     if (!user) {
-      return res.status(401).json({ message: "Incorrect email address or password" });
+      return res.status(401).json({ message: 'Incorrect email address or password' });
     }
 
     // Compare passwords
     const isMatch = bcrypt.compareSync(password, user.password);
 
     if (!isMatch) {
-      return res.status(401).json({ message: "Incorrect email address or password" });
+      return res.status(401).json({ message: 'Incorrect email address or password' });
     }
 
     // Generate a token
     const token = generateToken(user.username, user.email);
 
     // Set a cookie for 1 day
-    res.cookie("token", token, {
+    res.cookie('token', token, {
       expires: new Date(Date.now() + 86400000),
       httpOnly: true,
     });
@@ -104,11 +104,11 @@ router.post("/login", async (req: Request, res: Response) => {
       chats: user.chats,
     });
   } catch (error) {
-    return res.status(400).json({ message: "Something went wrong, please try again..." });
+    return res.status(400).json({ message: 'Something went wrong, please try again...' });
   }
 });
 
-router.get("/refresh", async (req: Request, res: Response) => {
+router.get('/refresh', async (req: Request, res: Response) => {
   const token: string | null = req.cookies.token;
 
   try {
@@ -133,11 +133,11 @@ router.get("/refresh", async (req: Request, res: Response) => {
         });
 
         if (!user) {
-          return res.status(500).json({ message: "Somthing went wrong, please try again..." });
+          return res.status(500).json({ message: 'Somthing went wrong, please try again...' });
         }
 
         // Set a cookie for 1 day
-        res.cookie("token", newToken, {
+        res.cookie('token', newToken, {
           expires: new Date(Date.now() + 86400000),
           httpOnly: true,
         });
@@ -162,11 +162,11 @@ router.get("/refresh", async (req: Request, res: Response) => {
   return res.sendStatus(200);
 });
 
-router.delete("/logout", (req: Request, res: Response) => {
+router.delete('/logout', (req: Request, res: Response) => {
   const token: string | null = req.cookies.token;
 
   if (token) {
-    res.clearCookie("token");
+    res.clearCookie('token');
   }
 
   res.end();

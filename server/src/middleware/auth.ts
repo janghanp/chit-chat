@@ -1,6 +1,6 @@
-import { Request, Response, NextFunction } from "express";
+import { Request, Response, NextFunction } from 'express';
 
-import { verifyToken } from "../utils/token";
+import { verifyToken } from '../utils/token';
 
 export const checkToken = (req: Request, res: Response, next: NextFunction) => {
   const token: string | null = req.cookies.token;

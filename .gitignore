@@ -25,3 +25,5 @@ client/*.local
 *.njsproj
 *.sln
 *.sw?
+
+notes.md

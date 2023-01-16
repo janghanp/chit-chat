@@ -1,7 +1,7 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from 'react-router-dom';
 
-import useAuth from "../hooks/useAuth";
-import { useUser } from "../context/UserContext";
+import useAuth from '../hooks/useAuth';
+import { useUser } from '../context/UserContext';
 
 const AuthStatus = () => {
   const auth = useAuth();
@@ -16,11 +16,11 @@ const AuthStatus = () => {
 
   return (
     <p>
-      Welcome {currentUser.username}!{" "}
+      Welcome {currentUser.username}!{' '}
       <button
         onClick={() => {
           auth.logout();
-          navigate("/");
+          navigate('/');
         }}
       >
         Sign out

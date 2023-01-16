@@ -1,8 +1,8 @@
-import { Navigate, useNavigate } from "react-router-dom";
-import { useForm } from "react-hook-form";
+import { Navigate, useNavigate } from 'react-router-dom';
+import { useForm } from 'react-hook-form';
 
-import useAuth, { isAuthSuccessResponse, isAuthErrorResponse } from "../hooks/useAuth";
-import { useUser } from "../context/UserContext";
+import useAuth, { isAuthSuccessResponse, isAuthErrorResponse } from '../hooks/useAuth';
+import { useUser } from '../context/UserContext';
 
 interface FormData {
   email: string;
@@ -30,17 +30,17 @@ const Login = () => {
 
     if (isAuthSuccessResponse(result)) {
       setCurrentUser(result);
-      navigate("/");
+      navigate('/');
     }
 
     if (isAuthErrorResponse(result)) {
-      setError("email", { type: "incorrect", message: result.message });
-      setError("password", { type: "incorrect", message: result.message });
+      setError('email', { type: 'incorrect', message: result.message });
+      setError('password', { type: 'incorrect', message: result.message });
     }
   });
 
   if (currentUser) {
-    return <Navigate to={"/"}></Navigate>;
+    return <Navigate to={'/'}></Navigate>;
   }
 
   return (
@@ -49,34 +49,34 @@ const Login = () => {
         <label>Email</label>
         <input
           className="border"
-          {...register("email", {
-            required: { value: true, message: "Email is required" },
+          {...register('email', {
+            required: { value: true, message: 'Email is required' },
             pattern: {
-              value: /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g,
-              message: "Invalid email",
+              value: /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/g,
+              message: 'Invalid email',
             },
           })}
-          aria-invalid={errors.email ? "true" : "false"}
+          aria-invalid={errors.email ? 'true' : 'false'}
         />
 
-        {errors.email?.type === "required" && <p role="alert">{errors.email.message}</p>}
+        {errors.email?.type === 'required' && <p role="alert">{errors.email.message}</p>}
 
-        {errors.email?.type === "pattern" && <p role="alert">{errors.email.message}</p>}
+        {errors.email?.type === 'pattern' && <p role="alert">{errors.email.message}</p>}
 
-        {errors.email?.type === "incorrect" && <p role="alert">{errors.email.message}</p>}
+        {errors.email?.type === 'incorrect' && <p role="alert">{errors.email.message}</p>}
 
         <label>Password</label>
         <input
           className="border"
           type="password"
-          {...register("password", {
-            required: { value: true, message: "Password is required" },
+          {...register('password', {
+            required: { value: true, message: 'Password is required' },
           })}
         />
 
-        {errors.password?.type === "required" && <p role="alert">{errors.password.message}</p>}
+        {errors.password?.type === 'required' && <p role="alert">{errors.password.message}</p>}
 
-        {errors.password?.type === "incorrect" && <p role="alert">{errors.password.message}</p>}
+        {errors.password?.type === 'incorrect' && <p role="alert">{errors.password.message}</p>}
 
         <button type="submit">Log In</button>
       </form>

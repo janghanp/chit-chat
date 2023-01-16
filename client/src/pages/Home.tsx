@@ -1,8 +1,8 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const Home = () => {
-  const [roomName, setRoomName] = useState<string>("");
+  const [roomName, setRoomName] = useState<string>('');
 
   const navigate = useNavigate();
 
@@ -12,7 +12,7 @@ const Home = () => {
     }
 
     navigate(`/chat/${roomName}`);
-    setRoomName("");
+    setRoomName('');
   };
 
   return (

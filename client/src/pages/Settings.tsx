@@ -1,11 +1,11 @@
-import { ChangeEvent, useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useForm } from "react-hook-form";
-import axios from "axios";
+import { ChangeEvent, useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useForm } from 'react-hook-form';
+import axios from 'axios';
 
-import { AuthErrorResponse, AxiosResponseWithUser, AxiosResponseWithUsername } from "../types";
-import { useUser } from "../context/UserContext";
-import defaultImageUrl from "/default.jpg";
+import { AuthErrorResponse, AxiosResponseWithUser, AxiosResponseWithUsername } from '../types';
+import { useUser } from '../context/UserContext';
+import defaultImageUrl from '/default.jpg';
 
 interface FormData {
   email: string;
@@ -20,8 +20,9 @@ const Settings = () => {
   const navigate = useNavigate();
 
   const [image, setImage] = useState<File | null>();
-  const [preview, setPreview] = useState<string>(currentUser!.avatar || "");
+  const [preview, setPreview] = useState<string>(currentUser!.avatar || '');
   const [imageError, setImageError] = useState<string>();
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -41,9 +42,9 @@ const Settings = () => {
 
   // Determining permission of submit button.
   let isDisable = true;
-  const watchNewPassword = watch("newPassword");
-  const watchConfirmNewPassword = watch("confirmNewPassword");
-  const watchUsername = watch("username");
+  const watchNewPassword = watch('newPassword');
+  const watchConfirmNewPassword = watch('confirmNewPassword');
+  const watchUsername = watch('username');
 
   if ((currentUser!.username !== watchUsername && watchUsername) || watchNewPassword || watchConfirmNewPassword) {
     isDisable = false;
@@ -55,10 +56,10 @@ const Settings = () => {
       setIsLoading(true);
 
       const formData = new FormData();
-      formData.append("file", image!);
-      formData.append("public_id", currentUser!.public_id || "");
+      formData.append('file', image!);
+      formData.append('public_id', currentUser!.public_id || '');
 
-      const { data } = await axios.post<AxiosResponseWithUser>("http://localhost:8080/user/profile", formData, {
+      const { data } = await axios.post<AxiosResponseWithUser>('http://localhost:8080/user/profile', formData, {
         withCredentials: true,
       });
 
@@ -72,16 +73,16 @@ const Settings = () => {
     if (image && !imageError) {
       uploadImage();
     }
-  }, [image]);
+  }, [currentUser, image, imageError, setCurrentUser]);
 
   const onSubmit = handleSubmit(async (formData) => {
     const { newPassword, confirmNewPassword, username } = formData;
 
     // Check if password and confirmPassword match
     if (newPassword !== confirmNewPassword) {
-      setError("newPassword", {
-        type: "match",
-        message: "Passwords should match",
+      setError('newPassword', {
+        type: 'match',
+        message: 'Passwords should match',
       });
 
       return;
@@ -102,20 +103,20 @@ const Settings = () => {
     }
 
     try {
-      const { data } = await axios.patch<AxiosResponseWithUsername>("http://localhost:8080/user", dataToUpdate, {
+      const { data } = await axios.patch<AxiosResponseWithUsername>('http://localhost:8080/user', dataToUpdate, {
         withCredentials: true,
       });
 
       // Change currentUser state.
       setCurrentUser((prev) => ({ ...prev!, username: data.username }));
 
-      navigate("/");
+      navigate('/');
     } catch (error) {
       if (axios.isAxiosError(error) && error.response?.status === 400) {
         // Set an error into username field.
         const serverError = error.response.data as AuthErrorResponse;
 
-        setError("username", { type: "taken", message: serverError.message });
+        setError('username', { type: 'taken', message: serverError.message });
       } else if (error instanceof Error) {
         console.log(error);
       }
@@ -127,8 +128,8 @@ const Settings = () => {
 
     if (file) {
       if (file.size > 1000000) {
-        setImageError("The image should be less than 1MB.");
-        setPreview("");
+        setImageError('The image should be less than 1MB.');
+        setPreview('');
         return;
       }
 
@@ -137,7 +138,7 @@ const Settings = () => {
       reader.onloadend = () => {
         setImage(file);
         setPreview(reader.result as string);
-        setImageError("");
+        setImageError('');
       };
 
       reader.readAsDataURL(file);
@@ -163,37 +164,37 @@ const Settings = () => {
         <input
           className="border disabled:text-gray-400 hover:cursor-not-allowed"
           disabled
-          {...register("email", {
-            required: { value: true, message: "Email is required" },
+          {...register('email', {
+            required: { value: true, message: 'Email is required' },
             pattern: {
-              value: /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g,
-              message: "Invalid email",
+              value: /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/g,
+              message: 'Invalid email',
             },
           })}
-          aria-invalid={errors.email ? "true" : "false"}
+          aria-invalid={errors.email ? 'true' : 'false'}
         />
 
-        {errors.email?.type === "taken" && <p role="alert">{errors.email.message}</p>}
+        {errors.email?.type === 'taken' && <p role="alert">{errors.email.message}</p>}
 
         <label>New Password</label>
-        <input className="border" type="password" {...register("newPassword")} />
+        <input className="border" type="password" {...register('newPassword')} />
 
-        {errors.newPassword?.type === "match" && <p role="alert">{errors.newPassword.message}</p>}
+        {errors.newPassword?.type === 'match' && <p role="alert">{errors.newPassword.message}</p>}
 
         <label>Confirm New Password</label>
-        <input className="border" type="password" {...register("confirmNewPassword")} />
+        <input className="border" type="password" {...register('confirmNewPassword')} />
 
         <label>Username</label>
         <input
           className="border"
-          {...register("username", {
-            required: { value: true, message: "Username is required" },
+          {...register('username', {
+            required: { value: true, message: 'Username is required' },
           })}
         />
 
-        {errors.username?.type === "required" && <p role="alert">{errors.username.message}</p>}
+        {errors.username?.type === 'required' && <p role="alert">{errors.username.message}</p>}
 
-        {errors.username?.type === "taken" && <p role="alert">{errors.username.message}</p>}
+        {errors.username?.type === 'taken' && <p role="alert">{errors.username.message}</p>}
 
         <button type="submit" className="disabled:cursor-not-allowed disabled:text-gray-300" disabled={isDisable}>
           Update

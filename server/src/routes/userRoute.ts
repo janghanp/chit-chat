@@ -1,10 +1,10 @@
-import { Request, Response, Router } from "express";
-import { checkToken } from "../middleware/auth";
-import cloudinary from "cloudinary";
-import multer from "multer";
-import bcrypt from "bcryptjs";
+import { Request, Response, Router } from 'express';
+import { checkToken } from '../middleware/auth';
+import cloudinary from 'cloudinary';
+import multer from 'multer';
+import bcrypt from 'bcryptjs';
 
-import { Prisma, PrismaClient } from "@prisma/client";
+import { Prisma, PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -15,7 +15,7 @@ const uploader = multer({
 
 const router = Router();
 
-router.get("/chats", checkToken, async (req: Request, res: Response) => {
+router.get('/chats', checkToken, async (req: Request, res: Response) => {
   const { email } = req.token;
 
   try {
@@ -29,23 +29,23 @@ router.get("/chats", checkToken, async (req: Request, res: Response) => {
     });
 
     if (!user) {
-      return res.status(400).json({ message: "No user found" });
+      return res.status(400).json({ message: 'No user found' });
     }
 
     return res.status(200).json(user);
   } catch (error) {
     console.log(error);
 
-    return res.status(500).json({ message: "Something went wrong, please try again..." });
+    return res.status(500).json({ message: 'Something went wrong, please try again...' });
   }
 });
 
-router.patch("/", checkToken, async (req: Request, res: Response) => {
+router.patch('/', checkToken, async (req: Request, res: Response) => {
   const { email } = req.token;
   const { newPassword, username } = req.body;
 
   try {
-    let data: Prisma.UserUpdateInput = {};
+    const data: Prisma.UserUpdateInput = {};
 
     if (newPassword) {
       // Hash newPassword
@@ -68,7 +68,7 @@ router.patch("/", checkToken, async (req: Request, res: Response) => {
       });
 
       if (user) {
-        return res.status(400).json({ message: "This username is already in use." });
+        return res.status(400).json({ message: 'This username is already in use.' });
       }
 
       // Set username to update.
@@ -86,16 +86,16 @@ router.patch("/", checkToken, async (req: Request, res: Response) => {
   } catch (error) {
     console.log(error);
 
-    return res.status(500).json({ message: "Something went wrong, please try again..." });
+    return res.status(500).json({ message: 'Something went wrong, please try again...' });
   }
 });
 
-router.post("/profile", checkToken, uploader.single("file"), async (req: Request, res: Response) => {
+router.post('/profile', checkToken, uploader.single('file'), async (req: Request, res: Response) => {
   const { email } = req.token;
   const { public_id }: { public_id: string } = req.body;
 
   if (!req.file) {
-    return res.status(500).json({ message: "Something went wrong, please try again..." });
+    return res.status(500).json({ message: 'Something went wrong, please try again...' });
   }
 
   try {
@@ -108,7 +108,7 @@ router.post("/profile", checkToken, uploader.single("file"), async (req: Request
     }
 
     // Upload an image to cloudinary.
-    const upload = await cloudinary.v2.uploader.upload(req.file.path, { folder: "/chit-chat/profile" });
+    const upload = await cloudinary.v2.uploader.upload(req.file.path, { folder: '/chit-chat/profile' });
 
     // Update a user with information from cloudinary.
     const user = await prisma.user.update({
@@ -135,7 +135,7 @@ router.post("/profile", checkToken, uploader.single("file"), async (req: Request
   } catch (error) {
     console.log(error);
 
-    return res.status(500).json({ message: "Something went wrong, please try again..." });
+    return res.status(500).json({ message: 'Something went wrong, please try again...' });
   }
 });
 

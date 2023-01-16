@@ -1,4 +1,4 @@
-import { TokenType } from "../../src/utils/token";
+import { TokenType } from '../../src/utils/token';
 
 declare global {
   namespace Express {

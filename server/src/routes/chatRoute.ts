@@ -1,11 +1,11 @@
-import { PrismaClient } from "@prisma/client";
-import { Request, Response, Router } from "express";
+import { PrismaClient } from '@prisma/client';
+import { Request, Response, Router } from 'express';
 
 const router = Router();
 
 const prisma = new PrismaClient();
 
-router.get("/", async (req: Request, res: Response) => {
+router.get('/', async (req: Request, res: Response) => {
   const { roomName } = req.query;
 
   try {
@@ -17,7 +17,7 @@ router.get("/", async (req: Request, res: Response) => {
     });
 
     if (!chat) {
-      return res.status(400).json({ message: "No chat room found" });
+      return res.status(400).json({ message: 'No chat room found' });
     }
 
     return res.status(200).json(chat);
@@ -28,7 +28,7 @@ router.get("/", async (req: Request, res: Response) => {
   }
 });
 
-router.get("/messages", async (req: Request, res: Response) => {
+router.get('/messages', async (req: Request, res: Response) => {
   const { roomName } = req.query;
 
   try {
@@ -46,7 +46,7 @@ router.get("/messages", async (req: Request, res: Response) => {
     });
 
     if (!chat) {
-      return res.status(400).json({ message: "No chat found" });
+      return res.status(400).json({ message: 'No chat found' });
     }
 
     return res.status(200).json(chat.messages);
@@ -57,7 +57,7 @@ router.get("/messages", async (req: Request, res: Response) => {
   }
 });
 
-router.post("/", async (req: Request, res: Response) => {
+router.post('/', async (req: Request, res: Response) => {
   const { roomName }: { roomName: string } = req.body;
 
   try {
@@ -69,7 +69,7 @@ router.post("/", async (req: Request, res: Response) => {
     });
 
     if (chat) {
-      return res.status(400).json({ message: "Chat room already exists" });
+      return res.status(400).json({ message: 'Chat room already exists' });
     }
 
     // Create a chat.

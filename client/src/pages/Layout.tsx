@@ -1,20 +1,20 @@
-import axios from "axios";
-import { useState } from "react";
-import { Outlet, Link, useNavigate } from "react-router-dom";
+import axios from 'axios';
+import { useState } from 'react';
+import { Outlet, Link, useNavigate } from 'react-router-dom';
 
-import { AuthErrorResponse } from "../types";
-import useAuth from "../hooks/useAuth";
-import { useUser } from "../context/UserContext";
-import defaultAvatar from "/default.jpg";
+import { AuthErrorResponse } from '../types';
+import useAuth from '../hooks/useAuth';
+import { useUser } from '../context/UserContext';
+import defaultAvatar from '/default.jpg';
 
 const Layout = () => {
   const navigate = useNavigate();
 
   const auth = useAuth();
 
-  const { currentUser, setCurrentUser } = useUser();
+  const { currentUser } = useUser();
 
-  const [roomName, setRoomName] = useState<string>("");
+  const [roomName, setRoomName] = useState<string>('');
   const [toggleModal, setToggleModal] = useState<boolean>(false);
 
   const createChat = async () => {
@@ -24,7 +24,7 @@ const Layout = () => {
 
     // Check if a chat room to create already exists.
     try {
-      await axios.post("http://localhost:8080/chat", { roomName: roomName }, { withCredentials: true });
+      await axios.post('http://localhost:8080/chat', { roomName: roomName }, { withCredentials: true });
 
       setToggleModal(false);
 
@@ -42,7 +42,7 @@ const Layout = () => {
 
       return;
     } finally {
-      setRoomName("");
+      setRoomName('');
     }
   };
 
@@ -77,7 +77,7 @@ const Layout = () => {
                 <button className="border p-2 rounded-md" onClick={() => setToggleModal(!toggleModal)}>
                   Creaet a chat
                 </button>
-                <img className="border" src={currentUser.avatar || defaultAvatar} width={50} height={50} />
+                <img className="border" src={currentUser.avatar || defaultAvatar} width={50} height={50} alt="avatar" />
                 <button
                   className="border w-full"
                   onClick={() => {

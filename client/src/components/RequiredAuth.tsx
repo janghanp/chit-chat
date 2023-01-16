@@ -1,6 +1,6 @@
-import { Navigate, useLocation } from "react-router-dom";
+import { Navigate, useLocation } from 'react-router-dom';
 
-import { useUser } from "../context/UserContext";
+import { useUser } from '../context/UserContext';
 
 const RequireAuth = ({ children }: { children: JSX.Element }) => {
   const { currentUser } = useUser();

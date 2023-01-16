@@ -1,14 +1,14 @@
-import { useCallback } from "react";
-import axios from "axios";
+import { useCallback } from 'react';
+import axios from 'axios';
 
-import { AuthErrorResponse, AuthSuccessResponse } from "../types";
+import { AuthErrorResponse, AuthSuccessResponse } from '../types';
 
 export const isAuthSuccessResponse = (item: any): item is AuthSuccessResponse => {
-  return "id" in item;
+  return 'id' in item;
 };
 
 export const isAuthErrorResponse = (item: any): item is AuthErrorResponse => {
-  return "message" in item;
+  return 'message' in item;
 };
 
 const useAuth = () => {
@@ -18,7 +18,7 @@ const useAuth = () => {
 
       try {
         const { data } = await axios.post<AuthSuccessResponse>(
-          "http://localhost:8080/auth/register",
+          'http://localhost:8080/auth/register',
           {
             email,
             password,
@@ -47,7 +47,7 @@ const useAuth = () => {
 
       try {
         const { data } = await axios.post<AuthSuccessResponse>(
-          "http://localhost:8080/auth/login",
+          'http://localhost:8080/auth/login',
           {
             email,
             password,
@@ -71,7 +71,7 @@ const useAuth = () => {
 
   const logout = useCallback(async () => {
     try {
-      await axios.delete("http://localhost:8080/auth/logout", {
+      await axios.delete('http://localhost:8080/auth/logout', {
         withCredentials: true,
       });
     } catch (error) {

@@ -1,19 +1,19 @@
-import * as dotenv from "dotenv";
+import * as dotenv from 'dotenv';
 dotenv.config();
-import express from "express";
-import morgan from "morgan";
-import http from "http";
-import { Server, Socket } from "socket.io";
-import cors from "cors";
-import cookieParser from "cookie-parser";
-import cloudinary from "cloudinary";
-import { instrument } from "@socket.io/admin-ui";
+import express from 'express';
+import morgan from 'morgan';
+import http from 'http';
+import { Server, Socket } from 'socket.io';
+import cors from 'cors';
+import cookieParser from 'cookie-parser';
+import cloudinary from 'cloudinary';
+import { instrument } from '@socket.io/admin-ui';
 
-import { PrismaClient } from "@prisma/client";
-import { checkToken } from "./middleware/auth";
-import authRoute from "./routes/authRoute";
-import userRoute from "./routes/userRoute";
-import chatRoute from "./routes/chatRoute";
+import { PrismaClient } from '@prisma/client';
+import { checkToken } from './middleware/auth';
+import authRoute from './routes/authRoute';
+import userRoute from './routes/userRoute';
+import chatRoute from './routes/chatRoute';
 
 interface Room {
   username: string;
@@ -38,25 +38,25 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: ["http://localhost:5173", "https://admin.socket.io"],
-    methods: ["GET", "POST"],
+    origin: ['http://localhost:5173', 'https://admin.socket.io'],
+    methods: ['GET', 'POST'],
     credentials: true,
   },
 });
 
 instrument(io, {
   auth: false,
-  mode: "development",
+  mode: 'development',
 });
 
-app.use(morgan("dev"));
-app.use(cors({ origin: "http://localhost:5173", credentials: true }));
+app.use(morgan('dev'));
+app.use(cors({ origin: 'http://localhost:5173', credentials: true }));
 app.use(express.json());
 app.use(cookieParser());
 
-app.use("/auth", authRoute);
-app.use("/user", userRoute);
-app.use("/chat", checkToken, chatRoute);
+app.use('/auth', authRoute);
+app.use('/user', userRoute);
+app.use('/chat', checkToken, chatRoute);
 
 interface UserWithSockets {
   username: string;
@@ -65,14 +65,13 @@ interface UserWithSockets {
 
 //TODO: Add an error handling for socket io processes.
 
-//? What am I using this for? I am anyway sending a new message to the chat room so any sockets that are connected to the romm are going to be notified. Then what is this for?
-//? How to maintain socket rooms and chat table in database?
+//? Is this variable necessary?
 const usersWithSockets: UserWithSockets[] = [];
 
-io.on("connect", (socket: Socket) => {
+io.on('connect', (socket: Socket) => {
   console.log(`🔌 socket id: ${socket.id}`);
 
-  socket.on("join_room", async (data: Room) => {
+  socket.on('join_room', async (data: Room) => {
     const targetIndex = usersWithSockets.findIndex((userWithSockets) => userWithSockets.username === data.username);
 
     if (targetIndex >= 0) {
@@ -80,15 +79,20 @@ io.on("connect", (socket: Socket) => {
       usersWithSockets[targetIndex].socketIds.push(socket.id);
     } else {
       // A new user connection established.
-      usersWithSockets.push({ username: data.username, socketIds: [socket.id] });
+      usersWithSockets.push({
+        username: data.username,
+        socketIds: [socket.id],
+      });
     }
+
+    console.log(usersWithSockets);
 
     try {
       // Subscribe the socket channel
       socket.join(data.roomName);
 
       // Notify users in a room that a new user has joined.
-      socket.to(data.roomName).emit("enter_new_user", {
+      socket.to(data.roomName).emit('enter_new_user', {
         message: `${data.username} has joined the chat room.`,
         username: data.username,
       });
@@ -101,7 +105,7 @@ io.on("connect", (socket: Socket) => {
       });
 
       if (!user) {
-        throw new Error("No user found");
+        throw new Error('No user found');
       }
 
       // Connect a user to the existing chat.
@@ -122,7 +126,7 @@ io.on("connect", (socket: Socket) => {
     }
   });
 
-  socket.on("send_message", async (data: Message) => {
+  socket.on('send_message', async (data: Message) => {
     const { text, senderId, senderName } = data;
 
     try {
@@ -149,7 +153,7 @@ io.on("connect", (socket: Socket) => {
       });
 
       // Send back a message that was just created to a spefici chat room so that everyone in the chat room can see the message on the screen.
-      io.to(chat.name).emit("receive_message", {
+      io.to(chat.name).emit('receive_message', {
         id: message.id,
         text: message.text,
         senderId,
@@ -161,7 +165,7 @@ io.on("connect", (socket: Socket) => {
     }
   });
 
-  socket.on("leave_room", async (data: Room) => {
+  socket.on('leave_room', async (data: Room) => {
     // Update Chat table by disconnecting a user from a chat.
     const chat = await prisma.chat.update({
       where: {
@@ -191,7 +195,7 @@ io.on("connect", (socket: Socket) => {
     socket.leave(data.roomName);
   });
 
-  socket.on("disconnect", () => {
+  socket.on('disconnect', () => {
     // Remove the socketId from usersWithSocketIds array.
     for (const [index, userWithSockets] of usersWithSockets.entries()) {
       const targetIndex = userWithSockets.socketIds.findIndex((socketId) => {
@@ -210,8 +214,9 @@ io.on("connect", (socket: Socket) => {
     }
 
     console.log(`👋 socket id: ${socket.id}`);
-    console.log("-------------------------------------------------------------");
-    console.log("\n");
+    console.log(usersWithSockets);
+    console.log('-------------------------------------------------------------');
+    console.log('\n');
   });
 });
 
