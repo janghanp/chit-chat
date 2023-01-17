@@ -23,29 +23,33 @@ const Chat = () => {
 
   useEffect(() => {
     const setupSocket = () => {
-      // Connect to the socket server.
       socketRef.current = io('http://localhost:8080');
 
-      // Join a specific room.
       socketRef.current?.emit('join_room', {
         roomName: params.roomName,
         username: currentUser!.username,
       });
 
-      // Listen for "receive_message" event
       socketRef.current?.on('receive_message', (data: Message) => {
         const { id, senderId, senderName, text, createdAt } = data;
 
         setMessages((prev) => [...prev, { id, senderId, senderName, text, createdAt }]);
       });
 
-      // Listen for "new_member" event
-      socketRef.current?.on('new_member', (data: { newUser: User }) => {
+      socketRef.current?.on('enter_new_member', (data: { newUser: User }) => {
         console.log('new member joined');
         console.log(data);
 
         setMembers((prev) => {
           return [...prev, data.newUser];
+        });
+      });
+
+      socketRef.current?.on('leave_member', (data) => {
+        setMembers((prev) => {
+          return prev.filter((member) => {
+            return member.username !== data.username;
+          });
         });
       });
     };
@@ -132,10 +136,8 @@ const Chat = () => {
     const result = window.confirm('Are you sure you want to leave the chat?');
 
     if (result) {
-      // Leave the chat room.
       socketRef.current?.emit('leave_room', { roomName: params.roomName, username: currentUser!.username });
 
-      // Remove chat room from user context.
       setCurrentUser({
         ...currentUser!,
         chats: currentUser!.chats?.filter((chat) => chat.name !== params.roomName),

@@ -69,77 +69,80 @@ io.on('connect', (socket: Socket) => {
   console.log(`🔌 socket id: ${socket.id}`);
 
   socket.on('join_room', async (data: Room) => {
-    const targetIndex = usersWithSockets.findIndex((userWithSockets) => userWithSockets.username === data.username);
+    try {
+      const targetIndex = usersWithSockets.findIndex((userWithSockets) => userWithSockets.username === data.username);
 
-    if (targetIndex >= 0) {
-      // Whene there is an existing user.
-      usersWithSockets[targetIndex].socketIds.push(socket.id);
-    } else {
-      // A new user connection established.
-      usersWithSockets.push({
-        username: data.username,
-        socketIds: [socket.id],
+      if (targetIndex >= 0) {
+        // Whene there is an existing user.
+        usersWithSockets[targetIndex].socketIds.push(socket.id);
+      } else {
+        // A new user connection established.
+        usersWithSockets.push({
+          username: data.username,
+          socketIds: [socket.id],
+        });
+      }
+
+      console.log(usersWithSockets);
+
+      // Subscribe the socket channel
+      socket.join(data.roomName);
+
+      // Check if a user joined the room for the first time.
+      const userInChat = await prisma.chat.findFirst({
+        where: {
+          AND: [
+            {
+              name: data.roomName,
+            },
+            {
+              users: {
+                some: {
+                  username: data.username,
+                },
+              },
+            },
+          ],
+        },
       });
-    }
 
-    console.log(usersWithSockets);
-
-    // Subscribe the socket channel
-    socket.join(data.roomName);
-
-    // Check if a user joined the room for the first time.
-    const userInChat = await prisma.chat.findFirst({
-      where: {
-        AND: [
-          {
+      // A new member to the room.
+      if (!userInChat) {
+        // Connect a user to the existing chat.
+        await prisma.chat.update({
+          where: {
             name: data.roomName,
           },
-          {
+          data: {
             users: {
-              some: {
+              connect: {
                 username: data.username,
               },
             },
           },
-        ],
-      },
-    });
+        });
 
-    // A new member to the room.
-    if (!userInChat) {
-      // Connect a user to the existing chat.
-      await prisma.chat.update({
-        where: {
-          name: data.roomName,
-        },
-        data: {
-          users: {
-            connect: {
-              username: data.username,
-            },
+        const newUser = await prisma.user.findUnique({
+          where: {
+            username: data.username,
           },
-        },
-      });
+        });
 
-      const newUser = await prisma.user.findUnique({
-        where: {
-          username: data.username,
-        },
-      });
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        delete newUser.password;
 
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      delete newUser.password;
-
-      io.to(data.roomName).emit('new_member', { newUser });
+        io.to(data.roomName).emit('enter_new_member', { newUser });
+      }
+    } catch (error) {
+      console.log(error);
     }
   });
 
   socket.on('send_message', async (data: Message) => {
-    const { text, senderId, senderName } = data;
-
     try {
-      // Create Message
+      const { text, senderId, senderName } = data;
+
       const message = await prisma.message.create({
         data: {
           text,
@@ -147,7 +150,6 @@ io.on('connect', (socket: Socket) => {
         },
       });
 
-      // Update Chat table by connecting a message to the chat table.
       const chat = await prisma.chat.update({
         where: {
           name: data.roomName,
@@ -161,7 +163,6 @@ io.on('connect', (socket: Socket) => {
         },
       });
 
-      // Send back a message that was just created to a spefici chat room so that everyone in the chat room can see the message on the screen.
       io.to(chat.name).emit('receive_message', {
         id: message.id,
         text: message.text,
@@ -175,57 +176,66 @@ io.on('connect', (socket: Socket) => {
   });
 
   socket.on('leave_room', async (data: Room) => {
-    // Update Chat table by disconnecting a user from a chat.
-    const chat = await prisma.chat.update({
-      where: {
-        name: data.roomName,
-      },
-      data: {
-        users: {
-          disconnect: {
-            username: data.username,
-          },
-        },
-      },
-      include: {
-        users: true,
-      },
-    });
-
-    if (chat.users.length === 0) {
-      // Delete a chat when there is no user left in the chat.
-      await prisma.chat.delete({
+    try {
+      const chat = await prisma.chat.update({
         where: {
           name: data.roomName,
         },
+        data: {
+          users: {
+            disconnect: {
+              username: data.username,
+            },
+          },
+        },
+        include: {
+          users: true,
+        },
       });
-    }
 
-    socket.leave(data.roomName);
+      if (chat.users.length === 0) {
+        // Delete a chat when there is no user left in the chat.
+        await prisma.chat.delete({
+          where: {
+            name: data.roomName,
+          },
+        });
+      }
+
+      socket.leave(data.roomName);
+
+      io.to(data.roomName).emit('leave_member', { username: data.username });
+    } catch (error) {
+      console.log(error);
+    }
   });
 
   socket.on('disconnect', () => {
-    // Remove the socketId from usersWithSocketIds array.
-    for (const [index, userWithSockets] of usersWithSockets.entries()) {
-      const targetIndex = userWithSockets.socketIds.findIndex((socketId) => {
-        return socketId === socket.id;
-      });
+    try {
+      // Remove the socketId from usersWithSocketIds array.
+      for (const [index, userWithSockets] of usersWithSockets.entries()) {
+        const targetIndex = userWithSockets.socketIds.findIndex((socketId) => {
+          return socketId === socket.id;
+        });
 
-      if (targetIndex >= 0) {
-        userWithSockets.socketIds.splice(targetIndex, 1);
+        if (targetIndex >= 0) {
+          userWithSockets.socketIds.splice(targetIndex, 1);
 
-        if (userWithSockets.socketIds.length === 0) {
-          usersWithSockets.splice(index, 1);
+          if (userWithSockets.socketIds.length === 0) {
+            usersWithSockets.splice(index, 1);
+          }
+
+          break;
         }
-
-        break;
       }
-    }
 
-    console.log(`👋 socket id: ${socket.id}`);
-    console.log(usersWithSockets);
-    console.log('-------------------------------------------------------------');
-    console.log('\n');
+      console.log(`👋 socket id: ${socket.id}`);
+      console.log(usersWithSockets);
+      console.log('-------------------------------------------------------------');
+      console.log('\n');
+    } catch (error) {
+      console.log(error);
+    }
   });
 });
 
