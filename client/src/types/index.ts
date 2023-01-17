@@ -35,23 +35,21 @@ export interface FormData {
 	username: string;
 }
 
+export interface AuthOk {
+	status: string;
+}
+
 export interface AuthSuccessResponse {
-	id: string;
-	email: string;
-	username: string;
-}
-
-export interface AuthErrorResponse {
-	message: string;
-}
-
-export interface AxiosResponseWithUser {
 	id: string;
 	email: string;
 	username: string;
 	avatar: string;
 	public_id: string;
 	chats: Chat[];
+}
+
+export interface AuthErrorResponse {
+	message: string;
 }
 
 export interface AxiosResponseWithUsername {

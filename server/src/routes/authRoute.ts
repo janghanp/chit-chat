@@ -155,11 +155,11 @@ router.get('/refresh', async (req: Request, res: Response) => {
 	} catch (error) {
 		console.log(error);
 
-		return res.sendStatus(401);
+		return res.status(500).json({ message: 'Somthing went wrong, please try again...' });
 	}
 
 	// Refresh page wihout a token
-	return res.sendStatus(200);
+	return res.status(200).json({ status: 'ok' });
 });
 
 router.delete('/logout', (req: Request, res: Response) => {

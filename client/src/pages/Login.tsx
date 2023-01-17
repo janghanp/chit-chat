@@ -12,7 +12,7 @@ interface FormData {
 const Login = () => {
 	const navigate = useNavigate();
 
-	const auth = useAuth();
+	const { login } = useAuth();
 
 	const { currentUser, setCurrentUser } = useUser();
 
@@ -26,7 +26,7 @@ const Login = () => {
 	const onSubmit = handleSubmit(async (data) => {
 		const { email, password } = data;
 
-		const result = await auth.login(email, password);
+		const result = await login(email, password);
 
 		if (isAuthSuccessResponse(result)) {
 			setCurrentUser(result);

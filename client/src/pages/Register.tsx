@@ -8,7 +8,7 @@ import { useUser } from '../context/UserContext';
 const Register = () => {
 	const navigate = useNavigate();
 
-	const auth = useAuth();
+	const { register: authRegister } = useAuth();
 
 	const { currentUser, setCurrentUser } = useUser();
 
@@ -32,7 +32,7 @@ const Register = () => {
 			return;
 		}
 
-		const result = await auth.register(email, password, username);
+		const result = await authRegister(email, password, username);
 
 		if (isAuthSuccessResponse(result)) {
 			setCurrentUser(result);

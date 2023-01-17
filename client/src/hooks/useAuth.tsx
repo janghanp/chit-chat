@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import axios from 'axios';
 
-import { AuthErrorResponse, AuthSuccessResponse } from '../types';
+import { AuthErrorResponse, AuthSuccessResponse, AuthOk } from '../types';
 
 export const isAuthSuccessResponse = (item: any): item is AuthSuccessResponse => {
 	return 'id' in item;
@@ -79,7 +79,27 @@ const useAuth = () => {
 		}
 	}, []);
 
-	return { register, login, logout };
+	const refresh = useCallback(async (): Promise<AuthSuccessResponse | AuthOk | AuthErrorResponse> => {
+		let result = {} as AuthSuccessResponse | AuthOk | AuthErrorResponse;
+
+		try {
+			const { data } = await axios.get<AuthSuccessResponse>('http://localhost:8080/auth/refresh', {
+				withCredentials: true,
+			});
+
+			result = data;
+		} catch (error) {
+			if (axios.isAxiosError(error)) {
+				result = error.response!.data as AuthErrorResponse;
+			} else if (error instanceof Error) {
+				console.log(error);
+			}
+		}
+
+		return result;
+	}, []);
+
+	return { register, login, logout, refresh };
 };
 
 export default useAuth;
