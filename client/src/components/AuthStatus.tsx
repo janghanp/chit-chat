@@ -4,29 +4,29 @@ import useAuth from '../hooks/useAuth';
 import { useUser } from '../context/UserContext';
 
 const AuthStatus = () => {
-  const auth = useAuth();
+	const auth = useAuth();
 
-  const { currentUser } = useUser();
+	const { currentUser } = useUser();
 
-  const navigate = useNavigate();
+	const navigate = useNavigate();
 
-  if (!currentUser.email) {
-    return <p>You are not logged in.</p>;
-  }
+	if (!currentUser.email) {
+		return <p>You are not logged in.</p>;
+	}
 
-  return (
-    <p>
-      Welcome {currentUser.username}!{' '}
-      <button
-        onClick={() => {
-          auth.logout();
-          navigate('/');
-        }}
-      >
-        Sign out
-      </button>
-    </p>
-  );
+	return (
+		<p>
+			Welcome {currentUser.username}!{' '}
+			<button
+				onClick={() => {
+					auth.logout();
+					navigate('/');
+				}}
+			>
+				Sign out
+			</button>
+		</p>
+	);
 };
 
 export default AuthStatus;

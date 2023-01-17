@@ -12,45 +12,45 @@ import Chat from './Chat';
 import NoMatch from './NoMatch';
 
 function App() {
-  return (
-    <UserProvider>
-      <Routes>
-        <Route element={<AutoLogin />}>
-          <Route path="/" element={<Layout />}>
-            <Route
-              index
-              element={
-                <RequireAuth>
-                  <Home />
-                </RequireAuth>
-              }
-            />
-            <Route
-              path="/settings"
-              element={
-                <RequireAuth>
-                  <Settings />
-                </RequireAuth>
-              }
-            />
-            <Route
-              path="/chat/:roomName"
-              element={
-                <RequireAuth>
-                  <Chat />
-                </RequireAuth>
-              }
-            />
-          </Route>
+	return (
+		<UserProvider>
+			<Routes>
+				<Route element={<AutoLogin />}>
+					<Route path="/" element={<Layout />}>
+						<Route
+							index
+							element={
+								<RequireAuth>
+									<Home />
+								</RequireAuth>
+							}
+						/>
+						<Route
+							path="/settings"
+							element={
+								<RequireAuth>
+									<Settings />
+								</RequireAuth>
+							}
+						/>
+						<Route
+							path="/chat/:roomName"
+							element={
+								<RequireAuth>
+									<Chat />
+								</RequireAuth>
+							}
+						/>
+					</Route>
 
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
+					<Route path="/login" element={<Login />} />
+					<Route path="/register" element={<Register />} />
 
-          <Route path="*" element={<NoMatch />} />
-        </Route>
-      </Routes>
-    </UserProvider>
-  );
+					<Route path="*" element={<NoMatch />} />
+				</Route>
+			</Routes>
+		</UserProvider>
+	);
 }
 
 export default App;

@@ -3,21 +3,21 @@ import { Request, Response, NextFunction } from 'express';
 import { verifyToken } from '../utils/token';
 
 export const checkToken = (req: Request, res: Response, next: NextFunction) => {
-  const token: string | null = req.cookies.token;
+	const token: string | null = req.cookies.token;
 
-  if (!token) {
-    return res.sendStatus(401);
-  }
+	if (!token) {
+		return res.sendStatus(401);
+	}
 
-  try {
-    const decodedToken = verifyToken(token);
+	try {
+		const decodedToken = verifyToken(token);
 
-    req.token = decodedToken;
+		req.token = decodedToken;
 
-    next();
-  } catch (error) {
-    console.log(error);
+		next();
+	} catch (error) {
+		console.log(error);
 
-    return res.sendStatus(401);
-  }
+		return res.sendStatus(401);
+	}
 };

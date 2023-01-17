@@ -1,59 +1,59 @@
 export interface CurrentUser {
-  id: string;
-  username: string;
-  email: string;
-  avatar?: string;
-  public_id?: string;
-  chats?: Chat[];
+	id: string;
+	username: string;
+	email: string;
+	avatar?: string;
+	public_id?: string;
+	chats?: Chat[];
 }
 
 export interface User {
-  id: string;
-  username: string;
-  email: string;
-  avatar?: string;
-  public_id?: string;
+	id: string;
+	username: string;
+	email: string;
+	avatar?: string;
+	public_id?: string;
 }
 
 export interface Chat {
-  id: string;
-  name: string;
+	id: string;
+	name: string;
 }
 
 export interface Message {
-  id: string;
-  text: string;
-  senderId: string;
-  senderName: string;
-  createdAt: string;
+	id: string;
+	text: string;
+	senderId: string;
+	senderName: string;
+	createdAt: string;
 }
 
 export interface FormData {
-  email: string;
-  password: string;
-  confirmPassword: string;
-  username: string;
+	email: string;
+	password: string;
+	confirmPassword: string;
+	username: string;
 }
 
 export interface AuthSuccessResponse {
-  id: string;
-  email: string;
-  username: string;
+	id: string;
+	email: string;
+	username: string;
 }
 
 export interface AuthErrorResponse {
-  message: string;
+	message: string;
 }
 
 export interface AxiosResponseWithUser {
-  id: string;
-  email: string;
-  username: string;
-  avatar: string;
-  public_id: string;
-  chats: Chat[];
+	id: string;
+	email: string;
+	username: string;
+	avatar: string;
+	public_id: string;
+	chats: Chat[];
 }
 
 export interface AxiosResponseWithUsername {
-  username: string;
+	username: string;
 }
