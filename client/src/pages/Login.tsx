@@ -44,42 +44,74 @@ const Login = () => {
 	}
 
 	return (
-		<div>
-			<form onSubmit={onSubmit}>
-				<label>Email</label>
-				<input
-					className="border"
-					{...register('email', {
-						required: { value: true, message: 'Email is required' },
-						pattern: {
-							value: /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/g,
-							message: 'Invalid email',
-						},
-					})}
-					aria-invalid={errors.email ? 'true' : 'false'}
-				/>
+		//  background
+		<div className="min-h-screen bg-base-300">
+			<div className="container mx-auto flex min-h-screen max-w-lg flex-col items-center justify-center">
+				{/* form card */}
+				<div className="w-full rounded-lg border bg-base-100 p-10">
+					<form onSubmit={onSubmit} className="flex flex-col items-center justify-center gap-y-10">
+						<div className="w-full">
+							<label className="label">Email</label>
+							<input
+								className={`input-bordered input w-full ${errors.email && 'border-error'}`}
+								{...register('email', {
+									required: { value: true, message: 'Email is required' },
+									pattern: {
+										value: /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/g,
+										message: 'Invalid email',
+									},
+								})}
+								aria-invalid={errors.email ? 'true' : 'false'}
+							/>
 
-				{errors.email?.type === 'required' && <p role="alert">{errors.email.message}</p>}
+							{errors.email?.type === 'required' && (
+								<p role="alert" className="text-error">
+									{errors.email.message}
+								</p>
+							)}
 
-				{errors.email?.type === 'pattern' && <p role="alert">{errors.email.message}</p>}
+							{errors.email?.type === 'pattern' && (
+								<p role="alert" className="text-error">
+									{errors.email.message}
+								</p>
+							)}
 
-				{errors.email?.type === 'incorrect' && <p role="alert">{errors.email.message}</p>}
+							{errors.email?.type === 'incorrect' && (
+								<p role="alert" className="text-error">
+									{errors.email.message}
+								</p>
+							)}
+						</div>
 
-				<label>Password</label>
-				<input
-					className="border"
-					type="password"
-					{...register('password', {
-						required: { value: true, message: 'Password is required' },
-					})}
-				/>
+						<div className="w-full">
+							<label className="label">Password</label>
+							<input
+								className={`input-bordered input w-full ${errors.password && 'border-error'}`}
+								type="password"
+								{...register('password', {
+									required: { value: true, message: 'Password is required' },
+								})}
+							/>
 
-				{errors.password?.type === 'required' && <p role="alert">{errors.password.message}</p>}
+							{errors.password?.type === 'required' && (
+								<p role="alert" className="text-error">
+									{errors.password.message}
+								</p>
+							)}
 
-				{errors.password?.type === 'incorrect' && <p role="alert">{errors.password.message}</p>}
+							{errors.password?.type === 'incorrect' && (
+								<p role="alert" className="text-error">
+									{errors.password.message}
+								</p>
+							)}
+						</div>
 
-				<button type="submit">Log In</button>
-			</form>
+						<button className="btn" type="submit">
+							Log In
+						</button>
+					</form>
+				</div>
+			</div>
 		</div>
 	);
 };

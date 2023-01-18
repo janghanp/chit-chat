@@ -22,7 +22,6 @@ const Register = () => {
 	const onSubmit = handleSubmit(async (data) => {
 		const { email, password, confirmPassword, username } = data;
 
-		// Check if password and confirmPassword match
 		if (password !== confirmPassword) {
 			setError('password', {
 				type: 'match',
@@ -53,52 +52,110 @@ const Register = () => {
 	}
 
 	return (
-		<div>
-			<form onSubmit={onSubmit}>
-				<label>Email</label>
-				<input
-					className="border"
-					{...register('email', {
-						required: { value: true, message: 'Email is required' },
-						pattern: {
-							value: /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/g,
-							message: 'Invalid email',
-						},
-					})}
-					aria-invalid={errors.email ? 'true' : 'false'}
-				/>
-				{errors.email?.type === 'taken' && <p role="alert">{errors.email.message}</p>}
-				<label>Password</label>
-				<input
-					className="border"
-					type="password"
-					{...register('password', {
-						required: { value: true, message: 'Password is required' },
-					})}
-				/>
+		<div className="min-h-screen bg-base-300">
+			<div className="container mx-auto flex min-h-screen max-w-lg flex-col items-center justify-center">
+				<div className="w-full rounded-lg border bg-base-100 p-10">
+					<form onSubmit={onSubmit} className="flex flex-col items-center justify-center gap-y-10">
+						<div className="w-full">
+							<label className="label">Email</label>
+							<input
+								className={`input-bordered input w-full ${errors.email && 'border-error'}`}
+								{...register('email', {
+									required: { value: true, message: 'Email is required' },
+									pattern: {
+										value: /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/g,
+										message: 'Invalid email',
+									},
+								})}
+								aria-invalid={errors.email ? 'true' : 'false'}
+							/>
+							{errors.email?.type === 'required' && (
+								<p role="alert" className="text-error">
+									{errors.email.message}
+								</p>
+							)}
 
-				{errors.password?.type === 'match' && <p role="alert">{errors.password.message}</p>}
+							{errors.email?.type === 'pattern' && (
+								<p role="alert" className="text-error">
+									{errors.email.message}
+								</p>
+							)}
 
-				<label>ConfirmPassword</label>
-				<input
-					className="border"
-					type="password"
-					{...register('confirmPassword', {
-						required: { value: true, message: 'Password is required' },
-					})}
-				/>
-				<label>Username</label>
-				<input
-					className="border"
-					{...register('username', {
-						required: { value: true, message: 'Username is required' },
-					})}
-				/>
+							{errors.email?.type === 'taken' && (
+								<p role="alert" className="text-error">
+									{errors.email.message}
+								</p>
+							)}
+						</div>
 
-				{errors.username?.type === 'taken' && <p role="alert">{errors.username.message}</p>}
+						<div className="w-full">
+							<label className="label">Password</label>
+							<input
+								className={`input-bordered input w-full ${errors.password && 'border-error'}`}
+								type="password"
+								{...register('password', {
+									required: { value: true, message: 'Password is required' },
+								})}
+							/>
 
-				<button type="submit">Sign Up</button>
-			</form>
+							{errors.password?.type === 'required' && (
+								<p role="alert" className="text-error">
+									{errors.password.message}
+								</p>
+							)}
+
+							{errors.password?.type === 'match' && (
+								<p role="alert" className="text-error">
+									{errors.password.message}
+								</p>
+							)}
+						</div>
+
+						<div className="w-full">
+							<label className="label">ConfirmPassword</label>
+							<input
+								className={`input-bordered input w-full ${errors.password && 'border-error'}`}
+								type="password"
+								{...register('confirmPassword', {
+									required: { value: true, message: 'Password is required' },
+								})}
+							/>
+
+							{errors.confirmPassword?.type === 'required' && (
+								<p role="alert" className="text-error">
+									{errors.confirmPassword.message}
+								</p>
+							)}
+						</div>
+
+						<div className="w-full">
+							<label className="label">Username</label>
+							<input
+								className={`input-bordered input w-full ${errors.username && 'border-error'}`}
+								{...register('username', {
+									required: { value: true, message: 'Username is required' },
+								})}
+							/>
+
+							{errors.username?.type === 'required' && (
+								<p role="alert" className="text-error">
+									{errors.username.message}
+								</p>
+							)}
+
+							{errors.username?.type === 'taken' && (
+								<p role="alert" className="text-error">
+									{errors.username.message}
+								</p>
+							)}
+						</div>
+
+						<button type="submit" className="btn">
+							Sign Up
+						</button>
+					</form>
+				</div>
+			</div>
 		</div>
 	);
 };
