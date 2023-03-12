@@ -1,4 +1,4 @@
-import { Navigate, useNavigate } from 'react-router-dom';
+import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 
 import { FormData } from '../types';
@@ -55,7 +55,8 @@ const Register = () => {
 		<div className="min-h-screen bg-base-300">
 			<div className="container mx-auto flex min-h-screen max-w-lg flex-col items-center justify-center">
 				<div className="w-full rounded-lg border bg-base-100 p-10">
-					<form onSubmit={onSubmit} className="flex flex-col items-center justify-center gap-y-10">
+					<div className="text-center text-2xl font-bold">Create an account</div>
+					<form onSubmit={onSubmit} className="flex flex-col items-center justify-center gap-y-5">
 						<div className="w-full">
 							<label className="label">Email</label>
 							<input
@@ -150,9 +151,13 @@ const Register = () => {
 							)}
 						</div>
 
-						<button type="submit" className="btn">
+						<button type="submit" className="btn w-full">
 							Sign Up
 						</button>
+
+						<div className="w-full text-sm font-semibold underline hover:cursor-pointer">
+							<Link to={'/login'}>Already have an account?</Link>
+						</div>
 					</form>
 				</div>
 			</div>

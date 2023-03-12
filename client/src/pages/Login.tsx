@@ -1,4 +1,4 @@
-import { Navigate, useNavigate } from 'react-router-dom';
+import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 
 import useAuth, { isAuthSuccessResponse, isAuthErrorResponse } from '../hooks/useAuth';
@@ -49,7 +49,8 @@ const Login = () => {
 			<div className="container mx-auto flex min-h-screen max-w-lg flex-col items-center justify-center">
 				{/* form card */}
 				<div className="w-full rounded-lg border bg-base-100 p-10">
-					<form onSubmit={onSubmit} className="flex flex-col items-center justify-center gap-y-10">
+					<div className="text-center text-2xl font-bold">Welcome to chit-chat</div>
+					<form onSubmit={onSubmit} className="flex flex-col items-center justify-center gap-y-5">
 						<div className="w-full">
 							<label className="label">Email</label>
 							<input
@@ -106,10 +107,16 @@ const Login = () => {
 							)}
 						</div>
 
-						<button className="btn" type="submit">
+						<button className="btn w-full" type="submit">
 							Log In
 						</button>
 					</form>
+					<div className="mt-5 text-center text-sm font-semibold">
+						<span>Don't have an account?</span>
+						<Link to="/register">
+							<span className="ml-3 underline">register</span>
+						</Link>
+					</div>
 				</div>
 			</div>
 		</div>

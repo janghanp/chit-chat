@@ -3,14 +3,12 @@ import { useState } from 'react';
 import { Outlet, Link, useNavigate } from 'react-router-dom';
 
 import { AuthErrorResponse } from '../types';
-import useAuth from '../hooks/useAuth';
 import { useUser } from '../context/UserContext';
-import defaultAvatar from '/default.jpg';
+import UserInfo from '../components/UserInfo';
+import CreateChatButton from '../components/CreateChatButton';
 
 const Layout = () => {
 	const navigate = useNavigate();
-
-	const auth = useAuth();
 
 	const { currentUser } = useUser();
 
@@ -54,7 +52,7 @@ const Layout = () => {
 					{/* <!-- Page content here --> */}
 					<Outlet />
 				</div>
-				<div className="drawer-side bg-base-200">
+				<div className="bg-base-200 flex">
 					<label htmlFor="my-drawer-2" className="drawer-overlay"></label>
 					{/* <!-- Sidebar content here --> */}
 					<ul className="menu flex w-80  flex-col justify-between  p-4 text-base-content">
@@ -71,26 +69,10 @@ const Layout = () => {
 								})}
 						</div>
 
-						{/* User Info */}
 						{currentUser && currentUser.email && (
 							<div>
-								<button className="rounded-md border p-2" onClick={() => setToggleModal(!toggleModal)}>
-									Creaet a chat
-								</button>
-								<img className="border" src={currentUser.avatar || defaultAvatar} width={50} height={50} alt="avatar" />
-								<span>{currentUser.username}</span>
-								<button
-									className="w-full border"
-									onClick={() => {
-										auth.logout();
-										window.location.reload();
-									}}
-								>
-									Log out
-								</button>
-								<Link to="/settings">
-									<button className="w-full border">config</button>
-								</Link>
+								<CreateChatButton toggleModal={() => setToggleModal(!toggleModal)} />
+								<UserInfo />
 							</div>
 						)}
 					</ul>
