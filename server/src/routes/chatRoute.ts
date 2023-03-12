@@ -85,7 +85,7 @@ router.post('/', async (req: Request, res: Response) => {
 		});
 
 		if (chat) {
-			return res.status(400).json({ message: 'Chat room already exists' });
+			return res.status(400).json({ message: 'The chatroom name already exists.' });
 		}
 
 		// Create a chat.

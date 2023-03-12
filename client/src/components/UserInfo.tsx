@@ -13,13 +13,15 @@ const UserInfo = () => {
 			{currentUser && (
 				<div className="flex flex-row items-center justify-evenly pt-5">
 					{/* Avatar */}
-					<div className="online avatar">
-						<div className="w-10 rounded-full">
-							<img src={currentUser.avatar || defaultAvatar} width={20} height={20} alt="avatar" />
+					<div className='flex flex-row items-center gap-x-2'>
+						<div className="online avatar">
+							<div className="w-10 rounded-full">
+								<img src={currentUser.avatar || defaultAvatar} width={20} height={20} alt="avatar" />
+							</div>
 						</div>
-					</div>
 
-					<span>{currentUser.username}</span>
+						<span>{currentUser.username}</span>
+					</div>
 
 					<div className="tooltip" data-tip="User settings">
 						<button className="btn-ghost btn-sm btn-circle btn text-2xl">
