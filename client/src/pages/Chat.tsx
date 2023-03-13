@@ -160,7 +160,7 @@ const Chat = () => {
 					return <div key={member.id}>{member.username}</div>;
 				})}
 
-			<button className="border p-2 rounded-md" onClick={leaveChat}>
+			<button className="rounded-md border p-2" onClick={leaveChat}>
 				Leave
 			</button>
 

@@ -16,7 +16,7 @@ const Home = () => {
 	};
 
 	return (
-		<div className="w-full h-full flex flex-col gap-y-10 justify-start items-center p-5">
+		<div className="flex h-full w-full flex-col items-center justify-start gap-y-10 p-5">
 			<p>Welcome to chit-chat</p>
 
 			<div>

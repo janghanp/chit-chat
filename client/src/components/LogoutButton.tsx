@@ -40,7 +40,6 @@ const LogoutButton = () => {
 				</div>,
 				document.body
 			)}
-
 		</>
 	);
 };
