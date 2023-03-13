@@ -4,6 +4,7 @@ import { HiPlus } from 'react-icons/hi';
 import axios from 'axios';
 
 import { AuthErrorResponse } from '../types';
+import { createPortal } from 'react-dom';
 
 const CreateChatButton = () => {
 	const navigate = useNavigate();
@@ -50,48 +51,53 @@ const CreateChatButton = () => {
 				</label>
 			</div>
 
-			<input
-				type="checkbox"
-				id="modal-2"
-				className="modal-toggle"
-				onChange={() => {
-					setError('');
-					setRoomName('');
-				}}
-			/>
+			{createPortal(
+				<div>
+					<input
+						type="checkbox"
+						id="modal-2"
+						className="modal-toggle"
+						onChange={() => {
+							setError('');
+							setRoomName('');
+						}}
+					/>
 
-			<label htmlFor="modal-2" className="modal">
-				<label className="modal-box relative">
-					<label htmlFor="modal-2" className="btn-sm btn-circle btn absolute right-5 top-5">
-						✕
-					</label>
-					<h3 className="text-center text-2xl font-bold">Create a chat</h3>
-					<p className="py-4">Your chat is where you and your friends hang out. Make yours and start talking.</p>
+					<label htmlFor="modal-2" className="modal">
+						<label className="modal-box relative">
+							<label htmlFor="modal-2" className="btn-sm btn-circle btn absolute right-5 top-5">
+								✕
+							</label>
+							<h3 className="text-center text-2xl font-bold">Create a chat</h3>
+							<p className="py-4">Your chat is where you and your friends hang out. Make yours and start talking.</p>
 
-					<div className="form-control my-5 w-full">
-						<label className="label">
-							<span className="label-text text-sm font-bold uppercase">chatroom name</span>
+							<div className="form-control my-5 w-full">
+								<label className="label">
+									<span className="label-text text-sm font-bold uppercase">chatroom name</span>
+								</label>
+								<input
+									type="text"
+									placeholder="Type here"
+									className={`input-bordered input w-full ${error && 'border-error'}`}
+									onChange={(e) => {
+										setError('');
+										setRoomName(e.target.value);
+									}}
+									value={roomName}
+								/>
+								{error && <span className="mt-2 text-sm text-error">{error}</span>}
+							</div>
+
+							<div className="w-full text-right">
+								<button className="btn" onClick={createChat}>
+									Create
+								</button>
+							</div>
 						</label>
-						<input
-							type="text"
-							placeholder="Type here"
-							className={`input-bordered input w-full ${error && 'border-error'}`}
-							onChange={(e) => {
-								setError('');
-								setRoomName(e.target.value);
-							}}
-							value={roomName}
-						/>
-						{error && <span className="mt-2 text-sm text-error">{error}</span>}
-					</div>
-
-					<div className="w-full text-right">
-						<button className="btn" onClick={createChat}>
-							Create
-						</button>
-					</div>
-				</label>
-			</label>
+					</label>
+				</div>,
+				document.body
+			)}
 		</>
 	);
 };

@@ -2,8 +2,9 @@ import { ChangeEvent, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import axios from 'axios';
+import { HiCamera } from 'react-icons/hi';
 
-import { AuthErrorResponse, AxiosResponseWithUser, AxiosResponseWithUsername } from '../types';
+import { AuthErrorResponse, CurrentUser, AxiosResponseWithUsername } from '../types';
 import { useUser } from '../context/UserContext';
 import defaultImageUrl from '/default.jpg';
 
@@ -59,7 +60,7 @@ const Settings = () => {
 			formData.append('file', image!);
 			formData.append('public_id', currentUser!.public_id || '');
 
-			const { data } = await axios.post<AxiosResponseWithUser>('http://localhost:8080/user/profile', formData, {
+			const { data } = await axios.post<CurrentUser>('http://localhost:8080/user/profile', formData, {
 				withCredentials: true,
 			});
 
@@ -146,57 +147,102 @@ const Settings = () => {
 	};
 
 	return (
-		<div>
-			<img className="border" src={preview || defaultImageUrl} alt="avatar" width={50} height={50} />
+		<div className="w-96">
+			<div className="avatar relative hover:cursor-pointer" onClick={() => fileInputRef.current?.click()}>
+				<div className="w-20 rounded-full ring-2 ring-base-content">
+					<img src={preview || defaultImageUrl} alt="avatar" width={25} height={25} />
+				</div>
+				<div className="absolute inset-0 z-10 rounded-full border text-xs font-semibold text-base-content opacity-0 duration-300 hover:bg-black hover:bg-opacity-10 hover:opacity-100">
+					<HiCamera className="mx-auto translate-y-1/2 text-4xl" />
+				</div>
+			</div>
 
-			{imageError && <p>{imageError}</p>}
+			{imageError && <span className="text-error">{imageError}</span>}
 
-			<label>Your Image File</label>
 			<input
 				type="file"
 				ref={fileInputRef}
 				accept="image/png, image/gif, image/jpeg, image/jpg, image/webp"
+				className="hidden"
 				onChange={changeFileHandler}
 			/>
 
 			<form onSubmit={onSubmit}>
-				<label>Email</label>
-				<input
-					className="border disabled:text-gray-400 hover:cursor-not-allowed"
-					disabled
-					{...register('email', {
-						required: { value: true, message: 'Email is required' },
-						pattern: {
-							value: /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/g,
-							message: 'Invalid email',
-						},
-					})}
-					aria-invalid={errors.email ? 'true' : 'false'}
-				/>
+				<div className="form-control w-full">
+					<label className="label">
+						<span className="label-text">Email</span>
+					</label>
 
-				{errors.email?.type === 'taken' && <p role="alert">{errors.email.message}</p>}
+					<input
+						className="input-bordered input w-full border hover:cursor-not-allowed disabled:text-gray-400"
+						disabled
+						{...register('email', {
+							required: { value: true, message: 'Email is required' },
+							pattern: {
+								value: /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/g,
+								message: 'Invalid email',
+							},
+						})}
+						aria-invalid={errors.email ? 'true' : 'false'}
+					/>
+				</div>
 
-				<label>New Password</label>
-				<input className="border" type="password" {...register('newPassword')} />
+				<div className="form-control w-full">
+					<label className="label">
+						<span className="label-text">New Password</span>
+					</label>
 
-				{errors.newPassword?.type === 'match' && <p role="alert">{errors.newPassword.message}</p>}
+					<input
+						className={`input-bordered input w-full border ${errors.newPassword && 'border-error'}`}
+						type="password"
+						{...register('newPassword')}
+					/>
 
-				<label>Confirm New Password</label>
-				<input className="border" type="password" {...register('confirmNewPassword')} />
+					{errors.newPassword?.type === 'match' && (
+						<span role="alert" className="text-error">
+							{errors.newPassword.message}
+						</span>
+					)}
+				</div>
 
-				<label>Username</label>
-				<input
-					className="border"
-					{...register('username', {
-						required: { value: true, message: 'Username is required' },
-					})}
-				/>
+				<div className="form-control w-full">
+					<label className="label">
+						<span className="label-text">Confirm New Password</span>
+					</label>
 
-				{errors.username?.type === 'required' && <p role="alert">{errors.username.message}</p>}
+					<input className="input-bordered input w-full border" type="password" {...register('confirmNewPassword')} />
+				</div>
 
-				{errors.username?.type === 'taken' && <p role="alert">{errors.username.message}</p>}
+				<div className="form-controla w-full">
+					<label className="label">
+						<span className="label-text">Username</span>
+					</label>
 
-				<button type="submit" className="disabled:cursor-not-allowed disabled:text-gray-300" disabled={isDisable}>
+					<input
+						className={`input-bordered input w-full border ${errors.username && 'border-error'}`}
+						{...register('username', {
+							required: { value: true, message: 'Username is required' },
+						})}
+					/>
+
+					{errors.username?.type === 'required' && (
+						<span role="alert" className="text-error">
+							{errors.username.message}
+						</span>
+					)}
+
+					{errors.username?.type === 'taken' && (
+						<span role="alert" className="text-error">
+							{errors.username.message}
+						</span>
+					)}
+				</div>
+
+				<button
+					type="submit"
+					className="btn mt-5 disabled:cursor-not-allowed disabled:text-gray-300"
+					disabled={isDisable}
+				>
 					Update
 				</button>
 			</form>
