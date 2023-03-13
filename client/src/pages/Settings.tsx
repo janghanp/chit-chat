@@ -141,7 +141,7 @@ const Settings = () => {
 	};
 
 	return (
-		<div className="w-96">
+		<div className="w-96 pt-10">
 			<Toaster />
 
 			<div className="avatar relative hover:cursor-pointer" onClick={() => fileInputRef.current?.click()}>
