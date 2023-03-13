@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { io, Socket } from 'socket.io-client';
@@ -6,6 +7,7 @@ import { formatDistance } from 'date-fns';
 
 import { AuthErrorResponse, Message, User } from '../types';
 import { useUser } from '../context/UserContext';
+import Member from '../components/Member';
 
 const Chat = () => {
 	const params = useParams();
@@ -154,11 +156,21 @@ const Chat = () => {
 
 	return (
 		<div>
+			{/* Member list renderes on the side bar */}
 			{members &&
 				members.length > 0 &&
-				members.map((member) => {
-					return <div key={member.id}>{member.username}</div>;
-				})}
+				createPortal(
+					<div className='flex flex-col gap-y-3'>
+						{members.map((member) => {
+							return (
+								<div key={member.id}>
+									<Member member={member} />
+								</div>
+							);
+						})}
+					</div>,
+					document.getElementById('member-list')!
+				)}
 
 			<button className="rounded-md border p-2" onClick={leaveChat}>
 				Leave

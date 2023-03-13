@@ -5,6 +5,7 @@ import { HiOutlineMenu } from 'react-icons/hi';
 import ChatRoomList from './ChatRoomList';
 import CreateChatButton from './CreateChatButton';
 import UserInfo from './UserInfo';
+import MemberList from './MemberList';
 
 const Sidebar = () => {
 	const { currentUser } = useUser();
@@ -25,8 +26,8 @@ const Sidebar = () => {
 				} fixed z-40 h-full bg-base-200 duration-200 ease-linear sm:relative sm:translate-x-0`}
 			>
 				{currentUser && currentUser.email && (
-					<div className="flex h-full w-80 flex-col justify-between p-5 text-base-content">
-						<div className="w-full items-end border-b pb-3 text-end opacity-100 sm:opacity-0">
+					<div className="flex h-full w-80 flex-col justify-between text-base-content">
+						{/* <div className="w-full items-end border-b pb-3 text-end opacity-100 sm:opacity-0">
 							<div className="tooltip tooltip-bottom" data-tip="Close">
 								<button
 									className="btn-outline btn-ghost btn-circle btn float-right sm:cursor-default"
@@ -35,15 +36,19 @@ const Sidebar = () => {
 									x
 								</button>
 							</div>
-						</div>
+						</div> */}
 
-						<div className="flex-1 py-5">
-							<ChatRoomList chatRooms={currentUser.chats} setIsSidebarOpen={setIsSidebarOpen} />
-						</div>
+						{/* Servers column */}
+						<div className="flex flex-1 flex-row justify-start">
+							<div className="bg-base-300 p-3">
+								<ChatRoomList chatRooms={currentUser.chats} setIsSidebarOpen={setIsSidebarOpen} />
+								<CreateChatButton />
+							</div>
 
-						<div>
-							<CreateChatButton />
-							<UserInfo setIsSidebarOpen={setIsSidebarOpen} />
+							<div className='flex flex-col justify-between w-full'>
+								<MemberList />
+								<UserInfo setIsSidebarOpen={setIsSidebarOpen} />
+							</div>
 						</div>
 					</div>
 				)}
