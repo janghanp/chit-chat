@@ -1,8 +1,9 @@
-import { ChangeEvent, useEffect, useRef, useState } from 'react';
+import { ChangeEvent, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import axios from 'axios';
 import { HiCamera } from 'react-icons/hi';
+import toast, { Toaster } from 'react-hot-toast';
 
 import { AuthErrorResponse, CurrentUser, AxiosResponseWithUsername } from '../types';
 import { useUser } from '../context/UserContext';
@@ -20,11 +21,9 @@ const Settings = () => {
 
 	const navigate = useNavigate();
 
-	const [image, setImage] = useState<File | null>();
 	const [preview, setPreview] = useState<string>(currentUser!.avatar || '');
 	const [imageError, setImageError] = useState<string>();
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	const [isLoading, setIsLoading] = useState<boolean>(false);
+	const [isUploading, setIsUploading] = useState<boolean>(false);
 
 	const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -50,31 +49,6 @@ const Settings = () => {
 	if ((currentUser!.username !== watchUsername && watchUsername) || watchNewPassword || watchConfirmNewPassword) {
 		isDisable = false;
 	}
-
-	// Upload an image when the image is chagned.
-	useEffect(() => {
-		const uploadImage = async () => {
-			setIsLoading(true);
-
-			const formData = new FormData();
-			formData.append('file', image!);
-			formData.append('public_id', currentUser!.public_id || '');
-
-			const { data } = await axios.post<CurrentUser>('http://localhost:8080/user/profile', formData, {
-				withCredentials: true,
-			});
-
-			// Chagne currentUser state in UserContext.
-			setCurrentUser(data);
-
-			setIsLoading(false);
-		};
-
-		//Since the avatar string is set to preview state, even if a use has an avatar, uploadImage won't be executed.
-		if (image && !imageError) {
-			uploadImage();
-		}
-	}, [currentUser, image, imageError, setCurrentUser]);
 
 	const onSubmit = handleSubmit(async (formData) => {
 		const { newPassword, confirmNewPassword, username } = formData;
@@ -108,7 +82,6 @@ const Settings = () => {
 				withCredentials: true,
 			});
 
-			// Change currentUser state.
 			setCurrentUser((prev) => ({ ...prev!, username: data.username }));
 
 			navigate('/');
@@ -124,6 +97,22 @@ const Settings = () => {
 		}
 	});
 
+	const uploadImage = async (image: File) => {
+		setIsUploading(true);
+
+		const formData = new FormData();
+
+		formData.append('file', image!);
+		formData.append('public_id', currentUser!.public_id || '');
+
+		const { data } = await axios.post<CurrentUser>('http://localhost:8080/user/profile', formData, {
+			withCredentials: true,
+		});
+
+		setCurrentUser(data);
+		setIsUploading(false);
+	};
+
 	const changeFileHandler = (event: ChangeEvent<HTMLInputElement>) => {
 		const file = event.target.files![0];
 
@@ -137,17 +126,24 @@ const Settings = () => {
 			const reader = new FileReader();
 
 			reader.onloadend = () => {
-				setImage(file);
 				setPreview(reader.result as string);
 				setImageError('');
 			};
 
 			reader.readAsDataURL(file);
+
+			toast.promise(uploadImage(file), {
+				loading: 'Saving...',
+				success: <b>Settings saved!</b>,
+				error: <b>Could not save.</b>,
+			});
 		}
 	};
 
 	return (
 		<div className="w-96">
+			<Toaster />
+
 			<div className="avatar relative hover:cursor-pointer" onClick={() => fileInputRef.current?.click()}>
 				<div className="w-20 rounded-full ring-2 ring-base-content">
 					<img src={preview || defaultImageUrl} alt="avatar" width={25} height={25} />
@@ -161,6 +157,7 @@ const Settings = () => {
 
 			<input
 				type="file"
+				disabled={isUploading}
 				ref={fileInputRef}
 				accept="image/png, image/gif, image/jpeg, image/jpg, image/webp"
 				className="hidden"
