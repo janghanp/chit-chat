@@ -22,6 +22,7 @@ const Chat = () => {
 	const [messages, setMessages] = useState<Message[]>([]);
 	const [isLoading, setIsLoading] = useState<boolean>(true);
 	const [members, setMembers] = useState<User[]>([]);
+	const [onlineMembers, setOnlineMembers] = useState<string[]>([]);
 
 	useEffect(() => {
 		const setupSocket = () => {
@@ -39,22 +40,43 @@ const Chat = () => {
 			});
 
 			socketRef.current?.on('enter_new_member', (data: { newUser: User }) => {
-				console.log('new member joined');
-				console.log(data);
-
 				setMembers((prev) => {
 					return [...prev, data.newUser];
 				});
 			});
 
-			socketRef.current?.on('leave_member', (data) => {
+			socketRef.current?.on('leave_member', (data: { username: string }) => {
 				setMembers((prev) => {
 					return prev.filter((member) => {
 						return member.username !== data.username;
 					});
 				});
 			});
+
+			socketRef.current?.on('online', (data: { userNames: string[] }) => {
+				setOnlineMembers(data.userNames);
+			});
+
+			socketRef.current?.on('offline', (data: { userNames: string[] }) => {
+				setOnlineMembers(data.userNames);
+			});
 		};
+
+		// const changeUserStatus = () => {
+		// 	console.log(members);
+		// 	console.log(onlineMembers);
+
+		// 	const updatedMembers = members.map((member) => {
+		// 		if (onlineMembers.includes(member.username)) {
+		// 			member.isOnline = true;
+		// 		} else {
+		// 			member.isOnline = false;
+		// 		}
+		// 		return member;
+		// 	});
+
+		// 	setMembers(updatedMembers);
+		// };
 
 		const fetchMessagesAndMembers = async () => {
 			const { data } = await axios.get('http://localhost:8080/chat/messages', {
@@ -97,6 +119,8 @@ const Chat = () => {
 
 				// Set previous messages and current memebers of this chat.
 				fetchMessagesAndMembers();
+				// Change user status.
+				// changeUserStatus();
 			} catch (error) {
 				if (axios.isAxiosError(error) && error.response?.status === 400) {
 					//No chat room found to join
@@ -121,6 +145,22 @@ const Chat = () => {
 			socketRef.current?.disconnect();
 		};
 	}, [currentUser, navigate, params.roomName, setCurrentUser]);
+
+	useEffect(() => {
+		if (onlineMembers) {
+			setMembers((prev) => {
+				return prev.map((el) => {
+					if (onlineMembers.includes(el.username)) {
+						el.isOnline = true;
+					} else {
+						el.isOnline = false;
+					}
+
+					return el;
+				});
+			});
+		}
+	}, [onlineMembers]);
 
 	const sendMessage = () => {
 		// Send a message to the socket server.
@@ -154,13 +194,15 @@ const Chat = () => {
 		return <div>Loading...</div>;
 	}
 
+	console.log(members);
+
 	return (
 		<div>
 			{/* Member list renderes on the side bar */}
 			{members &&
 				members.length > 0 &&
 				createPortal(
-					<div className='flex flex-col gap-y-3'>
+					<div className="flex flex-col gap-y-3">
 						{members.map((member) => {
 							return (
 								<div key={member.id}>

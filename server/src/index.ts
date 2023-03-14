@@ -83,8 +83,6 @@ io.on('connect', (socket: Socket) => {
 				});
 			}
 
-			console.log(usersWithSockets);
-
 			// Subscribe the socket channel
 			socket.join(data.roomName);
 
@@ -128,12 +126,16 @@ io.on('connect', (socket: Socket) => {
 					},
 				});
 
-				// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-				// @ts-ignore
-				delete newUser.password;
+				if (newUser) {
+					// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+					// @ts-ignore
+					delete newUser.password;
 
-				io.to(data.roomName).emit('enter_new_member', { newUser });
+					io.to(data.roomName).emit('enter_new_member', { newUser });
+				}
 			}
+
+			io.emit('online', { userNames: usersWithSockets.map((el) => el.username) });
 		} catch (error) {
 			console.log(error);
 		}
@@ -228,6 +230,8 @@ io.on('connect', (socket: Socket) => {
 					break;
 				}
 			}
+
+			io.emit('offline', { userNames: usersWithSockets.map((el) => el.username) });
 
 			console.log(`👋 socket id: ${socket.id}`);
 			console.log(usersWithSockets);

@@ -13,6 +13,7 @@ export interface User {
 	email: string;
 	avatar?: string;
 	public_id?: string;
+	isOnline: boolean;
 }
 
 export interface Chat {

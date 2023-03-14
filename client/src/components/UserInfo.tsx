@@ -14,18 +14,19 @@ const UserInfo = ({ setIsSidebarOpen }: Props) => {
 	const { currentUser } = useUser();
 
 	return (
-		<div className="border-t">
+		<div className="border-t bg-primary-content">
 			{currentUser && (
 				<div className="flex flex-row items-center justify-evenly py-3">
 					{/* Avatar */}
 					<div className="flex flex-row items-center gap-x-2">
-						<div className="online avatar">
+						<div className="avatar">
+							<div className="absolute -top-0.5 right-0 z-10 h-3 w-3 rounded-full border bg-green-500"></div>
 							<div className="w-8 rounded-full">
 								<img src={currentUser.avatar || defaultAvatar} width={20} height={20} alt="avatar" />
 							</div>
 						</div>
 
-						<span className='font-semibold'>{currentUser.username}</span>
+						<span className="text-sm font-semibold">{currentUser.username}</span>
 					</div>
 
 					<div className="tooltip" data-tip="User settings">
