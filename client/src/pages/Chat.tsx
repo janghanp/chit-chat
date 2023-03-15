@@ -1,13 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
-import { createPortal } from 'react-dom';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { io, Socket } from 'socket.io-client';
 import { formatDistance } from 'date-fns';
+import { HiUserGroup } from 'react-icons/hi';
 
 import { AuthErrorResponse, Message, User } from '../types';
 import { useUser } from '../context/UserContext';
-import Member from '../components/Member';
+import MemberList from '../components/MemberList';
 
 const Chat = () => {
 	const params = useParams();
@@ -23,6 +23,7 @@ const Chat = () => {
 	const [isLoading, setIsLoading] = useState<boolean>(true);
 	const [members, setMembers] = useState<User[]>([]);
 	const [onlineMembers, setOnlineMembers] = useState<string[]>([]);
+	const [isOpenMemberList, setIsOpenMemberList] = useState<boolean>(false);
 
 	useEffect(() => {
 		const setupSocket = () => {
@@ -61,22 +62,6 @@ const Chat = () => {
 				setOnlineMembers(data.userNames);
 			});
 		};
-
-		// const changeUserStatus = () => {
-		// 	console.log(members);
-		// 	console.log(onlineMembers);
-
-		// 	const updatedMembers = members.map((member) => {
-		// 		if (onlineMembers.includes(member.username)) {
-		// 			member.isOnline = true;
-		// 		} else {
-		// 			member.isOnline = false;
-		// 		}
-		// 		return member;
-		// 	});
-
-		// 	setMembers(updatedMembers);
-		// };
 
 		const fetchMessagesAndMembers = async () => {
 			const { data } = await axios.get('http://localhost:8080/chat/messages', {
@@ -194,46 +179,40 @@ const Chat = () => {
 		return <div>Loading...</div>;
 	}
 
-	console.log(members);
-
 	return (
-		<div>
-			{/* Member list renderes on the side bar */}
-			{members &&
-				members.length > 0 &&
-				createPortal(
-					<div className="flex flex-col gap-y-3">
-						{members.map((member) => {
-							return (
-								<div key={member.id}>
-									<Member member={member} />
-								</div>
-							);
-						})}
-					</div>,
-					document.getElementById('member-list')!
-				)}
+		<>
+			<div className="fixed left-0 top-0 z-20 flex h-10 w-full items-center justify-end bg-base-100 pr-5 shadow-md">
+				<div className="tool tooltip tooltip-bottom" data-tip="Show Members">
+					<button className="btn-ghost btn-sm btn px-2" onClick={() => setIsOpenMemberList(!isOpenMemberList)}>
+						<HiUserGroup className="text-2xl" />
+					</button>
+				</div>
+			</div>
 
-			<button className="rounded-md border p-2" onClick={leaveChat}>
-				Leave
-			</button>
+			<div>
+				{isOpenMemberList && <MemberList members={members} />}
 
-			{messages &&
-				messages.map((msg) => {
-					return (
-						<div key={msg.id}>
-							<p>{msg.senderName}</p>
-							<p>{msg.text}</p>
-							<p>{formatDistance(new Date(msg.createdAt), Date.now(), { addSuffix: true })}</p>
-						</div>
-					);
-				})}
+				<button className="rounded-md border p-2" onClick={leaveChat}>
+					Leave
+				</button>
 
-			<input className="border" type="text" value={message} onChange={(e) => setMessage(e.target.value)} />
-			<button className="border" onClick={sendMessage}>
-				Send
-			</button>
-		</div>
+				{messages &&
+					messages.map((msg) => {
+						return (
+							<div key={msg.id}>
+								<p>{msg.senderName}</p>
+								<p>{msg.text}</p>
+								<p>{formatDistance(new Date(msg.createdAt), Date.now(), { addSuffix: true })}</p>
+							</div>
+						);
+					})}
+
+				<input className="border" type="text" value={message} onChange={(e) => setMessage(e.target.value)} />
+				<button className="border" onClick={sendMessage}>
+					Send
+				</button>
+			</div>
+		</>
 	);
 };
 

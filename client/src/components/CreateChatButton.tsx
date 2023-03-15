@@ -44,9 +44,9 @@ const CreateChatButton = () => {
 	};
 
 	return (
-		<>
-			<div className="tooltip tooltip-right w-min mt-3 pt-3 border-t-2 border-t-base-content" data-tip="Create a chat">
-				<label htmlFor="modal-2" className="btn-outline btn-circle btn">
+		<div className="w-full p-4">
+			<div className="tooltip tooltip-right w-full" data-tip="Create a chat">
+				<label htmlFor="modal-2" className="btn-outline btn w-full">
 					<HiPlus className="text-xl" />
 				</label>
 			</div>
@@ -98,7 +98,7 @@ const CreateChatButton = () => {
 				</div>,
 				document.body
 			)}
-		</>
+		</div>
 	);
 };
 

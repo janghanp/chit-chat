@@ -12,6 +12,7 @@
 		"eslint": "eslint ."
 	},
 	"dependencies": {
+		"@types/node": "^18.15.3",
 		"axios": "^1.2.2",
 		"daisyui": "^2.46.1",
 		"date-fns": "^2.29.3",

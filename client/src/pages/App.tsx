@@ -10,6 +10,7 @@ import AutoLogin from '../components/AutoLogin';
 import Settings from './Settings';
 import Chat from './Chat';
 import NoMatch from './NoMatch';
+import { socket } from '../socket';
 
 function App() {
 	return (

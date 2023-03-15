@@ -14,7 +14,7 @@ const UserInfo = ({ setIsSidebarOpen }: Props) => {
 	const { currentUser } = useUser();
 
 	return (
-		<div className="border-t bg-primary-content">
+		<div className="border-t bg-base-300">
 			{currentUser && (
 				<div className="flex flex-row items-center justify-evenly py-3">
 					{/* Avatar */}
@@ -30,9 +30,9 @@ const UserInfo = ({ setIsSidebarOpen }: Props) => {
 					</div>
 
 					<div className="tooltip" data-tip="User settings">
-						<button className="btn-ghost btn-sm btn-circle btn text-2xl">
+						<button className="btn-ghost btn-sm btn px-2">
 							<Link to="/settings" onClick={() => setIsSidebarOpen(false)}>
-								<HiCog />
+								<HiCog className="text-2xl" />
 							</Link>
 						</button>
 					</div>
