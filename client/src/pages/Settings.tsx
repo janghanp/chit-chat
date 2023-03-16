@@ -1,4 +1,4 @@
-import { ChangeEvent, useRef, useState } from 'react';
+import { ChangeEvent, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import axios from 'axios';
@@ -16,7 +16,11 @@ interface FormData {
 	username: string;
 }
 
-const Settings = () => {
+interface Props {
+	closeSettings: () => void;
+}
+
+const Settings = ({ closeSettings }: Props) => {
 	const { currentUser, setCurrentUser } = useUser();
 
 	const navigate = useNavigate();
@@ -39,6 +43,22 @@ const Settings = () => {
 			username: currentUser!.username,
 		},
 	});
+
+	useEffect(() => {
+		function handleKeydown(event: KeyboardEvent) {
+			const key = event.key;
+
+			if (key === 'Escape') {
+				closeSettings();
+			}
+		}
+
+		document.addEventListener('keydown', handleKeydown);
+
+		return () => {
+			document.removeEventListener('keydown', handleKeydown);
+		};
+	}, []);
 
 	// Determining permission of submit button.
 	let isDisable = true;
@@ -84,6 +104,7 @@ const Settings = () => {
 
 			setCurrentUser((prev) => ({ ...prev!, username: data.username }));
 
+			closeSettings();
 			navigate('/');
 		} catch (error) {
 			if (axios.isAxiosError(error) && error.response?.status === 400) {
@@ -141,108 +162,130 @@ const Settings = () => {
 	};
 
 	return (
-		<div className="w-96 pt-10">
-			<Toaster />
+		<div className="fixed inset-0 z-40 bg-base-300">
+			<div className="mx-auto max-w-xl translate-y-40 rounded-md bg-base-100 p-5 shadow-md">
+				<div className="flex flex-row items-center justify-between">
+					<div className="text-base-con mb-5 text-3xl font-bold">User Settings</div>
+					<div className="tooltip tooltip-bottom" data-tip="esc">
+						<button className="btn-outline btn-circle btn" onClick={closeSettings}>
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								className="h-6 w-6"
+								fill="none"
+								viewBox="0 0 24 24"
+								stroke="currentColor"
+							>
+								<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+							</svg>
+						</button>
+					</div>
+				</div>
+				<Toaster />
 
-			<div className="avatar relative hover:cursor-pointer" onClick={() => fileInputRef.current?.click()}>
-				<div className="w-20 rounded-full ring-2 ring-base-content">
-					<img src={preview || defaultImageUrl} alt="avatar" width={25} height={25} />
+				<div className="w-full text-center mt-14">
+					<div className="avatar relative hover:cursor-pointer" onClick={() => fileInputRef.current?.click()}>
+						<div className="w-20 rounded-full ring-2 ring-base-content">
+							<img src={preview || defaultImageUrl} alt="avatar" width={25} height={25} />
+						</div>
+						<div className="absolute inset-0 z-10 rounded-full border text-xs font-semibold text-base-content opacity-0 duration-300 hover:bg-black hover:bg-opacity-10 hover:opacity-100">
+							<HiCamera className="mx-auto translate-y-1/2 text-4xl" />
+						</div>
+					</div>
 				</div>
-				<div className="absolute inset-0 z-10 rounded-full border text-xs font-semibold text-base-content opacity-0 duration-300 hover:bg-black hover:bg-opacity-10 hover:opacity-100">
-					<HiCamera className="mx-auto translate-y-1/2 text-4xl" />
-				</div>
+
+				{imageError && <span className="text-error">{imageError}</span>}
+
+				<input
+					type="file"
+					disabled={isUploading}
+					ref={fileInputRef}
+					accept="image/png, image/gif, image/jpeg, image/jpg, image/webp"
+					className="hidden"
+					onChange={changeFileHandler}
+				/>
+
+				<form className="mt-5" onSubmit={onSubmit}>
+					<div className="form-control w-full">
+						<label className="label">
+							<span className="label-text">Email</span>
+						</label>
+
+						<input
+							className="input-bordered input w-full border hover:cursor-not-allowed disabled:text-gray-400"
+							disabled
+							{...register('email', {
+								required: { value: true, message: 'Email is required' },
+								pattern: {
+									value: /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/g,
+									message: 'Invalid email',
+								},
+							})}
+							aria-invalid={errors.email ? 'true' : 'false'}
+						/>
+					</div>
+
+					<div className="form-control w-full">
+						<label className="label">
+							<span className="label-text">New Password</span>
+						</label>
+
+						<input
+							className={`input-bordered input w-full border ${errors.newPassword && 'border-error'}`}
+							type="password"
+							{...register('newPassword')}
+						/>
+
+						{errors.newPassword?.type === 'match' && (
+							<span role="alert" className="text-error">
+								{errors.newPassword.message}
+							</span>
+						)}
+					</div>
+
+					<div className="form-control w-full">
+						<label className="label">
+							<span className="label-text">Confirm New Password</span>
+						</label>
+
+						<input className="input-bordered input w-full border" type="password" {...register('confirmNewPassword')} />
+					</div>
+
+					<div className="form-controla w-full">
+						<label className="label">
+							<span className="label-text">Username</span>
+						</label>
+
+						<input
+							className={`input-bordered input w-full border ${errors.username && 'border-error'}`}
+							{...register('username', {
+								required: { value: true, message: 'Username is required' },
+							})}
+						/>
+
+						{errors.username?.type === 'required' && (
+							<span role="alert" className="text-error">
+								{errors.username.message}
+							</span>
+						)}
+
+						{errors.username?.type === 'taken' && (
+							<span role="alert" className="text-error">
+								{errors.username.message}
+							</span>
+						)}
+					</div>
+
+					<div className="w-full text-right">
+						<button
+							type="submit"
+							className="btn mt-5 disabled:cursor-not-allowed disabled:text-gray-300"
+							disabled={isDisable}
+						>
+							Update
+						</button>
+					</div>
+				</form>
 			</div>
-
-			{imageError && <span className="text-error">{imageError}</span>}
-
-			<input
-				type="file"
-				disabled={isUploading}
-				ref={fileInputRef}
-				accept="image/png, image/gif, image/jpeg, image/jpg, image/webp"
-				className="hidden"
-				onChange={changeFileHandler}
-			/>
-
-			<form onSubmit={onSubmit}>
-				<div className="form-control w-full">
-					<label className="label">
-						<span className="label-text">Email</span>
-					</label>
-
-					<input
-						className="input-bordered input w-full border hover:cursor-not-allowed disabled:text-gray-400"
-						disabled
-						{...register('email', {
-							required: { value: true, message: 'Email is required' },
-							pattern: {
-								value: /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/g,
-								message: 'Invalid email',
-							},
-						})}
-						aria-invalid={errors.email ? 'true' : 'false'}
-					/>
-				</div>
-
-				<div className="form-control w-full">
-					<label className="label">
-						<span className="label-text">New Password</span>
-					</label>
-
-					<input
-						className={`input-bordered input w-full border ${errors.newPassword && 'border-error'}`}
-						type="password"
-						{...register('newPassword')}
-					/>
-
-					{errors.newPassword?.type === 'match' && (
-						<span role="alert" className="text-error">
-							{errors.newPassword.message}
-						</span>
-					)}
-				</div>
-
-				<div className="form-control w-full">
-					<label className="label">
-						<span className="label-text">Confirm New Password</span>
-					</label>
-
-					<input className="input-bordered input w-full border" type="password" {...register('confirmNewPassword')} />
-				</div>
-
-				<div className="form-controla w-full">
-					<label className="label">
-						<span className="label-text">Username</span>
-					</label>
-
-					<input
-						className={`input-bordered input w-full border ${errors.username && 'border-error'}`}
-						{...register('username', {
-							required: { value: true, message: 'Username is required' },
-						})}
-					/>
-
-					{errors.username?.type === 'required' && (
-						<span role="alert" className="text-error">
-							{errors.username.message}
-						</span>
-					)}
-
-					{errors.username?.type === 'taken' && (
-						<span role="alert" className="text-error">
-							{errors.username.message}
-						</span>
-					)}
-				</div>
-
-				<button
-					type="submit"
-					className="btn mt-5 disabled:cursor-not-allowed disabled:text-gray-300"
-					disabled={isDisable}
-				>
-					Update
-				</button>
-			</form>
 		</div>
 	);
 };

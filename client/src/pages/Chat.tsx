@@ -25,6 +25,7 @@ const Chat = () => {
 	const [onlineMembers, setOnlineMembers] = useState<string[]>([]);
 	const [isOpenMemberList, setIsOpenMemberList] = useState<boolean>(false);
 
+	// It is too messy here. it neeeds to be simplified.
 	useEffect(() => {
 		const setupSocket = () => {
 			socketRef.current = io('http://localhost:8080');

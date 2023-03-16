@@ -7,10 +7,8 @@ import Home from './Home';
 import Login from './Login';
 import Register from './Register';
 import AutoLogin from '../components/AutoLogin';
-import Settings from './Settings';
 import Chat from './Chat';
 import NoMatch from './NoMatch';
-import { socket } from '../socket';
 
 function App() {
 	return (
@@ -23,14 +21,6 @@ function App() {
 							element={
 								<RequireAuth>
 									<Home />
-								</RequireAuth>
-							}
-						/>
-						<Route
-							path="/settings"
-							element={
-								<RequireAuth>
-									<Settings />
 								</RequireAuth>
 							}
 						/>
