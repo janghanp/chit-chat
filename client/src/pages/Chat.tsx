@@ -8,13 +8,16 @@ import { Message, User } from '../types';
 import { useUser } from '../context/UserContext';
 import MemberList from '../components/MemberList';
 import { connectSocket } from '../socket';
+import axios from 'axios';
 
 let socket: Socket;
 
 const Chat = () => {
-	const params = useParams();
+	const { roomName } = useParams();
 
 	const { currentUser, setCurrentUser } = useUser();
+	const currentUserName = currentUser?.username;
+	const currentUserChats = currentUser?.chats;
 
 	const navigate = useNavigate();
 
@@ -32,8 +35,11 @@ const Chat = () => {
 		};
 
 		const onEnterNewMember = (data: { newUser: User }) => {
+			const newUser = data.newUser;
+			newUser.isOnline = true;
+
 			setMembers((prev) => {
-				return [...prev, data.newUser];
+				return [...prev, newUser];
 			});
 		};
 
@@ -97,12 +103,12 @@ const Chat = () => {
 			setIsLoading(false);
 		};
 
-		socket = connectSocket(currentUser!.username);
+		socket = connectSocket(currentUserName as string);
 		socket.connect();
 
 		socket.emit('join_room', {
-			roomName: params.roomName,
-			username: currentUser!.username,
+			roomName,
+			username: currentUserName,
 		});
 
 		socket.on('setMessagesAndMembers', onSetMessagesAndMemebers);
@@ -123,13 +129,33 @@ const Chat = () => {
 			socket.off('existingUsers', onExistingUsers);
 			socket.disconnect();
 		};
-	}, [currentUser, params.roomName]);
+	}, [currentUserName, roomName]);
+
+	useEffect(() => {
+		const addChatroom = async () => {
+			const { data } = await axios.get('http://localhost:8080/chat', {
+				params: { roomName },
+				withCredentials: true,
+			});
+
+			setCurrentUser((prev) => ({
+				...prev!,
+				chats: [...currentUserChats!, { name: data.name, id: data.id }],
+			}));
+		};
+
+		if (!currentUserChats?.map((chat) => chat.name).includes(roomName as string)) {
+			console.log('Add the chat room on the sidebar');
+
+			addChatroom();
+		}
+	}, [currentUserChats, roomName, setCurrentUser]);
 
 	const sendMessage = () => {
 		socket.emit('send_message', {
 			senderId: currentUser!.id,
-			roomName: params.roomName,
-			senderName: currentUser!.username,
+			roomName,
+			senderName: currentUserName,
 			text: message,
 		});
 
@@ -140,11 +166,11 @@ const Chat = () => {
 		const result = window.confirm('Are you sure you want to leave the chat?');
 
 		if (result) {
-			socket.emit('leave_room', { roomName: params.roomName, username: currentUser!.username });
+			socket.emit('leave_room', { roomName, username: currentUserName });
 
 			setCurrentUser({
 				...currentUser!,
-				chats: currentUser!.chats?.filter((chat) => chat.name !== params.roomName),
+				chats: currentUser!.chats?.filter((chat) => chat.name !== roomName),
 			});
 
 			navigate('/');
@@ -154,8 +180,6 @@ const Chat = () => {
 	if (isLoading) {
 		return <div>Loading...</div>;
 	}
-
-	console.log(messages);
 
 	return (
 		<>
