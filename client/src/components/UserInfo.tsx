@@ -4,7 +4,7 @@ import { HiCog } from 'react-icons/hi';
 import { useUser } from '../context/UserContext';
 import defaultAvatar from '/default.jpg';
 import LogoutButton from './LogoutButton';
-import Settings from '../pages/Settings';
+import Settings from './Settings';
 import { createPortal } from 'react-dom';
 
 interface Props {

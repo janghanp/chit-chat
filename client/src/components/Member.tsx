@@ -1,5 +1,7 @@
 import { User } from '../types';
 
+import defaultAvatar from '/default.jpg';
+
 interface Props {
 	member: User;
 }
@@ -14,7 +16,7 @@ const Member = ({ member }: Props) => {
 					} `}
 				></div>
 				<div className="w-8 rounded-full">
-					<img src={member.avatar} alt="avatar" />
+					<img src={member.avatar || defaultAvatar} alt="avatar" />
 				</div>
 			</div>
 			<span className="text-sm font-semibold">{member.username}</span>

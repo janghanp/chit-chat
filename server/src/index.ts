@@ -68,23 +68,74 @@ const usersWithSockets: UserWithSockets[] = [];
 io.on('connect', (socket: Socket) => {
 	console.log(`🔌 socket id: ${socket.id}`);
 
+	const username = socket.handshake.query.username;
+
+	//Control when there are multiple tabs
+	const isExistent = usersWithSockets.map((el) => el.username).includes(username as string);
+
+	if (!isExistent) {
+		io.emit('online', { username });
+	}
+
+	// Add a user and socketId in the usersWIthSockets.
+	const targetIndex = usersWithSockets.findIndex((userWithSockets) => userWithSockets.username === username);
+
+	if (targetIndex >= 0) {
+		// Whene there is an existing user.
+		usersWithSockets[targetIndex].socketIds.push(socket.id);
+	} else {
+		// A new user connection established.
+		usersWithSockets.push({
+			username: username as string,
+			socketIds: [socket.id],
+		});
+	}
+
+	console.log(usersWithSockets);
+
 	socket.on('join_room', async (data: Room) => {
 		try {
-			const targetIndex = usersWithSockets.findIndex((userWithSockets) => userWithSockets.username === data.username);
+			const chat = await prisma.chat.findUnique({
+				where: {
+					name: data.roomName as string,
+				},
+				include: {
+					messages: {
+						include: {
+							sender: true,
+						},
+					},
+					users: true,
+				},
+			});
 
-			if (targetIndex >= 0) {
-				// Whene there is an existing user.
-				usersWithSockets[targetIndex].socketIds.push(socket.id);
-			} else {
-				// A new user connection established.
-				usersWithSockets.push({
-					username: data.username,
-					socketIds: [socket.id],
-				});
-			}
+			const messages = chat?.messages;
+			const users = chat?.users.map((user) => {
+				// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+				// @ts-ignore
+				delete user.password;
+				// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+				// @ts-ignore
+				delete user.createdAt;
+				// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+				// @ts-ignore
+				delete user.updatedAt;
 
-			// Subscribe the socket channel
+				return user;
+			});
+
+			socket.emit('setMessagesAndMembers', { messages, users });
+
 			socket.join(data.roomName);
+
+			const sockets = await io.in(data.roomName).fetchSockets();
+
+			const existingUserNames = sockets.map((socket) => {
+				return socket.handshake.query.username;
+			});
+
+			// Send existing socketIds in this room to the socket that is just connected.
+			socket.emit('existingUsers', { userNames: existingUserNames });
 
 			// Check if a user joined the room for the first time.
 			const userInChat = await prisma.chat.findFirst({
@@ -134,8 +185,6 @@ io.on('connect', (socket: Socket) => {
 					io.to(data.roomName).emit('enter_new_member', { newUser });
 				}
 			}
-
-			io.emit('online', { userNames: usersWithSockets.map((el) => el.username) });
 		} catch (error) {
 			console.log(error);
 		}
@@ -213,33 +262,36 @@ io.on('connect', (socket: Socket) => {
 	});
 
 	socket.on('disconnect', () => {
-		try {
-			// Remove the socketId from usersWithSocketIds array.
-			for (const [index, userWithSockets] of usersWithSockets.entries()) {
-				const targetIndex = userWithSockets.socketIds.findIndex((socketId) => {
-					return socketId === socket.id;
-				});
+		const username = socket.handshake.query.username;
 
-				if (targetIndex >= 0) {
-					userWithSockets.socketIds.splice(targetIndex, 1);
+		//Control when there are multiple tabs
+		const socketLength = usersWithSockets.filter((el) => el.username === username)[0].socketIds.length;
 
-					if (userWithSockets.socketIds.length === 0) {
-						usersWithSockets.splice(index, 1);
-					}
-
-					break;
-				}
-			}
-
-			io.emit('offline', { userNames: usersWithSockets.map((el) => el.username) });
-
-			console.log(`👋 socket id: ${socket.id}`);
-			console.log(usersWithSockets);
-			console.log('-------------------------------------------------------------');
-			console.log('\n');
-		} catch (error) {
-			console.log(error);
+		if (socketLength === 1) {
+			io.emit('offline', { username });
 		}
+
+		// Remove the socketId from usersWithSocketIds array.
+		for (const [index, userWithSockets] of usersWithSockets.entries()) {
+			const targetIndex = userWithSockets.socketIds.findIndex((socketId) => {
+				return socketId === socket.id;
+			});
+
+			if (targetIndex >= 0) {
+				userWithSockets.socketIds.splice(targetIndex, 1);
+
+				if (userWithSockets.socketIds.length === 0) {
+					usersWithSockets.splice(index, 1);
+				}
+
+				break;
+			}
+		}
+
+		console.log(`👋 socket id: ${socket.id}`);
+		console.log(usersWithSockets);
+		console.log('-------------------------------------------------------------');
+		console.log('\n');
 	});
 });
 

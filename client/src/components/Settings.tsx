@@ -166,7 +166,7 @@ const Settings = ({ closeSettings }: Props) => {
 			<div className="mx-auto max-w-xl translate-y-40 rounded-md bg-base-100 p-5 shadow-md">
 				<div className="flex flex-row items-center justify-between">
 					<div className="text-base-con mb-5 text-3xl font-bold">User Settings</div>
-					<div className="tooltip tooltip-bottom" data-tip="esc">
+					<div className="flex flex-col items-center justify-center gap-y-3">
 						<button className="btn-outline btn-circle btn" onClick={closeSettings}>
 							<svg
 								xmlns="http://www.w3.org/2000/svg"
@@ -178,11 +178,12 @@ const Settings = ({ closeSettings }: Props) => {
 								<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
 							</svg>
 						</button>
+						<kbd className="kbd kbd-sm">ESC</kbd>
 					</div>
 				</div>
 				<Toaster />
 
-				<div className="w-full text-center mt-14">
+				<div className="mt-14 w-full text-center">
 					<div className="avatar relative hover:cursor-pointer" onClick={() => fileInputRef.current?.click()}>
 						<div className="w-20 rounded-full ring-2 ring-base-content">
 							<img src={preview || defaultImageUrl} alt="avatar" width={25} height={25} />

@@ -1,13 +1,15 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import { io, Socket } from 'socket.io-client';
 import { formatDistance } from 'date-fns';
 import { HiUserGroup } from 'react-icons/hi';
+import { Socket } from 'socket.io-client';
 
-import { AuthErrorResponse, Message, User } from '../types';
+import { Message, User } from '../types';
 import { useUser } from '../context/UserContext';
 import MemberList from '../components/MemberList';
+import { connectSocket } from '../socket';
+
+let socket: Socket;
 
 const Chat = () => {
 	const params = useParams();
@@ -16,60 +18,70 @@ const Chat = () => {
 
 	const navigate = useNavigate();
 
-	const socketRef = useRef<Socket>();
-
 	const [message, setMessage] = useState<string>('');
 	const [messages, setMessages] = useState<Message[]>([]);
 	const [isLoading, setIsLoading] = useState<boolean>(true);
 	const [members, setMembers] = useState<User[]>([]);
-	const [onlineMembers, setOnlineMembers] = useState<string[]>([]);
-	const [isOpenMemberList, setIsOpenMemberList] = useState<boolean>(false);
+	const [isOpenMemberList, setIsOpenMemberList] = useState<boolean>(true);
 
-	// It is too messy here. it neeeds to be simplified.
 	useEffect(() => {
-		const setupSocket = () => {
-			socketRef.current = io('http://localhost:8080');
+		const onReceiveMessage = (data: Message) => {
+			const { id, senderId, senderName, text, createdAt } = data;
 
-			socketRef.current?.emit('join_room', {
-				roomName: params.roomName,
-				username: currentUser!.username,
-			});
+			setMessages((prev) => [...prev, { id, senderId, senderName, text, createdAt }]);
+		};
 
-			socketRef.current?.on('receive_message', (data: Message) => {
-				const { id, senderId, senderName, text, createdAt } = data;
-
-				setMessages((prev) => [...prev, { id, senderId, senderName, text, createdAt }]);
-			});
-
-			socketRef.current?.on('enter_new_member', (data: { newUser: User }) => {
-				setMembers((prev) => {
-					return [...prev, data.newUser];
-				});
-			});
-
-			socketRef.current?.on('leave_member', (data: { username: string }) => {
-				setMembers((prev) => {
-					return prev.filter((member) => {
-						return member.username !== data.username;
-					});
-				});
-			});
-
-			socketRef.current?.on('online', (data: { userNames: string[] }) => {
-				setOnlineMembers(data.userNames);
-			});
-
-			socketRef.current?.on('offline', (data: { userNames: string[] }) => {
-				setOnlineMembers(data.userNames);
+		const onEnterNewMember = (data: { newUser: User }) => {
+			setMembers((prev) => {
+				return [...prev, data.newUser];
 			});
 		};
 
-		const fetchMessagesAndMembers = async () => {
-			const { data } = await axios.get('http://localhost:8080/chat/messages', {
-				params: { roomName: params.roomName },
-				withCredentials: true,
+		const onLeaveMember = (data: { username: string }) => {
+			setMembers((prev) => {
+				return prev.filter((member) => {
+					return member.username !== data.username;
+				});
 			});
+		};
 
+		const onOnline = (data: { username: string }) => {
+			setMembers((prev) => {
+				return prev.map((member) => {
+					if (member.username === data.username) {
+						member.isOnline = true;
+					}
+
+					return member;
+				});
+			});
+		};
+
+		const onOffline = (data: { username: string }) => {
+			setMembers((prev) => {
+				return prev.map((member) => {
+					if (member.username === data.username) {
+						member.isOnline = false;
+					}
+
+					return member;
+				});
+			});
+		};
+
+		const onExistingUsers = (data: { userNames: string[] }) => {
+			setMembers((prev) => {
+				return prev.map((member) => {
+					if (data.userNames.includes(member.username)) {
+						member.isOnline = true;
+					}
+
+					return member;
+				});
+			});
+		};
+
+		const onSetMessagesAndMemebers = (data: any) => {
 			const previousMessage = data.messages.map((message: any) => {
 				return {
 					id: message.id,
@@ -80,77 +92,41 @@ const Chat = () => {
 				};
 			});
 
-			setMembers(data.users);
 			setMessages(previousMessage);
+			setMembers(data.users);
+			setIsLoading(false);
 		};
 
-		const checkThePresenceOfChat = async () => {
-			try {
-				// Check the presence of a chat room.
-				const { data } = await axios.get('http://localhost:8080/chat', {
-					params: { roomName: params.roomName },
-					withCredentials: true,
-				});
+		socket = connectSocket(currentUser!.username);
+		socket.connect();
 
-				// Connect a socket and register events for later use.
-				setupSocket();
+		socket.emit('join_room', {
+			roomName: params.roomName,
+			username: currentUser!.username,
+		});
 
-				// Add a chat room in the sidebar conditionally.
-				if (currentUser?.chats?.findIndex((chat) => chat.name === params.roomName) === -1) {
-					setCurrentUser({
-						...currentUser!,
-						chats: [...currentUser!.chats!, { name: data.name, id: data.id }],
-					});
-				}
+		socket.on('setMessagesAndMembers', onSetMessagesAndMemebers);
+		socket.on('receive_message', onReceiveMessage);
+		socket.on('enter_new_member', onEnterNewMember);
+		socket.on('leave_member', onLeaveMember);
+		socket.on('online', onOnline);
+		socket.on('offline', onOffline);
+		socket.on('existingUsers', onExistingUsers);
 
-				// Set previous messages and current memebers of this chat.
-				fetchMessagesAndMembers();
-				// Change user status.
-				// changeUserStatus();
-			} catch (error) {
-				if (axios.isAxiosError(error) && error.response?.status === 400) {
-					//No chat room found to join
-					const serverError = error.response.data as AuthErrorResponse;
-
-					alert(serverError.message);
-					navigate(-1);
-					return;
-				} else if (error instanceof Error) {
-					console.log(error);
-				}
-			} finally {
-				setIsLoading(false);
-			}
-		};
-
-		checkThePresenceOfChat();
-
-		// When a user is moving between pages in the same tab, get rid of the previous socket instance and then establish a new connection.
-		// This is different from leaving chat room. It is just changing socket instance but stay in the chat room.
 		return () => {
-			socketRef.current?.disconnect();
+			socket.off('setMessagesAndMembers', onSetMessagesAndMemebers);
+			socket.off('receive_message', onReceiveMessage);
+			socket.off('enter_new_member', onEnterNewMember);
+			socket.off('leave_member', onLeaveMember);
+			socket.off('online', onOnline);
+			socket.off('offline', onOffline);
+			socket.off('existingUsers', onExistingUsers);
+			socket.disconnect();
 		};
-	}, [currentUser, navigate, params.roomName, setCurrentUser]);
-
-	useEffect(() => {
-		if (onlineMembers) {
-			setMembers((prev) => {
-				return prev.map((el) => {
-					if (onlineMembers.includes(el.username)) {
-						el.isOnline = true;
-					} else {
-						el.isOnline = false;
-					}
-
-					return el;
-				});
-			});
-		}
-	}, [onlineMembers]);
+	}, [currentUser, params.roomName]);
 
 	const sendMessage = () => {
-		// Send a message to the socket server.
-		socketRef.current!.emit('send_message', {
+		socket.emit('send_message', {
 			senderId: currentUser!.id,
 			roomName: params.roomName,
 			senderName: currentUser!.username,
@@ -164,14 +140,13 @@ const Chat = () => {
 		const result = window.confirm('Are you sure you want to leave the chat?');
 
 		if (result) {
-			socketRef.current?.emit('leave_room', { roomName: params.roomName, username: currentUser!.username });
+			socket.emit('leave_room', { roomName: params.roomName, username: currentUser!.username });
 
 			setCurrentUser({
 				...currentUser!,
 				chats: currentUser!.chats?.filter((chat) => chat.name !== params.roomName),
 			});
 
-			// Since this component is going to be unomunted ouf of the dom, the clear function in useEffect is going to fire and consequently socket gets disconnected.
 			navigate('/');
 		}
 	};
@@ -179,6 +154,8 @@ const Chat = () => {
 	if (isLoading) {
 		return <div>Loading...</div>;
 	}
+
+	console.log(messages);
 
 	return (
 		<>

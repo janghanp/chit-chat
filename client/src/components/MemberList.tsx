@@ -7,7 +7,7 @@ interface Props {
 
 const MemberList = ({ members }: Props) => {
 	return (
-		<div className="fixed right-0 flex h-full w-56 flex-col gap-y-3 bg-base-200 p-5 top-0 pt-16 shadow-md border-l">
+		<div className="fixed right-0 top-0 flex h-full w-56 flex-col gap-y-3 border-l bg-base-200 p-5 pt-16 shadow-md">
 			{members.map((member) => {
 				return (
 					<div key={member.id}>

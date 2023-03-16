@@ -155,8 +155,11 @@ const Register = () => {
 							Sign Up
 						</button>
 
-						<div className="w-full text-sm font-semibold underline hover:cursor-pointer">
-							<Link to={'/login'}>Already have an account?</Link>
+						<div className="flex w-full justify-center gap-x-4 text-sm font-semibold">
+							<span>Already have an account?</span>
+							<Link to={'/login'} className="underline hover:cursor-pointer">
+								Login
+							</Link>
 						</div>
 					</form>
 				</div>
