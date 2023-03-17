@@ -17,7 +17,7 @@ function App() {
 				<Route element={<AutoLogin />}>
 					<Route path="/" element={<Layout />}>
 						<Route
-							index
+							path="/explorer"
 							element={
 								<RequireAuth>
 									<Home />

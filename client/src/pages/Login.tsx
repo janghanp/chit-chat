@@ -30,7 +30,7 @@ const Login = () => {
 
 		if (isAuthSuccessResponse(result)) {
 			setCurrentUser(result);
-			navigate('/');
+			navigate('/explorer');
 		}
 
 		if (isAuthErrorResponse(result)) {
@@ -40,7 +40,7 @@ const Login = () => {
 	});
 
 	if (currentUser) {
-		return <Navigate to={'/'}></Navigate>;
+		return <Navigate to={'/explorer'}></Navigate>;
 	}
 
 	return (

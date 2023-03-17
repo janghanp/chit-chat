@@ -35,7 +35,7 @@ const Register = () => {
 
 		if (isAuthSuccessResponse(result)) {
 			setCurrentUser(result);
-			navigate('/');
+			navigate('/explorer');
 		}
 
 		if (isAuthErrorResponse(result)) {
@@ -48,7 +48,7 @@ const Register = () => {
 	});
 
 	if (currentUser) {
-		return <Navigate to={'/'}></Navigate>;
+		return <Navigate to={'/explorer'}></Navigate>;
 	}
 
 	return (

@@ -75,7 +75,9 @@ const Chat = () => {
 			});
 		};
 
-		const onExistingUsers = (data: { userNames: string[] }) => {
+		const onOnlineUsers = (data: { userNames: string[] }) => {
+			console.log(data);
+			
 			setMembers((prev) => {
 				return prev.map((member) => {
 					if (data.userNames.includes(member.username)) {
@@ -117,7 +119,7 @@ const Chat = () => {
 		socket.on('leave_member', onLeaveMember);
 		socket.on('online', onOnline);
 		socket.on('offline', onOffline);
-		socket.on('existingUsers', onExistingUsers);
+		socket.on('onlineUsers', onOnlineUsers);
 
 		return () => {
 			socket.off('setMessagesAndMembers', onSetMessagesAndMemebers);
@@ -126,7 +128,7 @@ const Chat = () => {
 			socket.off('leave_member', onLeaveMember);
 			socket.off('online', onOnline);
 			socket.off('offline', onOffline);
-			socket.off('existingUsers', onExistingUsers);
+			socket.off('onlineUsers', onOnlineUsers);
 			socket.disconnect();
 		};
 	}, [currentUserName, roomName]);
@@ -145,8 +147,6 @@ const Chat = () => {
 		};
 
 		if (!currentUserChats?.map((chat) => chat.name).includes(roomName as string)) {
-			console.log('Add the chat room on the sidebar');
-
 			addChatroom();
 		}
 	}, [currentUserChats, roomName, setCurrentUser]);
@@ -180,6 +180,9 @@ const Chat = () => {
 	if (isLoading) {
 		return <div>Loading...</div>;
 	}
+
+	console.log('Chat.tsx render');
+	
 
 	return (
 		<>

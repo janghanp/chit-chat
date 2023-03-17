@@ -126,16 +126,10 @@ io.on('connect', (socket: Socket) => {
 
 			socket.emit('setMessagesAndMembers', { messages, users });
 
+			//Join current room
 			socket.join(data.roomName);
 
-			const sockets = await io.in(data.roomName).fetchSockets();
-
-			const existingUserNames = sockets.map((socket) => {
-				return socket.handshake.query.username;
-			});
-
-			// Send existing socketIds in this room to the socket that is just connected.
-			socket.emit('existingUsers', { userNames: existingUserNames });
+			socket.emit('onlineUsers', { userNames: usersWithSockets.map((el) => el.username) });
 
 			// Check if a user joined the room for the first time.
 			const userInChat = await prisma.chat.findFirst({

@@ -5,6 +5,7 @@ import { HiOutlineMenu } from 'react-icons/hi';
 import ChatRoomList from './ChatRoomList';
 import CreateChatButton from './CreateChatButton';
 import UserInfo from './UserInfo';
+import ExplorerButton from './ExplorerButton';
 
 const Sidebar = () => {
 	const { currentUser } = useUser();
@@ -25,10 +26,11 @@ const Sidebar = () => {
 				} fixed z-40 h-full bg-base-200 duration-200 ease-linear sm:relative sm:translate-x-0`}
 			>
 				{currentUser && currentUser.email && (
-					<div className="flex h-full w-80 flex-col justify-between shadow-md border-r">
+					<div className="flex h-full w-80 flex-col justify-between border-r shadow-md">
 						<div className="flex h-full flex-col justify-between">
 							<ChatRoomList chatRooms={currentUser.chats} setIsSidebarOpen={setIsSidebarOpen} />
 							<div>
+								<ExplorerButton />
 								<CreateChatButton />
 								<UserInfo setIsSidebarOpen={setIsSidebarOpen} />
 							</div>
