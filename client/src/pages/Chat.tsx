@@ -34,6 +34,10 @@ const Chat = ({ socket, members, messages, isLoading }: Props) => {
 				roomName,
 				username: currentUserName,
 			});
+
+			return () => {
+				socket.emit('move_room', { roomName });
+			};
 		}
 	}, [roomName, currentUserName, socket]);
 
@@ -85,8 +89,6 @@ const Chat = ({ socket, members, messages, isLoading }: Props) => {
 	if (isLoading) {
 		return <div>Loading...</div>;
 	}
-
-	console.log('Chat.tsx render');
 
 	return (
 		<>

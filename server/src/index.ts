@@ -94,6 +94,8 @@ io.on('connect', (socket: Socket) => {
 	console.log(usersWithSockets);
 
 	socket.on('join_room', async (data: Room) => {
+		socket.join(data.roomName);
+
 		try {
 			const chat = await prisma.chat.findUnique({
 				where: {
@@ -217,6 +219,10 @@ io.on('connect', (socket: Socket) => {
 		}
 	});
 
+	socket.on('move_room', (data: { roomName: string }) => {
+		socket.leave(data.roomName);
+	});
+
 	socket.on('leave_room', async (data: Room) => {
 		try {
 			const chat = await prisma.chat.update({
@@ -244,9 +250,9 @@ io.on('connect', (socket: Socket) => {
 				});
 			}
 
-			socket.leave(data.roomName);
-
 			io.to(data.roomName).emit('leave_member', { username: data.username });
+
+			socket.leave(data.roomName);
 		} catch (error) {
 			console.log(error);
 		}

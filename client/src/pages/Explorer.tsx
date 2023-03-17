@@ -1,7 +1,12 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Socket } from 'socket.io-client';
 
-const Explorer = () => {
+interface Props {
+	socket: Socket;
+}
+
+const Explorer = ({ socket }: Props) => {
 	const [roomName, setRoomName] = useState<string>('');
 
 	const navigate = useNavigate();
