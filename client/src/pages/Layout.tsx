@@ -1,14 +1,8 @@
 import { Outlet } from 'react-router-dom';
 
 import Sidebar from '../components/Sidebar';
-import { useUser } from '../context/UserContext';
 
 const Layout = () => {
-	// const {currentUser} = useUser();
-	// console.log(currentUser);
-
-	console.log('Layout.tsx render');
-
 	return (
 		<div className="fle-row flex h-screen">
 			<Sidebar />
