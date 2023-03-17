@@ -10,7 +10,11 @@ import AutoLogin from '../components/AutoLogin';
 import Chat from './Chat';
 import NoMatch from './NoMatch';
 
+//? What happens if I put socket connection in App.tsx inside of useEffect?
+
 function App() {
+	console.log('App.tsx render');
+
 	return (
 		<UserProvider>
 			<Routes>

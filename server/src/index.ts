@@ -126,9 +126,6 @@ io.on('connect', (socket: Socket) => {
 
 			socket.emit('setMessagesAndMembers', { messages, users });
 
-			//Join current room
-			socket.join(data.roomName);
-
 			socket.emit('onlineUsers', { userNames: usersWithSockets.map((el) => el.username) });
 
 			// Check if a user joined the room for the first time.

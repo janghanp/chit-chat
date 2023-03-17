@@ -76,8 +76,6 @@ const Chat = () => {
 		};
 
 		const onOnlineUsers = (data: { userNames: string[] }) => {
-			console.log(data);
-			
 			setMembers((prev) => {
 				return prev.map((member) => {
 					if (data.userNames.includes(member.username)) {
@@ -182,7 +180,6 @@ const Chat = () => {
 	}
 
 	console.log('Chat.tsx render');
-	
 
 	return (
 		<>
