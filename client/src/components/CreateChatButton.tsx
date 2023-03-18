@@ -2,10 +2,10 @@ import { ChangeEvent, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { HiCamera, HiPlus } from 'react-icons/hi';
 import axios from 'axios';
+import { SyncLoader } from 'react-spinners';
 
 import { AuthErrorResponse } from '../types';
 import { createPortal } from 'react-dom';
-import toast from 'react-hot-toast';
 
 const CreateChatButton = () => {
 	const navigate = useNavigate();
@@ -15,7 +15,7 @@ const CreateChatButton = () => {
 	const [file, setFile] = useState<File | null>();
 	const [preview, setPreview] = useState<string>();
 	const [imageError, setImageError] = useState<string>();
-	const [isUploading, setIsUploading] = useState<boolean>(false);
+	const [isLoading, setIsLoading] = useState<boolean>(false);
 
 	const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -42,25 +42,33 @@ const CreateChatButton = () => {
 		}
 	};
 
+	const clearStates = () => {
+		setRoomName('');
+		setFile(null);
+		setPreview('');
+		setError('');
+		setImageError('');
+	};
+
 	const createChat = async () => {
 		if (!roomName) {
 			setError('Please provide a chatroom name');
 			return;
 		}
 
+		if (error) {
+			return;
+		}
+
 		try {
+			setIsLoading(true);
+
 			const formData = new FormData();
 
 			formData.append('file', file || '');
 			formData.append('roomName', roomName);
 
 			await axios.post('http://localhost:8080/chat', formData, { withCredentials: true });
-
-			// toast.promise(await axios.post('http://localhost:8080/chat', formData, { withCredentials: true }), {
-			// 	loading: 'Creating...',
-			// 	success: <b>A chatroom created!</b>,
-			// 	error: <b>Error...</b>,
-			// });
 
 			navigate(`/chat/${roomName}`);
 
@@ -77,16 +85,9 @@ const CreateChatButton = () => {
 
 			return;
 		} finally {
-			setRoomName('');
+			setIsLoading(false);
+			// clearStates();
 		}
-	};
-
-	const clearStates = () => {
-		setRoomName('');
-		setFile(null);
-		setPreview('');
-		setError('');
-		setImageError('');
 	};
 
 	return (
@@ -130,7 +131,7 @@ const CreateChatButton = () => {
 
 								<input
 									type="file"
-									disabled={isUploading}
+									disabled={isLoading}
 									ref={fileInputRef}
 									accept="image/png, image/gif, image/jpeg, image/jpg, image/webp"
 									className="hidden"
@@ -154,8 +155,8 @@ const CreateChatButton = () => {
 							</div>
 
 							<div className="w-full text-right">
-								<button className="btn" onClick={createChat}>
-									Create
+								<button className={`btn ${isLoading && 'pointer-events-none'}`} onClick={createChat}>
+									{isLoading ? <SyncLoader color="#A3C6FF" size={10} margin={4} /> : <span>create</span>}
 								</button>
 							</div>
 						</label>
