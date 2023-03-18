@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, memo } from 'react';
 import { useUser } from '../context/UserContext';
 import { HiOutlineMenu } from 'react-icons/hi';
 
@@ -50,4 +50,4 @@ const Sidebar = () => {
 	);
 };
 
-export default Sidebar;
+export default memo(Sidebar);

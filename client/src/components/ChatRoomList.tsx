@@ -1,7 +1,8 @@
 import { Dispatch, SetStateAction } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 
 import { Chat } from '../types';
+import ChatRoom from './ChatRoom';
 
 interface Props {
 	chatRooms: Chat[] | undefined;
@@ -14,16 +15,14 @@ const ChatRoomList = ({ chatRooms, setIsSidebarOpen }: Props) => {
 	return (
 		<ul className="menu p-4">
 			{chatRooms &&
-				chatRooms.map((chat) => {
+				chatRooms.map((chatRoom) => {
 					return (
-						<li key={chat.id}>
-							<Link
-								to={`/chat/${chat.name}`}
-								className={`${params.roomName === chat.name ? 'active' : ''}`}
-								onClick={() => setIsSidebarOpen(false)}
-							>
-								{chat.name}
-							</Link>
+						<li key={chatRoom.id}>
+							<ChatRoom
+								chatRoom={chatRoom}
+								currentRoomName={params.roomName as string}
+								setIsSidebarOpen={setIsSidebarOpen}
+							/>
 						</li>
 					);
 				})}

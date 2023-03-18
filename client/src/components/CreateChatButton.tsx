@@ -12,11 +12,35 @@ const CreateChatButton = () => {
 
 	const [roomName, setRoomName] = useState<string>('');
 	const [error, setError] = useState<string>('');
+	const [file, setFile] = useState<File | null>();
 	const [preview, setPreview] = useState<string>();
 	const [imageError, setImageError] = useState<string>();
 	const [isUploading, setIsUploading] = useState<boolean>(false);
 
 	const fileInputRef = useRef<HTMLInputElement>(null);
+
+	const changeFileHandler = (event: ChangeEvent<HTMLInputElement>) => {
+		const file = event.target.files![0];
+
+		if (file) {
+			if (file.size > 1000000) {
+				setImageError('The image should be less than 1MB.');
+				setFile(null);
+				setPreview('');
+				return;
+			}
+
+			const reader = new FileReader();
+
+			reader.onloadend = () => {
+				setFile(file);
+				setPreview(reader.result as string);
+				setImageError('');
+			};
+
+			reader.readAsDataURL(file);
+		}
+	};
 
 	const createChat = async () => {
 		if (!roomName) {
@@ -24,14 +48,22 @@ const CreateChatButton = () => {
 			return;
 		}
 
-		// Check if a chat room to create already exists.
 		try {
-			await axios.post('http://localhost:8080/chat', { roomName: roomName }, { withCredentials: true });
+			const formData = new FormData();
 
-			// A chat room has been created and redirect a user to the Chat page.
+			formData.append('file', file || '');
+			formData.append('roomName', roomName);
+
+			await axios.post('http://localhost:8080/chat', formData, { withCredentials: true });
+
+			// toast.promise(await axios.post('http://localhost:8080/chat', formData, { withCredentials: true }), {
+			// 	loading: 'Creating...',
+			// 	success: <b>A chatroom created!</b>,
+			// 	error: <b>Error...</b>,
+			// });
+
 			navigate(`/chat/${roomName}`);
 
-			// close the modal
 			document.getElementById('modal-2')!.click();
 		} catch (error) {
 			if (axios.isAxiosError(error) && error.response?.status === 400) {
@@ -49,50 +81,12 @@ const CreateChatButton = () => {
 		}
 	};
 
-	const uploadImage = async (image: File) => {
-		setIsUploading(true);
-
-		const formData = new FormData();
-
-		formData.append('file', image!);
-		formData.append('public_id', '');
-
-		// const { data } = await axios.post<any>('http://localhost:8080/chat/icon', formData, {
-		// 	withCredentials: true,
-		// });
-
-		setIsUploading(false);
-	};
-
-	const changeFileHandler = (event: ChangeEvent<HTMLInputElement>) => {
-		const file = event.target.files![0];
-
-		if (file) {
-			if (file.size > 1000000) {
-				setImageError('The image should be less than 1MB.');
-				setPreview('');
-				return;
-			}
-
-			const reader = new FileReader();
-
-			reader.onloadend = () => {
-				setPreview(reader.result as string);
-				setImageError('');
-			};
-
-			reader.readAsDataURL(file);
-
-			//TODO: How should the image be handled?
-			//?: Upload it right away when chaing an image?
-			//?: Upload it when clicking the create button?
-
-			// toast.promise(uploadImage(file), {
-			// 	loading: 'Saving...',
-			// 	success: <b>Settings saved!</b>,
-			// 	error: <b>Could not save.</b>,
-			// });
-		}
+	const clearStates = () => {
+		setRoomName('');
+		setFile(null);
+		setPreview('');
+		setError('');
+		setImageError('');
 	};
 
 	return (
@@ -105,15 +99,7 @@ const CreateChatButton = () => {
 
 			{createPortal(
 				<div>
-					<input
-						type="checkbox"
-						id="modal-2"
-						className="modal-toggle"
-						onChange={() => {
-							setError('');
-							setRoomName('');
-						}}
-					/>
+					<input type="checkbox" id="modal-2" className="modal-toggle" onChange={clearStates} />
 
 					<label htmlFor="modal-2" className="modal">
 						<label htmlFor="" className="modal-box relative">

@@ -19,6 +19,8 @@ export interface User {
 export interface Chat {
 	id: string;
 	name: string;
+	icon?: string;
+	public_id?: string;
 }
 
 export interface Message {

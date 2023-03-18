@@ -41,7 +41,6 @@ const Chat = ({ socket, members, messages, isLoading }: Props) => {
 		}
 	}, [roomName, currentUserName, socket]);
 
-	//Add new chat room on the side bar.
 	useEffect(() => {
 		const addChatroom = async () => {
 			const { data } = await axios.get('http://localhost:8080/chat', {
@@ -51,11 +50,12 @@ const Chat = ({ socket, members, messages, isLoading }: Props) => {
 
 			setCurrentUser((prev) => ({
 				...prev!,
-				chats: [...currentUserChats!, { name: data.name, id: data.id }],
+				chats: [...currentUserChats!, { name: data.name, id: data.id, icon: data.icon, public_id: data.public_id }],
 			}));
 		};
 
 		if (!currentUserChats?.map((chat) => chat.name).includes(roomName as string)) {
+			//Add a chatromm when entering the room for the first time.
 			addChatroom();
 		}
 	}, [currentUserChats, roomName, setCurrentUser]);

@@ -46,8 +46,6 @@ function App() {
 			};
 
 			const onEnterNewMember = (data: { newUser: User }) => {
-				console.log('new user entered');
-				
 				const newUser = data.newUser;
 				newUser.isOnline = true;
 
@@ -57,8 +55,6 @@ function App() {
 			};
 
 			const onLeaveMember = (data: { username: string }) => {
-				console.log('user left');
-				
 				setMembers((prev) => {
 					return prev.filter((member) => {
 						return member.username !== data.username;
