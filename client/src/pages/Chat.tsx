@@ -43,22 +43,32 @@ const Chat = ({ socket, members, messages, isLoading }: Props) => {
 
 	useEffect(() => {
 		const addChatroom = async () => {
-			const { data } = await axios.get('http://localhost:8080/chat', {
-				params: { roomName },
-				withCredentials: true,
-			});
+			try {
+				const { data } = await axios.get('http://localhost:8080/chat', {
+					params: { roomName },
+					withCredentials: true,
+				});
 
-			setCurrentUser((prev) => ({
-				...prev!,
-				chats: [...currentUserChats!, { name: data.name, id: data.id, icon: data.icon, public_id: data.public_id }],
-			}));
+				setCurrentUser((prev) => ({
+					...prev!,
+					chats: [...currentUserChats!, { name: data.name, id: data.id, icon: data.icon, public_id: data.public_id }],
+				}));
+			} catch (error) {
+				if (axios.isAxiosError(error)) {
+					// Enter a chatroom that doesn't exist
+					if (error.response?.status === 400) {
+						navigate('/');
+						return;
+					}
+				}
+			}
 		};
 
 		if (!currentUserChats?.map((chat) => chat.name).includes(roomName as string)) {
-			//Add a chatromm when entering the room for the first time.
+			//Add a chatroom when entering the room for the first time.
 			addChatroom();
 		}
-	}, [currentUserChats, roomName, setCurrentUser]);
+	}, [currentUserChats, roomName, setCurrentUser, navigate]);
 
 	const sendMessage = () => {
 		socket.emit('send_message', {
