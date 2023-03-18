@@ -90,7 +90,7 @@ router.patch('/', checkToken, async (req: Request, res: Response) => {
 	}
 });
 
-router.post('/profile', checkToken, uploader.single('file'), async (req: Request, res: Response) => {
+router.post('/avatar', checkToken, uploader.single('file'), async (req: Request, res: Response) => {
 	const { email } = req.token;
 	const { public_id }: { public_id: string } = req.body;
 
@@ -108,7 +108,7 @@ router.post('/profile', checkToken, uploader.single('file'), async (req: Request
 		}
 
 		// Upload an image to cloudinary.
-		const upload = await cloudinary.v2.uploader.upload(req.file.path, { folder: '/chit-chat/profile' });
+		const upload = await cloudinary.v2.uploader.upload(req.file.path, { folder: '/chit-chat/avatar' });
 
 		// Update a user with information from cloudinary.
 		const user = await prisma.user.update({

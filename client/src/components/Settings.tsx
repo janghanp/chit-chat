@@ -58,7 +58,7 @@ const Settings = ({ closeSettings }: Props) => {
 		return () => {
 			document.removeEventListener('keydown', handleKeydown);
 		};
-	}, []);
+	}, [closeSettings]);
 
 	// Determining permission of submit button.
 	let isDisable = true;
@@ -126,7 +126,7 @@ const Settings = ({ closeSettings }: Props) => {
 		formData.append('file', image!);
 		formData.append('public_id', currentUser!.public_id || '');
 
-		const { data } = await axios.post<CurrentUser>('http://localhost:8080/user/profile', formData, {
+		const { data } = await axios.post<CurrentUser>('http://localhost:8080/user/avatar', formData, {
 			withCredentials: true,
 		});
 

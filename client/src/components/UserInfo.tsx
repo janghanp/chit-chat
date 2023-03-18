@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction, useState } from 'react';
+import { Dispatch, SetStateAction, useState, useCallback } from 'react';
 import { HiCog } from 'react-icons/hi';
 
 import { useUser } from '../context/UserContext';
@@ -16,9 +16,9 @@ const UserInfo = ({ setIsSidebarOpen }: Props) => {
 
 	const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
 
-	const closeSettings = () => {
+	const closeSettings = useCallback(() => {
 		setIsSettingsOpen(false);
-	};
+	}, []);
 
 	return (
 		<>
