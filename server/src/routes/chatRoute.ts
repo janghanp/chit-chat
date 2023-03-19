@@ -231,4 +231,41 @@ router.post('/message', async (req: Request, res: Response) => {
 	}
 });
 
+router.patch('/leave', async (req: Request, res: Response) => {
+	const { chatId, username } = req.body;
+
+	try {
+		const chat = await prisma.chat.update({
+			where: {
+				id: chatId,
+			},
+			data: {
+				users: {
+					disconnect: {
+						username,
+					},
+				},
+			},
+			include: {
+				users: true,
+			},
+		});
+
+		// Delete a chat when there is no user left in the chat.
+		if (chat.users.length === 0) {
+			await prisma.chat.delete({
+				where: {
+					id: chatId,
+				},
+			});
+		}
+
+		return res.sendStatus(200);
+	} catch (error) {
+		console.log(error);
+
+		return res.sendStatus(500);
+	}
+});
+
 export default router;

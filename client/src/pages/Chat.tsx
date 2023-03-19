@@ -96,10 +96,16 @@ const Chat = ({ socket, members, messages, isLoading, setMessages, setMembers }:
 		setMessage('');
 	};
 
-	const leaveChat = () => {
+	const leaveChat = async () => {
 		const result = window.confirm('Are you sure you want to leave the chat?');
 
 		if (result) {
+			await axios.patch(
+				'http://localhost:8080/chat/leave',
+				{ chatId, username: currentUser?.username },
+				{ withCredentials: true }
+			);
+
 			socket.emit('leave_room', { chatId, username: currentUser?.username });
 
 			setCurrentUser({

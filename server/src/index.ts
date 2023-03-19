@@ -9,16 +9,10 @@ import cookieParser from 'cookie-parser';
 import cloudinary from 'cloudinary';
 import { instrument } from '@socket.io/admin-ui';
 
-import { PrismaClient } from '@prisma/client';
 import { checkToken } from './middleware/auth';
 import authRoute from './routes/authRoute';
 import userRoute from './routes/userRoute';
 import chatRoute from './routes/chatRoute';
-
-interface Room {
-	username: string;
-	chatId: string;
-}
 
 interface Chat {
 	id: string;
@@ -40,8 +34,6 @@ interface CurrentUser {
 
 // cloudinary picks up env and is now configured.
 cloudinary.v2.config({ secure: true });
-
-const prisma = new PrismaClient();
 
 const app = express();
 
@@ -134,39 +126,10 @@ io.on('connect', (socket: Socket) => {
 		socket.leave(data.chatId);
 	});
 
-	socket.on('leave_room', async (data: Room) => {
-		try {
-			const chat = await prisma.chat.update({
-				where: {
-					id: data.chatId,
-				},
-				data: {
-					users: {
-						disconnect: {
-							username: data.username,
-						},
-					},
-				},
-				include: {
-					users: true,
-				},
-			});
+	socket.on('leave_room', async (data: { username: string; chatId: string }) => {
+		socket.to(data.chatId).emit('leave_member', { username: data.username });
 
-			if (chat.users.length === 0) {
-				// Delete a chat when there is no user left in the chat.
-				await prisma.chat.delete({
-					where: {
-						id: data.chatId,
-					},
-				});
-			}
-
-			socket.to(data.chatId).emit('leave_member', { username: data.username });
-
-			socket.leave(data.chatId);
-		} catch (error) {
-			console.log(error);
-		}
+		socket.leave(data.chatId);
 	});
 
 	socket.on('disconnect', () => {
