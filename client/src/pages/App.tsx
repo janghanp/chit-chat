@@ -39,9 +39,10 @@ function App() {
 
 	useEffect(() => {
 		if (currentUser?.username) {
-			const onReceiveMessage = (data: Message) => {
-				// const { id, senderId, senderName, text, createdAt } = data;
-				// setMessages((prev) => [...prev, { id, senderId, senderName, text, createdAt }]);
+			const onReceiveMessage = (data: { messageId: string; text: string; sender: User; createdAt: string }) => {
+				const { messageId, text, sender, createdAt } = data;
+
+				setMessages((prev) => [...prev, { id: messageId, sender, text, createdAt }]);
 			};
 
 			const onEnterNewMember = (data: { newUser: User }) => {

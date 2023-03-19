@@ -1,5 +1,4 @@
 import { Request, Response, Router } from 'express';
-import { checkToken } from '../middleware/auth';
 import cloudinary from 'cloudinary';
 import multer from 'multer';
 import bcrypt from 'bcryptjs';
@@ -15,7 +14,7 @@ const uploader = multer({
 
 const router = Router();
 
-router.get('/chats', checkToken, async (req: Request, res: Response) => {
+router.get('/chats', async (req: Request, res: Response) => {
 	const { email } = req.token;
 
 	try {
@@ -40,7 +39,7 @@ router.get('/chats', checkToken, async (req: Request, res: Response) => {
 	}
 });
 
-router.patch('/', checkToken, async (req: Request, res: Response) => {
+router.patch('/', async (req: Request, res: Response) => {
 	const { email } = req.token;
 	const { newPassword, username } = req.body;
 
@@ -90,7 +89,7 @@ router.patch('/', checkToken, async (req: Request, res: Response) => {
 	}
 });
 
-router.post('/avatar', checkToken, uploader.single('file'), async (req: Request, res: Response) => {
+router.post('/avatar', uploader.single('file'), async (req: Request, res: Response) => {
 	const { email } = req.token;
 	const { public_id }: { public_id: string } = req.body;
 

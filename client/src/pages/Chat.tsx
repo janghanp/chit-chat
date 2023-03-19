@@ -44,8 +44,8 @@ const Chat = ({ socket, members, messages, isLoading, setMessages, setMembers }:
 
 			socket.emit('join_room', {
 				chatId,
-				currentUser: currentUser,
-				isNewMember: isNewMember,
+				currentUser,
+				isNewMember,
 			});
 
 			if (isNewMember) {
@@ -68,20 +68,29 @@ const Chat = ({ socket, members, messages, isLoading, setMessages, setMembers }:
 
 		return () => {
 			if (socket) {
-				console.log('bye');
-
 				isSetRef.current = false;
 				socket.emit('move_room', { chatId });
 			}
 		};
-	}, [chatId, socket, setMessages, setMembers, setCurrentUser]);
+	}, [chatId, socket]);
 
-	const sendMessage = () => {
+	const sendMessage = async () => {
+		const { data } = await axios.post(
+			'http://localhost:8080/chat/message',
+			{
+				chatId,
+				text: message,
+				senderId: currentUser?.id,
+			},
+			{ withCredentials: true }
+		);
+
 		socket.emit('send_message', {
-			senderId: currentUser!.id,
-			chatId,
-			senderName: currentUser?.username,
+			messageId: data.message.id,
 			text: message,
+			sender: currentUser,
+			chatId,
+			createdAt: data.message.createdAt,
 		});
 
 		setMessage('');

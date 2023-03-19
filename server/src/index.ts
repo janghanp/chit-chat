@@ -9,7 +9,7 @@ import cookieParser from 'cookie-parser';
 import cloudinary from 'cloudinary';
 import { instrument } from '@socket.io/admin-ui';
 
-import { PrismaClient, User } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 import { checkToken } from './middleware/auth';
 import authRoute from './routes/authRoute';
 import userRoute from './routes/userRoute';
@@ -18,13 +18,6 @@ import chatRoute from './routes/chatRoute';
 interface Room {
 	username: string;
 	chatId: string;
-}
-
-interface Message {
-	senderId: string;
-	chatId: string;
-	senderName: string;
-	text: string;
 }
 
 interface Chat {
@@ -73,7 +66,7 @@ app.use(express.json());
 app.use(cookieParser());
 
 app.use('/auth', authRoute);
-app.use('/user', userRoute);
+app.use('/user', checkToken, userRoute);
 app.use('/chat', checkToken, chatRoute);
 
 interface UserWithSockets {
@@ -123,42 +116,19 @@ io.on('connect', (socket: Socket) => {
 		}
 	});
 
-	socket.on('send_message', async (data: Message) => {
-		try {
-			const { text, senderId, senderName, chatId } = data;
+	socket.on(
+		'send_message',
+		async (data: { messageId: string; text: string; chatId: string; sender: CurrentUser; createdAt: string }) => {
+			const { messageId, text, sender, chatId, createdAt } = data;
 
-			const message = await prisma.message.create({
-				data: {
-					chatId,
-					text,
-					senderId,
-				},
+			io.to(chatId).emit('receive_message', {
+				messageId,
+				text,
+				sender,
+				createdAt,
 			});
-
-			const chat = await prisma.chat.update({
-				where: {
-					id: chatId,
-				},
-				data: {
-					messages: {
-						connect: {
-							id: message.id,
-						},
-					},
-				},
-			});
-
-			io.to(chat.id).emit('receive_message', {
-				id: message.id,
-				text: message.text,
-				senderId,
-				senderName,
-				createdAt: message.createdAt,
-			});
-		} catch (error) {
-			console.log(error);
 		}
-	});
+	);
 
 	socket.on('move_room', (data: { chatId: string }) => {
 		socket.leave(data.chatId);

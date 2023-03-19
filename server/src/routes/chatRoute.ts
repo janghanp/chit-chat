@@ -198,4 +198,37 @@ router.patch('/join', async (req: Request, res: Response) => {
 	}
 });
 
+router.post('/message', async (req: Request, res: Response) => {
+	const { chatId, text, senderId } = req.body;
+
+	try {
+		const message = await prisma.message.create({
+			data: {
+				chatId,
+				text,
+				senderId,
+			},
+		});
+
+		await prisma.chat.update({
+			where: {
+				id: chatId,
+			},
+			data: {
+				messages: {
+					connect: {
+						id: message.id,
+					},
+				},
+			},
+		});
+
+		return res.status(200).json({ message });
+	} catch (error) {
+		console.log(error);
+
+		return res.sendStatus(500);
+	}
+});
+
 export default router;
