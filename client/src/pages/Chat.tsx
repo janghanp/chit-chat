@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { formatDistance } from 'date-fns';
 import { HiUserGroup } from 'react-icons/hi';
@@ -14,70 +14,73 @@ interface Props {
 	members: User[];
 	messages: Message[];
 	isLoading: boolean;
+	setMembers: Dispatch<SetStateAction<User[]>>;
+	setMessages: Dispatch<SetStateAction<Message[]>>;
 }
 
-const Chat = ({ socket, members, messages, isLoading }: Props) => {
+const Chat = ({ socket, members, messages, isLoading, setMessages, setMembers }: Props) => {
 	const { chatId } = useParams();
 
 	const navigate = useNavigate();
 
 	const { currentUser, setCurrentUser } = useUser();
-	const currentUserName = currentUser?.username;
-	const currentUserChats = currentUser?.chats;
 
 	const [message, setMessage] = useState<string>('');
 	const [isOpenMemberList, setIsOpenMemberList] = useState<boolean>(true);
+	const isSetRef = useRef<boolean>(false);
 
 	useEffect(() => {
-		if (socket) {
+		const joinChat = async () => {
+			const { data } = await axios.patch(
+				'http://localhost:8080/chat/join',
+				{ chatId, username: currentUser?.username },
+				{ withCredentials: true }
+			);
+
+			const { isNewMember, chat } = data;
+
+			setMessages(chat.messages);
+			setMembers(chat.users);
+
 			socket.emit('join_room', {
 				chatId,
-				username: currentUserName,
+				currentUser: currentUser,
+				isNewMember: isNewMember,
 			});
 
-			return () => {
-				socket.emit('move_room', { chatId });
-			};
-		}
-	}, [chatId, currentUserName, socket]);
-
-	useEffect(() => {
-		const addChatroom = async () => {
-			try {
-				const { data } = await axios.get('http://localhost:8080/chat', {
-					params: { chatId },
-					withCredentials: true,
-				});
-
+			if (isNewMember) {
+				//Add a chat on the sidebar.
 				setCurrentUser((prev) => ({
 					...prev!,
 					chats: [
-						...currentUserChats!,
-						{ name: data.name, id: data.id, icon: data.icon, public_id: data.public_id, ownerId: data.ownerId },
+						...prev?.chats!,
+						{ name: chat.name, id: chat.id, icon: chat.icon, public_id: chat.public_id, ownerId: chat.ownerId },
 					],
 				}));
-			} catch (error) {
-				if (axios.isAxiosError(error)) {
-					// Enter a chatroom that doesn't exist
-					if (error.response?.status === 400) {
-						navigate('/');
-						return;
-					}
-				}
 			}
 		};
 
-		if (!currentUserChats?.map((chat) => chat.id).includes(chatId as string)) {
-			//Add a chatroom when entering the room for the first time.
-			addChatroom();
+		if (socket && !isSetRef.current) {
+			isSetRef.current = true;
+
+			joinChat();
 		}
-	}, [currentUserChats, chatId, setCurrentUser, navigate]);
+
+		return () => {
+			if (socket) {
+				console.log('bye');
+
+				isSetRef.current = false;
+				socket.emit('move_room', { chatId });
+			}
+		};
+	}, [chatId, socket, setMessages, setMembers, setCurrentUser]);
 
 	const sendMessage = () => {
 		socket.emit('send_message', {
 			senderId: currentUser!.id,
 			chatId,
-			senderName: currentUserName,
+			senderName: currentUser?.username,
 			text: message,
 		});
 
@@ -88,7 +91,7 @@ const Chat = ({ socket, members, messages, isLoading }: Props) => {
 		const result = window.confirm('Are you sure you want to leave the chat?');
 
 		if (result) {
-			socket.emit('leave_room', { chatId, username: currentUserName });
+			socket.emit('leave_room', { chatId, username: currentUser?.username });
 
 			setCurrentUser({
 				...currentUser!,
@@ -124,7 +127,7 @@ const Chat = ({ socket, members, messages, isLoading }: Props) => {
 					messages.map((msg) => {
 						return (
 							<div key={msg.id}>
-								<p>{msg.senderName}</p>
+								<p>{msg.sender.username}</p>
 								<p>{msg.text}</p>
 								<p>{formatDistance(new Date(msg.createdAt), Date.now(), { addSuffix: true })}</p>
 							</div>

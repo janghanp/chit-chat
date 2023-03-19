@@ -9,7 +9,7 @@ import cookieParser from 'cookie-parser';
 import cloudinary from 'cloudinary';
 import { instrument } from '@socket.io/admin-ui';
 
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, User } from '@prisma/client';
 import { checkToken } from './middleware/auth';
 import authRoute from './routes/authRoute';
 import userRoute from './routes/userRoute';
@@ -25,6 +25,24 @@ interface Message {
 	chatId: string;
 	senderName: string;
 	text: string;
+}
+
+interface Chat {
+	id: string;
+	name: string;
+	icon?: string;
+	public_id?: string;
+	ownerId: string;
+}
+
+interface CurrentUser {
+	id: string;
+	username: string;
+	email: string;
+	avatar?: string;
+	public_id?: string;
+	isOnline?: boolean;
+	chats: Chat[];
 }
 
 // cloudinary picks up env and is now configured.
@@ -93,93 +111,15 @@ io.on('connect', (socket: Socket) => {
 
 	console.log(usersWithSockets);
 
-	socket.on('join_room', async (data: Room) => {
-		socket.join(data.chatId);
+	socket.on('join_room', async (data: { chatId: string; currentUser: CurrentUser; isNewMember: boolean }) => {
+		const { chatId, currentUser, isNewMember } = data;
 
-		try {
-			const chat = await prisma.chat.findUnique({
-				where: {
-					id: data.chatId as string,
-				},
-				include: {
-					messages: {
-						include: {
-							sender: true,
-						},
-					},
-					users: true,
-				},
-			});
+		socket.join(chatId);
 
-			const messages = chat?.messages;
-			const users = chat?.users.map((user) => {
-				// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-				// @ts-ignore
-				delete user.password;
-				// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-				// @ts-ignore
-				delete user.createdAt;
-				// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-				// @ts-ignore
-				delete user.updatedAt;
+		socket.emit('onlineUsers', { userNames: usersWithSockets.map((el) => el.username) });
 
-				return user;
-			});
-
-			socket.emit('setMessagesAndMembers', { messages, users });
-
-			socket.emit('onlineUsers', { userNames: usersWithSockets.map((el) => el.username) });
-
-			// Check if a user joined the room for the first time.
-			const userInChat = await prisma.chat.findFirst({
-				where: {
-					AND: [
-						{
-							id: data.chatId,
-						},
-						{
-							users: {
-								some: {
-									username: data.username,
-								},
-							},
-						},
-					],
-				},
-			});
-
-			// A new member to the room.
-			if (!userInChat) {
-				// Connect a user to the existing chat.
-				await prisma.chat.update({
-					where: {
-						id: data.chatId,
-					},
-					data: {
-						users: {
-							connect: {
-								username: data.username,
-							},
-						},
-					},
-				});
-
-				const newUser = await prisma.user.findUnique({
-					where: {
-						username: data.username,
-					},
-				});
-
-				if (newUser) {
-					// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-					// @ts-ignore
-					delete newUser.password;
-
-					io.to(data.chatId).emit('enter_new_member', { newUser });
-				}
-			}
-		} catch (error) {
-			console.log(error);
+		if (isNewMember) {
+			socket.to(chatId).emit('enter_new_member', { newUser: currentUser });
 		}
 	});
 
@@ -251,7 +191,7 @@ io.on('connect', (socket: Socket) => {
 				});
 			}
 
-			io.to(data.chatId).emit('leave_member', { username: data.username });
+			socket.to(data.chatId).emit('leave_member', { username: data.username });
 
 			socket.leave(data.chatId);
 		} catch (error) {

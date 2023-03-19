@@ -5,7 +5,7 @@ import axios from 'axios';
 import { HiCamera } from 'react-icons/hi';
 import toast, { Toaster } from 'react-hot-toast';
 
-import { AuthErrorResponse, CurrentUser, AxiosResponseWithUsername } from '../types';
+import { AuthErrorResponse, AxiosResponseWithUsername, User } from '../types';
 import { useUser } from '../context/UserContext';
 import defaultImageUrl from '/default.jpg';
 
@@ -126,7 +126,7 @@ const Settings = ({ closeSettings }: Props) => {
 		formData.append('file', image!);
 		formData.append('public_id', currentUser!.public_id || '');
 
-		const { data } = await axios.post<CurrentUser>('http://localhost:8080/user/avatar', formData, {
+		const { data } = await axios.post<User>('http://localhost:8080/user/avatar', formData, {
 			withCredentials: true,
 		});
 

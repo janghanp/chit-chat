@@ -40,13 +40,13 @@ function App() {
 	useEffect(() => {
 		if (currentUser?.username) {
 			const onReceiveMessage = (data: Message) => {
-				const { id, senderId, senderName, text, createdAt } = data;
-
-				setMessages((prev) => [...prev, { id, senderId, senderName, text, createdAt }]);
+				// const { id, senderId, senderName, text, createdAt } = data;
+				// setMessages((prev) => [...prev, { id, senderId, senderName, text, createdAt }]);
 			};
 
 			const onEnterNewMember = (data: { newUser: User }) => {
 				const newUser = data.newUser;
+
 				newUser.isOnline = true;
 
 				setMembers((prev) => {
@@ -98,22 +98,6 @@ function App() {
 				});
 			};
 
-			const onSetMessagesAndMemebers = (data: any) => {
-				const previousMessage = data.messages.map((message: any) => {
-					return {
-						id: message.id,
-						text: message.text,
-						createdAt: message.createdAt,
-						senderId: message.senderId,
-						senderName: message.sender.username,
-					};
-				});
-
-				setMessages(previousMessage);
-				setMembers(data.users);
-			};
-
-			socket.on('setMessagesAndMembers', onSetMessagesAndMemebers);
 			socket.on('receive_message', onReceiveMessage);
 			socket.on('enter_new_member', onEnterNewMember);
 			socket.on('leave_member', onLeaveMember);
@@ -122,7 +106,6 @@ function App() {
 			socket.on('onlineUsers', onOnlineUsers);
 
 			return () => {
-				socket.off('setMessagesAndMembers', onSetMessagesAndMemebers);
 				socket.off('receive_message', onReceiveMessage);
 				socket.off('enter_new_member', onEnterNewMember);
 				socket.off('leave_member', onLeaveMember);
@@ -157,7 +140,14 @@ function App() {
 						path="/chat/:chatId"
 						element={
 							<RequireAuth>
-								<Chat socket={socket} members={members} messages={messages} isLoading={isLoading} />
+								<Chat
+									socket={socket}
+									members={members}
+									messages={messages}
+									isLoading={isLoading}
+									setMembers={setMembers}
+									setMessages={setMessages}
+								/>
 							</RequireAuth>
 						}
 					/>

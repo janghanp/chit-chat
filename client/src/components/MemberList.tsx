@@ -1,3 +1,5 @@
+import { memo } from 'react';
+
 import { User } from '../types';
 import Member from './Member';
 
@@ -19,4 +21,4 @@ const MemberList = ({ members }: Props) => {
 	);
 };
 
-export default MemberList;
+export default memo(MemberList);
