@@ -1,19 +1,17 @@
-import { Dispatch, SetStateAction, useState, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { HiCog } from 'react-icons/hi';
 
-import { useUser } from '../context/UserContext';
 import defaultAvatar from '/default.jpg';
 import LogoutButton from './LogoutButton';
 import Settings from './Settings';
 import { createPortal } from 'react-dom';
+import { User } from '../types';
 
 interface Props {
-	setIsSidebarOpen: Dispatch<SetStateAction<boolean>>;
+	currentUser: User;
 }
 
-const UserInfo = ({ setIsSidebarOpen }: Props) => {
-	const { currentUser } = useUser();
-
+const UserInfo = ({ currentUser }: Props) => {
 	const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
 
 	const closeSettings = useCallback(() => {

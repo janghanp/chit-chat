@@ -20,7 +20,7 @@ const ChatRoomList = ({ chatRooms, setIsSidebarOpen }: Props) => {
 						<li key={chatRoom.id}>
 							<ChatRoom
 								chatRoom={chatRoom}
-								currentRoomName={params.roomName as string}
+								currentchatId={params.chatId as string}
 								setIsSidebarOpen={setIsSidebarOpen}
 							/>
 						</li>

@@ -31,8 +31,8 @@ const Sidebar = () => {
 							<ChatRoomList chatRooms={currentUser.chats} setIsSidebarOpen={setIsSidebarOpen} />
 							<div>
 								<ExplorerButton />
-								<CreateChatButton />
-								<UserInfo setIsSidebarOpen={setIsSidebarOpen} />
+								<CreateChatButton currentUserId={currentUser.id} />
+								<UserInfo currentUser={currentUser} />
 							</div>
 						</div>
 					</div>

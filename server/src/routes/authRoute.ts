@@ -45,6 +45,9 @@ router.post('/register', async (req: Request, res: Response) => {
 				password: hashedPassword,
 				username,
 			},
+			include: {
+				chats: true,
+			},
 		});
 
 		// Generate a token
@@ -56,7 +59,14 @@ router.post('/register', async (req: Request, res: Response) => {
 			httpOnly: true,
 		});
 
-		return res.status(200).json({ id: user.id, username: user.username, email: user.email });
+		return res.status(200).json({
+			id: user.id,
+			username: user.username,
+			email: user.email,
+			avatar: user.avatar,
+			public_id: user.public_id,
+			chats: user.chats,
+		});
 	} catch (error) {
 		return res.json({ message: 'Something went wrong, please try again...' });
 	}

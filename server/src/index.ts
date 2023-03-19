@@ -17,12 +17,12 @@ import chatRoute from './routes/chatRoute';
 
 interface Room {
 	username: string;
-	roomName: string;
+	chatId: string;
 }
 
 interface Message {
 	senderId: string;
-	roomName: string;
+	chatId: string;
 	senderName: string;
 	text: string;
 }
@@ -94,12 +94,12 @@ io.on('connect', (socket: Socket) => {
 	console.log(usersWithSockets);
 
 	socket.on('join_room', async (data: Room) => {
-		socket.join(data.roomName);
+		socket.join(data.chatId);
 
 		try {
 			const chat = await prisma.chat.findUnique({
 				where: {
-					name: data.roomName as string,
+					id: data.chatId as string,
 				},
 				include: {
 					messages: {
@@ -135,7 +135,7 @@ io.on('connect', (socket: Socket) => {
 				where: {
 					AND: [
 						{
-							name: data.roomName,
+							id: data.chatId,
 						},
 						{
 							users: {
@@ -153,7 +153,7 @@ io.on('connect', (socket: Socket) => {
 				// Connect a user to the existing chat.
 				await prisma.chat.update({
 					where: {
-						name: data.roomName,
+						id: data.chatId,
 					},
 					data: {
 						users: {
@@ -175,7 +175,7 @@ io.on('connect', (socket: Socket) => {
 					// @ts-ignore
 					delete newUser.password;
 
-					io.to(data.roomName).emit('enter_new_member', { newUser });
+					io.to(data.chatId).emit('enter_new_member', { newUser });
 				}
 			}
 		} catch (error) {
@@ -185,10 +185,11 @@ io.on('connect', (socket: Socket) => {
 
 	socket.on('send_message', async (data: Message) => {
 		try {
-			const { text, senderId, senderName } = data;
+			const { text, senderId, senderName, chatId } = data;
 
 			const message = await prisma.message.create({
 				data: {
+					chatId,
 					text,
 					senderId,
 				},
@@ -196,7 +197,7 @@ io.on('connect', (socket: Socket) => {
 
 			const chat = await prisma.chat.update({
 				where: {
-					name: data.roomName,
+					id: chatId,
 				},
 				data: {
 					messages: {
@@ -207,7 +208,7 @@ io.on('connect', (socket: Socket) => {
 				},
 			});
 
-			io.to(chat.name).emit('receive_message', {
+			io.to(chat.id).emit('receive_message', {
 				id: message.id,
 				text: message.text,
 				senderId,
@@ -219,15 +220,15 @@ io.on('connect', (socket: Socket) => {
 		}
 	});
 
-	socket.on('move_room', (data: { roomName: string }) => {
-		socket.leave(data.roomName);
+	socket.on('move_room', (data: { chatId: string }) => {
+		socket.leave(data.chatId);
 	});
 
 	socket.on('leave_room', async (data: Room) => {
 		try {
 			const chat = await prisma.chat.update({
 				where: {
-					name: data.roomName,
+					id: data.chatId,
 				},
 				data: {
 					users: {
@@ -245,14 +246,14 @@ io.on('connect', (socket: Socket) => {
 				// Delete a chat when there is no user left in the chat.
 				await prisma.chat.delete({
 					where: {
-						name: data.roomName,
+						id: data.chatId,
 					},
 				});
 			}
 
-			io.to(data.roomName).emit('leave_member', { username: data.username });
+			io.to(data.chatId).emit('leave_member', { username: data.username });
 
-			socket.leave(data.roomName);
+			socket.leave(data.chatId);
 		} catch (error) {
 			console.log(error);
 		}

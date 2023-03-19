@@ -1,19 +1,11 @@
-export interface CurrentUser {
-	id: string;
-	username: string;
-	email: string;
-	avatar?: string;
-	public_id?: string;
-	chats?: Chat[];
-}
-
 export interface User {
 	id: string;
 	username: string;
 	email: string;
 	avatar?: string;
 	public_id?: string;
-	isOnline: boolean;
+	isOnline?: boolean;
+	chats: Chat[];
 }
 
 export interface Chat {
@@ -21,6 +13,7 @@ export interface Chat {
 	name: string;
 	icon?: string;
 	public_id?: string;
+	ownerId: string;
 }
 
 export interface Message {

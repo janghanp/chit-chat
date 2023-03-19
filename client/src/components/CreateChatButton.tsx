@@ -7,7 +7,11 @@ import { SyncLoader } from 'react-spinners';
 import { AuthErrorResponse } from '../types';
 import { createPortal } from 'react-dom';
 
-const CreateChatButton = () => {
+interface Props {
+	currentUserId: string;
+}
+
+const CreateChatButton = ({ currentUserId }: Props) => {
 	const navigate = useNavigate();
 
 	const [roomName, setRoomName] = useState<string>('');
@@ -67,26 +71,23 @@ const CreateChatButton = () => {
 
 			formData.append('file', file || '');
 			formData.append('roomName', roomName);
+			formData.append('ownerId', currentUserId);
 
-			await axios.post('http://localhost:8080/chat', formData, { withCredentials: true });
-
-			navigate(`/chat/${roomName}`);
+			const { data } = await axios.post('http://localhost:8080/chat', formData, { withCredentials: true });
 
 			document.getElementById('modal-2')!.click();
+
+			navigate(`/chat/${data.chatId}`);
 		} catch (error) {
 			if (axios.isAxiosError(error) && error.response?.status === 400) {
 				//Chat room already exists.
 				const serverError = error.response.data as AuthErrorResponse;
 				setError(serverError.message);
-				return;
 			} else if (error instanceof Error) {
 				console.log(error);
 			}
-
-			return;
 		} finally {
 			setIsLoading(false);
-			// clearStates();
 		}
 	};
 

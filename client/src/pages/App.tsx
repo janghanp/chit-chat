@@ -154,7 +154,7 @@ function App() {
 						}
 					/>
 					<Route
-						path="/chat/:roomName"
+						path="/chat/:chatId"
 						element={
 							<RequireAuth>
 								<Chat socket={socket} members={members} messages={messages} isLoading={isLoading} />

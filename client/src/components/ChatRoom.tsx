@@ -4,15 +4,15 @@ import { Chat } from '../types';
 
 interface Props {
 	chatRoom: Chat;
-	currentRoomName: string;
+	currentchatId: string;
 	setIsSidebarOpen: Dispatch<SetStateAction<boolean>>;
 }
 
-const ChatRoom = ({ chatRoom, currentRoomName, setIsSidebarOpen }: Props) => {
+const ChatRoom = ({ chatRoom, currentchatId, setIsSidebarOpen }: Props) => {
 	return (
 		<Link
-			to={`/chat/${chatRoom.name}`}
-			className={`${currentRoomName === chatRoom.name ? 'active' : ''}`}
+			to={`/chat/${chatRoom.id}`}
+			className={`${currentchatId === chatRoom.id ? 'active' : ''}`}
 			onClick={() => setIsSidebarOpen(false)}
 		>
 			{chatRoom.icon ? (

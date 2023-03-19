@@ -14,13 +14,13 @@ const uploader = multer({
 const router = Router();
 
 router.get('/', async (req: Request, res: Response) => {
-	const { roomName } = req.query;
+	const { chatId } = req.query;
 
 	try {
 		// Check the presence of a chat room.
 		const chat = await prisma.chat.findUnique({
 			where: {
-				name: roomName as string,
+				id: chatId as string,
 			},
 		});
 
@@ -36,44 +36,22 @@ router.get('/', async (req: Request, res: Response) => {
 	}
 });
 
-router.get('/messages', async (req: Request, res: Response) => {
-	const { roomName } = req.query;
+router.get('/name', async (req: Request, res: Response) => {
+	const { chatName } = req.query;
 
 	try {
+		// Check the presence of a chat room.
 		const chat = await prisma.chat.findUnique({
 			where: {
-				name: roomName as string,
+				name: chatName as string,
 			},
-			include: {
-				messages: {
-					include: {
-						sender: true,
-					},
-				},
-				users: true,
-			},
-		});
-
-		const messages = chat?.messages;
-		const users = chat?.users.map((user) => {
-			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-			// @ts-ignore
-			delete user.password;
-			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-			// @ts-ignore
-			delete user.createdAt;
-			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-			// @ts-ignore
-			delete user.updatedAt;
-
-			return user;
 		});
 
 		if (!chat) {
-			return res.status(400).json({ message: 'No chat found' });
+			return res.status(400).json({ message: 'No chat room found' });
 		}
 
-		return res.status(200).json({ messages, users });
+		return res.status(200).json(chat);
 	} catch (error) {
 		console.log(error);
 
@@ -81,11 +59,53 @@ router.get('/messages', async (req: Request, res: Response) => {
 	}
 });
 
-router.post('/', checkToken, uploader.single('file'), async (req: Request, res: Response) => {
-	const { roomName }: { roomName: string } = req.body;
+// router.get('/messages', async (req: Request, res: Response) => {
+// 	const { chatId } = req.query;
 
-	console.log(req.file);
-	console.log(req.body);
+// 	try {
+// 		const chat = await prisma.chat.findUnique({
+// 			where: {
+// 				name: chatId as string,
+// 			},
+// 			include: {
+// 				messages: {
+// 					include: {
+// 						sender: true,
+// 					},
+// 				},
+// 				users: true,
+// 			},
+// 		});
+
+// 		const messages = chat?.messages;
+// 		const users = chat?.users.map((user) => {
+// 			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// 			// @ts-ignore
+// 			delete user.password;
+// 			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// 			// @ts-ignore
+// 			delete user.createdAt;
+// 			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// 			// @ts-ignore
+// 			delete user.updatedAt;
+
+// 			return user;
+// 		});
+
+// 		if (!chat) {
+// 			return res.status(400).json({ message: 'No chat found' });
+// 		}
+
+// 		return res.status(200).json({ messages, users });
+// 	} catch (error) {
+// 		console.log(error);
+
+// 		return res.sendStatus(500);
+// 	}
+// });
+
+router.post('/', checkToken, uploader.single('file'), async (req: Request, res: Response) => {
+	const { roomName, ownerId }: { roomName: string; ownerId: string } = req.body;
 
 	try {
 		// Check if a chat room to create already exists.
@@ -99,21 +119,28 @@ router.post('/', checkToken, uploader.single('file'), async (req: Request, res: 
 			return res.status(400).json({ message: 'The chatroom name already exists.' });
 		}
 
+		let chatId: string;
+
 		if (req.file) {
 			const upload = await cloudinary.v2.uploader.upload(req.file.path, { folder: '/chit-chat/icon' });
 
-			await prisma.chat.create({
+			const { id } = await prisma.chat.create({
 				data: {
 					name: roomName,
+					ownerId,
 					icon: upload.secure_url,
 					public_id: upload.public_id,
 				},
 			});
+
+			chatId = id;
 		} else {
-			await prisma.chat.create({ data: { name: roomName } });
+			const { id } = await prisma.chat.create({ data: { name: roomName, ownerId } });
+
+			chatId = id;
 		}
 
-		return res.sendStatus(200);
+		return res.status(200).json({ chatId });
 	} catch (error) {
 		console.log(error);
 
@@ -121,8 +148,5 @@ router.post('/', checkToken, uploader.single('file'), async (req: Request, res: 
 	}
 });
 
-// router.post('/icon', async (req: Request, res: Response) => {
-// 	console.log('test');
-// });
 
 export default router;

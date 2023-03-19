@@ -1,3 +1,4 @@
+import axios from 'axios';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Socket } from 'socket.io-client';
@@ -16,8 +17,18 @@ const Explorer = ({ socket }: Props) => {
 			return;
 		}
 
-		navigate(`/chat/${roomName}`);
-		setRoomName('');
+		try {
+			const { data } = await axios.get('http://localhost:8080/chat/name', {
+				params: { chatName: roomName },
+				withCredentials: true,
+			});
+
+			navigate(`/chat/${data.id}`);
+			setRoomName('');
+		} catch (error) {
+			// No chatroom found handle the error.
+			console.log(error);
+		}
 	};
 
 	return (

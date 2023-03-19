@@ -17,7 +17,7 @@ interface Props {
 }
 
 const Chat = ({ socket, members, messages, isLoading }: Props) => {
-	const { roomName } = useParams();
+	const { chatId } = useParams();
 
 	const navigate = useNavigate();
 
@@ -31,27 +31,30 @@ const Chat = ({ socket, members, messages, isLoading }: Props) => {
 	useEffect(() => {
 		if (socket) {
 			socket.emit('join_room', {
-				roomName,
+				chatId,
 				username: currentUserName,
 			});
 
 			return () => {
-				socket.emit('move_room', { roomName });
+				socket.emit('move_room', { chatId });
 			};
 		}
-	}, [roomName, currentUserName, socket]);
+	}, [chatId, currentUserName, socket]);
 
 	useEffect(() => {
 		const addChatroom = async () => {
 			try {
 				const { data } = await axios.get('http://localhost:8080/chat', {
-					params: { roomName },
+					params: { chatId },
 					withCredentials: true,
 				});
 
 				setCurrentUser((prev) => ({
 					...prev!,
-					chats: [...currentUserChats!, { name: data.name, id: data.id, icon: data.icon, public_id: data.public_id }],
+					chats: [
+						...currentUserChats!,
+						{ name: data.name, id: data.id, icon: data.icon, public_id: data.public_id, ownerId: data.ownerId },
+					],
 				}));
 			} catch (error) {
 				if (axios.isAxiosError(error)) {
@@ -64,16 +67,16 @@ const Chat = ({ socket, members, messages, isLoading }: Props) => {
 			}
 		};
 
-		if (!currentUserChats?.map((chat) => chat.name).includes(roomName as string)) {
+		if (!currentUserChats?.map((chat) => chat.id).includes(chatId as string)) {
 			//Add a chatroom when entering the room for the first time.
 			addChatroom();
 		}
-	}, [currentUserChats, roomName, setCurrentUser, navigate]);
+	}, [currentUserChats, chatId, setCurrentUser, navigate]);
 
 	const sendMessage = () => {
 		socket.emit('send_message', {
 			senderId: currentUser!.id,
-			roomName,
+			chatId,
 			senderName: currentUserName,
 			text: message,
 		});
@@ -85,11 +88,11 @@ const Chat = ({ socket, members, messages, isLoading }: Props) => {
 		const result = window.confirm('Are you sure you want to leave the chat?');
 
 		if (result) {
-			socket.emit('leave_room', { roomName, username: currentUserName });
+			socket.emit('leave_room', { chatId, username: currentUserName });
 
 			setCurrentUser({
 				...currentUser!,
-				chats: currentUser!.chats?.filter((chat) => chat.name !== roomName),
+				chats: currentUser!.chats?.filter((chat) => chat.id !== chatId),
 			});
 
 			navigate('/');

@@ -1,16 +1,16 @@
 import React, { createContext, SetStateAction, useContext, useState } from 'react';
 
-import { CurrentUser } from '../types';
+import { User } from '../types';
 
 interface UserContextType {
-	currentUser: CurrentUser | null;
-	setCurrentUser: React.Dispatch<SetStateAction<CurrentUser | null>>;
+	currentUser: User | null;
+	setCurrentUser: React.Dispatch<SetStateAction<User | null>>;
 }
 
 const userContext = createContext<UserContextType>({} as UserContextType);
 
 export const UserProvider = ({ children }: { children: React.ReactNode }) => {
-	const [currentUser, setCurrentUser] = useState<CurrentUser | null>(null);
+	const [currentUser, setCurrentUser] = useState<User | null>(null);
 
 	return <userContext.Provider value={{ currentUser, setCurrentUser }}>{children}</userContext.Provider>;
 };

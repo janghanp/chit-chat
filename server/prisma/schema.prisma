@@ -20,19 +20,20 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  chats    Chat[]
-  messages Message[]
+  chats          Chat[]
+  messages       Message[]
+  chatsOwnedByMe Chat[]    @relation("OwnedChats")
 }
 
 model Message {
   id        String   @id @default(cuid())
   text      String
+  senderId  String
+  chatId    String
   createdAt DateTime @default(now())
 
-  senderId String
-  sender   User   @relation(fields: [senderId], references: [id])
-
-  chats Chat[]
+  sender User @relation(fields: [senderId], references: [id])
+  chat   Chat @relation(fields: [chatId], references: [id])
 }
 
 model Chat {
@@ -40,9 +41,11 @@ model Chat {
   name      String   @unique
   icon      String?
   public_id String?
+  ownerId   String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   users    User[]
   messages Message[]
+  owner    User      @relation("OwnedChats", fields: [ownerId], references: [id])
 }
