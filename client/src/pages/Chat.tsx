@@ -1,6 +1,5 @@
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { HiUserGroup } from 'react-icons/hi';
 import { Socket } from 'socket.io-client';
 
 import { Message, User } from '../types';
@@ -8,6 +7,7 @@ import { useUser } from '../context/UserContext';
 import MemberList from '../components/MemberList';
 import axios from 'axios';
 import ChatBody from '../components/ChatBody';
+import Header from '../components/Header';
 
 interface Props {
 	socket: Socket;
@@ -26,6 +26,7 @@ const Chat = ({ socket, members, messages, isLoading, setMessages, setMembers }:
 	const { currentUser, setCurrentUser } = useUser();
 
 	const [owenerId, setOwnerId] = useState<string>();
+	const [chatName, setChatName] = useState<string>();
 	const [message, setMessage] = useState<string>('');
 	const [isOpenMemberList, setIsOpenMemberList] = useState<boolean>(true);
 
@@ -44,6 +45,7 @@ const Chat = ({ socket, members, messages, isLoading, setMessages, setMembers }:
 			setMessages(chat.messages);
 			setMembers(chat.users);
 			setOwnerId(chat.owner.id);
+			setChatName(chat.name);
 
 			socket.emit('join_room', {
 				chatId,
@@ -130,23 +132,8 @@ const Chat = ({ socket, members, messages, isLoading, setMessages, setMembers }:
 
 	return (
 		<div className={`fixed left-0 sm:left-80 ${isOpenMemberList ? 'right-56' : 'right-0'}  top-10 bottom-0`}>
-			{/* header */}
-			<div className="fixed left-0 top-0 z-[22]  flex h-10 w-full items-center justify-end bg-base-100 pr-5 shadow-md">
-				<div className="tool tooltip tooltip-bottom" data-tip="Show Members">
-					<button className="btn-ghost btn-sm btn px-2" onClick={() => setIsOpenMemberList(!isOpenMemberList)}>
-						<HiUserGroup className="text-2xl" />
-					</button>
-				</div>
-			</div>
-
-			{isOpenMemberList && owenerId && <MemberList ownerId={owenerId} members={members} />}
-
-			{/* <button className="rounded-md border p-2" onClick={leaveChat}>
-					Leave
-				</button> */}
-
+			<Header chatName={chatName as string} setIsOpenMemberList={setIsOpenMemberList} leavChat={leaveChat} />
 			<ChatBody messages={messages} />
-
 			<div className="absolute bottom-0 left-[2px] w-full bg-base-100 p-3">
 				<div className="flex gap-x-2">
 					<input
@@ -160,6 +147,7 @@ const Chat = ({ socket, members, messages, isLoading, setMessages, setMembers }:
 					</button>
 				</div>
 			</div>
+			{isOpenMemberList && owenerId && <MemberList ownerId={owenerId} members={members} />}
 		</div>
 	);
 };

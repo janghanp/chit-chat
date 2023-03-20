@@ -279,4 +279,41 @@ router.patch('/leave', async (req: Request, res: Response) => {
 	}
 });
 
+router.get('/message/:chatId', async (req: Request, res: Response) => {
+	const { chatId } = req.params;
+
+	try {
+		const chat = await prisma.chat.findUnique({
+			where: {
+				id: chatId,
+			},
+			include: {
+				messages: {
+					include: {
+						sender: true,
+					},
+					orderBy: {
+						createdAt: 'desc',
+					},
+					take: 1,
+				},
+			},
+		});
+
+		const message = chat?.messages[0];
+
+		if (message) {
+			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+			// @ts-ignore
+			delete message.sender.password;
+		}
+
+		return res.status(200).json({ message });
+	} catch (error) {
+		console.log(error);
+
+		return res.sendStatus(500);
+	}
+});
+
 export default router;
