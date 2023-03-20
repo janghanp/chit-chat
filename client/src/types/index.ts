@@ -14,6 +14,7 @@ export interface Chat {
 	icon?: string;
 	public_id?: string;
 	ownerId: string;
+	messages?: Message[];
 }
 
 export interface Message {

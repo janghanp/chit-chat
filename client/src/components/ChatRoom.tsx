@@ -1,5 +1,5 @@
-import axios from 'axios';
-import { Dispatch, memo, SetStateAction, useEffect, useState } from 'react';
+import { format } from 'date-fns';
+import { Dispatch, memo, SetStateAction } from 'react';
 import { Link } from 'react-router-dom';
 import { Chat } from '../types';
 
@@ -9,24 +9,10 @@ interface Props {
 }
 
 const ChatRoom = ({ chatRoom, setIsSidebarOpen }: Props) => {
-	const [lastMessage, setLastMessage] = useState<any>();
-	const [isLoading, setIsLoading] = useState<boolean>(true);
+	const gap = new Date().getTime() - new Date(chatRoom.messages![0].createdAt).getTime();
 
-	useEffect(() => {
-		const fetchTheLastMessage = async () => {
-			const { data } = await axios.get(`http://localhost:8080/chat/message/${chatRoom.id}`, { withCredentials: true });
-			setLastMessage(data.message);
-			setIsLoading(false);
-		};
-
-		if (!lastMessage) {
-			fetchTheLastMessage();
-		}
-	}, []);
-
-	if (isLoading) {
-		return <div></div>;
-	}
+	// 86400000 = 24 hours
+	const isToday = gap < 86400000;
 
 	return (
 		<Link to={`/chat/${chatRoom.id}`} onClick={() => setIsSidebarOpen(false)}>
@@ -44,10 +30,22 @@ const ChatRoom = ({ chatRoom, setIsSidebarOpen }: Props) => {
 						</div>
 					</div>
 				)}
-				<div className="flex flex-col">
-					<span className="font-semibold">{chatRoom.name}</span>
-					<span className="font-normal text-sm">
-						{lastMessage.sender.username} : {lastMessage.text}{' '}
+				<div className="flex w-full flex-col">
+					<span className="flex w-full items-center justify-between font-semibold">
+						<span>{chatRoom.name}</span>
+						<span>
+							<time className="ml-2 text-xs opacity-50">
+								{isToday ? (
+									<>{format(new Date(chatRoom.messages![0].createdAt), 'p')}</>
+								) : (
+									<>{format(new Date(chatRoom.messages![0].createdAt), 'MM/dd')}</>
+								)}
+							</time>
+						</span>
+					</span>
+
+					<span className="text-sm font-normal">
+						{chatRoom.messages![0].sender.username}: {chatRoom.messages![0].text}
 					</span>
 				</div>
 			</div>

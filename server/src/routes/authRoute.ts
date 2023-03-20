@@ -81,7 +81,23 @@ router.post('/login', async (req: Request, res: Response) => {
 				email,
 			},
 			include: {
-				chats: true,
+				chats: {
+					include: {
+						messages: {
+							include: {
+								sender: {
+									select: {
+										username: true,
+									},
+								},
+							},
+							orderBy: {
+								createdAt: 'desc',
+							},
+							take: 1,
+						},
+					},
+				},
 			},
 		});
 
@@ -138,7 +154,23 @@ router.get('/refresh', async (req: Request, res: Response) => {
 						email,
 					},
 					include: {
-						chats: true,
+						chats: {
+							include: {
+								messages: {
+									include: {
+										sender: {
+											select: {
+												username: true,
+											},
+										},
+									},
+									orderBy: {
+										createdAt: 'desc',
+									},
+									take: 1,
+								},
+							},
+						},
 					},
 				});
 
