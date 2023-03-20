@@ -25,8 +25,10 @@ const Chat = ({ socket, members, messages, isLoading, setMessages, setMembers }:
 
 	const { currentUser, setCurrentUser } = useUser();
 
+	const [owenerId, setOwnerId] = useState<string>();
 	const [message, setMessage] = useState<string>('');
 	const [isOpenMemberList, setIsOpenMemberList] = useState<boolean>(true);
+
 	const isSetRef = useRef<boolean>(false);
 
 	useEffect(() => {
@@ -41,6 +43,7 @@ const Chat = ({ socket, members, messages, isLoading, setMessages, setMembers }:
 
 			setMessages(chat.messages);
 			setMembers(chat.users);
+			setOwnerId(chat.owner.id);
 
 			socket.emit('join_room', {
 				chatId,
@@ -73,7 +76,6 @@ const Chat = ({ socket, members, messages, isLoading, setMessages, setMembers }:
 			}
 		};
 	}, [chatId, socket]);
-
 
 	const sendMessage = async () => {
 		if (!message) {
@@ -137,7 +139,7 @@ const Chat = ({ socket, members, messages, isLoading, setMessages, setMembers }:
 				</div>
 			</div>
 
-			{isOpenMemberList && <MemberList members={members} />}
+			{isOpenMemberList && owenerId && <MemberList ownerId={owenerId} members={members} />}
 
 			{/* <button className="rounded-md border p-2" onClick={leaveChat}>
 					Leave

@@ -1,5 +1,4 @@
 import { ChangeEvent, useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import axios from 'axios';
 import { HiCamera } from 'react-icons/hi';
@@ -22,8 +21,6 @@ interface Props {
 
 const Settings = ({ closeSettings }: Props) => {
 	const { currentUser, setCurrentUser } = useUser();
-
-	const navigate = useNavigate();
 
 	const [preview, setPreview] = useState<string>(currentUser!.avatar || '');
 	const [imageError, setImageError] = useState<string>();
@@ -106,7 +103,6 @@ const Settings = ({ closeSettings }: Props) => {
 			setCurrentUser((prev) => ({ ...prev!, username: data.username }));
 
 			closeSettings();
-			navigate('/');
 		} catch (error) {
 			if (axios.isAxiosError(error) && error.response?.status === 400) {
 				// Set an error into username field.
@@ -155,9 +151,9 @@ const Settings = ({ closeSettings }: Props) => {
 			reader.readAsDataURL(file);
 
 			toast.promise(uploadImage(file), {
-				loading: 'Saving...',
-				success: <b>Settings saved!</b>,
-				error: <b>Could not save.</b>,
+				loading: 'Uploading...',
+				success: <b>Image uploaded!</b>,
+				error: <b>Could not upload the image.</b>,
 			});
 		}
 	};

@@ -155,6 +155,7 @@ router.patch('/join', async (req: Request, res: Response) => {
 					},
 				},
 				users: true,
+				owner: true,
 			},
 		});
 
@@ -184,6 +185,7 @@ router.patch('/join', async (req: Request, res: Response) => {
 						},
 					},
 					users: true,
+					owner: true,
 				},
 			});
 

@@ -1,5 +1,4 @@
 import { User } from '../types';
-
 import defaultAvatar from '/default.jpg';
 
 interface Props {

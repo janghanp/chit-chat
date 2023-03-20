@@ -6,16 +6,20 @@ import LogoutButton from './LogoutButton';
 import Settings from './Settings';
 import { createPortal } from 'react-dom';
 import { User } from '../types';
+import { useNavigate } from 'react-router-dom';
 
 interface Props {
 	currentUser: User;
 }
 
 const UserInfo = ({ currentUser }: Props) => {
+	const navigate = useNavigate();
+
 	const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
 
 	const closeSettings = useCallback(() => {
 		setIsSettingsOpen(false);
+		navigate('/');
 	}, []);
 
 	return (

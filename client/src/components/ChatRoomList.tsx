@@ -19,7 +19,7 @@ const ChatRoomList = ({ chatRooms, setIsSidebarOpen }: Props) => {
 					chatRooms.map((chatRoom) => {
 						return (
 							<tr key={chatRoom.id} className={`hover ${params.chatId === chatRoom.id ? 'active' : ''} w-full`}>
-								<th className="w-full rounded-none p-2">
+								<th className="w-full rounded-none p-3">
 									<ChatRoom chatRoom={chatRoom} setIsSidebarOpen={setIsSidebarOpen} />
 								</th>
 							</tr>
