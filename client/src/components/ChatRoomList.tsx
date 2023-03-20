@@ -13,20 +13,20 @@ const ChatRoomList = ({ chatRooms, setIsSidebarOpen }: Props) => {
 	const params = useParams();
 
 	return (
-		<ul className="menu p-4">
-			{chatRooms &&
-				chatRooms.map((chatRoom) => {
-					return (
-						<li key={chatRoom.id}>
-							<ChatRoom
-								chatRoom={chatRoom}
-								currentchatId={params.chatId as string}
-								setIsSidebarOpen={setIsSidebarOpen}
-							/>
-						</li>
-					);
-				})}
-		</ul>
+		<table className="table w-full">
+			<tbody>
+				{chatRooms &&
+					chatRooms.map((chatRoom) => {
+						return (
+							<tr key={chatRoom.id} className={`hover ${params.chatId === chatRoom.id ? 'active' : ''} w-full`}>
+								<th className="w-full rounded-none p-2">
+									<ChatRoom chatRoom={chatRoom} setIsSidebarOpen={setIsSidebarOpen} />
+								</th>
+							</tr>
+						);
+					})}
+			</tbody>
+		</table>
 	);
 };
 

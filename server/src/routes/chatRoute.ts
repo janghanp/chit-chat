@@ -1,4 +1,4 @@
-import { Chat, Message, User, PrismaClient } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 import { Request, Response, Router } from 'express';
 import cloudinary from 'cloudinary';
 import multer from 'multer';
@@ -22,6 +22,9 @@ router.get('/', async (req: Request, res: Response) => {
 			},
 			include: {
 				messages: {
+					orderBy: {
+						createdAt: 'asc',
+					},
 					include: {
 						sender: true,
 					},
@@ -144,6 +147,9 @@ router.patch('/join', async (req: Request, res: Response) => {
 			},
 			include: {
 				messages: {
+					orderBy: {
+						createdAt: 'asc',
+					},
 					include: {
 						sender: true,
 					},
@@ -170,6 +176,9 @@ router.patch('/join', async (req: Request, res: Response) => {
 				},
 				include: {
 					messages: {
+						orderBy: {
+							createdAt: 'asc',
+						},
 						include: {
 							sender: true,
 						},

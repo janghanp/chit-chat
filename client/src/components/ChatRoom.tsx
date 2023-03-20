@@ -4,29 +4,28 @@ import { Chat } from '../types';
 
 interface Props {
 	chatRoom: Chat;
-	currentchatId: string;
 	setIsSidebarOpen: Dispatch<SetStateAction<boolean>>;
 }
 
-const ChatRoom = ({ chatRoom, currentchatId, setIsSidebarOpen }: Props) => {
+const ChatRoom = ({ chatRoom, setIsSidebarOpen }: Props) => {
 	return (
-		<Link
-			to={`/chat/${chatRoom.id}`}
-			className={`${currentchatId === chatRoom.id ? 'active' : ''}`}
-			onClick={() => setIsSidebarOpen(false)}
-		>
-			{chatRoom.icon ? (
-				<div className="avatar">
-					<div className="w-8 rounded-full">
-						<img src={chatRoom.icon} alt={chatRoom.name} />
+		<Link to={`/chat/${chatRoom.id}`} onClick={() => setIsSidebarOpen(false)}>
+			<div className="flex items-center justify-start gap-x-3">
+				{chatRoom.icon ? (
+					<div className="avatar">
+						<div className="w-10 rounded-full">
+							<img src={chatRoom.icon} alt={chatRoom.name} />
+						</div>
 					</div>
-				</div>
-			) : (
-				<div className="avatar text-center">
-					<div className="w-8 rounded-full border border-base-content font-semibold">{chatRoom.name.charAt(0)}</div>
-				</div>
-			)}
-			<div>{chatRoom.name}</div>
+				) : (
+					<div className="placeholder avatar">
+						<div className="w-10 rounded-full bg-neutral-focus text-neutral-content">
+							<span>{chatRoom.name.charAt(0).toUpperCase()}</span>
+						</div>
+					</div>
+				)}
+				<div>{chatRoom.name}</div>
+			</div>
 		</Link>
 	);
 };

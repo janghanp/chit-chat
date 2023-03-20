@@ -1,6 +1,5 @@
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { formatDistance } from 'date-fns';
 import { HiUserGroup } from 'react-icons/hi';
 import { Socket } from 'socket.io-client';
 
@@ -8,6 +7,7 @@ import { Message, User } from '../types';
 import { useUser } from '../context/UserContext';
 import MemberList from '../components/MemberList';
 import axios from 'axios';
+import ChatBody from '../components/ChatBody';
 
 interface Props {
 	socket: Socket;
@@ -74,7 +74,12 @@ const Chat = ({ socket, members, messages, isLoading, setMessages, setMembers }:
 		};
 	}, [chatId, socket]);
 
+
 	const sendMessage = async () => {
+		if (!message) {
+			return;
+		}
+
 		const { data } = await axios.post(
 			'http://localhost:8080/chat/message',
 			{
@@ -122,8 +127,9 @@ const Chat = ({ socket, members, messages, isLoading, setMessages, setMembers }:
 	}
 
 	return (
-		<>
-			<div className="fixed left-0 top-0 z-20 flex h-10 w-full items-center justify-end bg-base-100 pr-5 shadow-md">
+		<div className={`fixed left-0 sm:left-80 ${isOpenMemberList ? 'right-56' : 'right-0'}  top-10 bottom-0`}>
+			{/* header */}
+			<div className="fixed left-0 top-0 z-[22]  flex h-10 w-full items-center justify-end bg-base-100 pr-5 shadow-md">
 				<div className="tool tooltip tooltip-bottom" data-tip="Show Members">
 					<button className="btn-ghost btn-sm btn px-2" onClick={() => setIsOpenMemberList(!isOpenMemberList)}>
 						<HiUserGroup className="text-2xl" />
@@ -131,30 +137,28 @@ const Chat = ({ socket, members, messages, isLoading, setMessages, setMembers }:
 				</div>
 			</div>
 
-			<div>
-				{isOpenMemberList && <MemberList members={members} />}
+			{isOpenMemberList && <MemberList members={members} />}
 
-				<button className="rounded-md border p-2" onClick={leaveChat}>
+			{/* <button className="rounded-md border p-2" onClick={leaveChat}>
 					Leave
-				</button>
+				</button> */}
 
-				{messages &&
-					messages.map((msg) => {
-						return (
-							<div key={msg.id}>
-								<p>{msg.sender.username}</p>
-								<p>{msg.text}</p>
-								<p>{formatDistance(new Date(msg.createdAt), Date.now(), { addSuffix: true })}</p>
-							</div>
-						);
-					})}
+			<ChatBody messages={messages} />
 
-				<input className="border" type="text" value={message} onChange={(e) => setMessage(e.target.value)} />
-				<button className="border" onClick={sendMessage}>
-					Send
-				</button>
+			<div className="absolute bottom-0 left-[2px] w-full bg-base-100 p-3">
+				<div className="flex gap-x-2">
+					<input
+						className="input-bordered input w-full"
+						type="text"
+						value={message}
+						onChange={(e) => setMessage(e.target.value)}
+					/>
+					<button className="btn" disabled={!message} onClick={sendMessage}>
+						Send
+					</button>
+				</div>
 			</div>
-		</>
+		</div>
 	);
 };
 

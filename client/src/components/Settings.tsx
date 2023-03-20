@@ -49,6 +49,7 @@ const Settings = ({ closeSettings }: Props) => {
 			const key = event.key;
 
 			if (key === 'Escape') {
+				event.preventDefault();
 				closeSettings();
 			}
 		}
