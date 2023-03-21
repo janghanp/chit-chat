@@ -32,6 +32,8 @@ const Chat = ({ socket, members, messages, isLoading, setMessages, setMembers }:
 
 	const isSetRef = useRef<boolean>(false);
 
+	const isOwner = currentUser?.id === owenerId;
+
 	useEffect(() => {
 		const joinChat = async () => {
 			const { data } = await axios.patch(
@@ -125,13 +127,29 @@ const Chat = ({ socket, members, messages, isLoading, setMessages, setMembers }:
 		}
 	};
 
+	const deleteChat = async () => {
+		const result = window.confirm('Are you sure you want to delete the chat?');
+
+		if (result) {
+			await axios.delete(`http://localhost:8080/chat/${chatId}`, { withCredentials: true });
+
+			navigate('/');
+		}
+	};
+
 	if (isLoading) {
 		return <div>Loading...</div>;
 	}
 
 	return (
 		<div className={`fixed left-0 sm:left-80 ${isOpenMemberList ? 'right-56' : 'right-0'}  top-10 bottom-0`}>
-			<Header chatName={chatName as string} setIsOpenMemberList={setIsOpenMemberList} leavChat={leaveChat} />
+			<Header
+				chatName={chatName as string}
+				setIsOpenMemberList={setIsOpenMemberList}
+				leavChat={leaveChat}
+				deleteChat={deleteChat}
+				isOwner={isOwner}
+			/>
 			<ChatBody messages={messages} />
 			<div className="absolute bottom-0 left-[2px] w-full bg-base-100 p-3">
 				<div className="flex gap-x-2">

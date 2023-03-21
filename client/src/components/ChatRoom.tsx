@@ -11,25 +11,33 @@ interface Props {
 }
 
 const ChatRoom = ({ chatRoom, setIsSidebarOpen }: Props) => {
+	const hasMessage = chatRoom.messages!.length > 0 ? true : false;
+
 	const params = useParams();
 
 	const { currentUser } = useUser();
 
 	const [isNewMessage, setIsNewMessage] = useState<boolean>(false);
 
-	const messageRef = useRef<string>(chatRoom.messages![0].text);
+	const messageRef = useRef<string>(hasMessage ? chatRoom.messages![0].text : '');
 
 	useEffect(() => {
-		if (messageRef.current !== chatRoom.messages![0].text) {
-			if (currentUser?.id !== chatRoom.messages![0].sender.id && chatRoom.id !== params.chatId) {
-				setIsNewMessage(true);
+		if (hasMessage) {
+			if (messageRef.current !== chatRoom.messages![0].text) {
+				if (currentUser?.id !== chatRoom.messages![0].sender.id && chatRoom.id !== params.chatId) {
+					setIsNewMessage(true);
+				}
 			}
 		}
-	}, [chatRoom.messages![0].text]);
+	}, [chatRoom]);
 
-	const gap = new Date().getTime() - new Date(chatRoom.messages![0].createdAt).getTime();
-	// 86400000 = 24 hours
-	const isToday = gap < 86400000;
+	let isToday: boolean = true;
+
+	if (hasMessage) {
+		const gap = new Date().getTime() - new Date(chatRoom.messages![0].createdAt).getTime();
+		// 86400000 = 24 hours
+		isToday = gap < 86400000;
+	}
 
 	const clickHandler = () => {
 		setIsSidebarOpen(false);
@@ -65,17 +73,27 @@ const ChatRoom = ({ chatRoom, setIsSidebarOpen }: Props) => {
 						<span>{chatRoom.name}</span>
 						<span>
 							<time className="ml-2 text-xs opacity-50">
-								{isToday ? (
-									<>{format(new Date(chatRoom.messages![0].createdAt), 'p')}</>
+								{!hasMessage ? (
+									''
 								) : (
-									<>{format(new Date(chatRoom.messages![0].createdAt), 'MM/dd')}</>
+									<>
+										{isToday && hasMessage ? (
+											<>{format(new Date(chatRoom.messages![0].createdAt), 'p')}</>
+										) : (
+											<>{format(new Date(chatRoom.messages![0].createdAt), 'MM/dd')}</>
+										)}
+									</>
 								)}
 							</time>
 						</span>
 					</span>
 
 					<span className="text-sm font-normal">
-						{chatRoom.messages![0].sender.username}: {chatRoom.messages![0].text}
+						{hasMessage && (
+							<>
+								{chatRoom.messages![0].sender.username}: {chatRoom.messages![0].text}
+							</>
+						)}
 					</span>
 				</div>
 			</div>

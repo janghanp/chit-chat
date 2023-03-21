@@ -12,7 +12,7 @@ import Chat from './Chat';
 import NoMatch from './NoMatch';
 import Explorer from './Explorer';
 import { useUser } from '../context/UserContext';
-import { Message, User, Chat as ChatType } from '../types';
+import { Message, User } from '../types';
 import { connectSocket } from '../socket';
 
 let socket: Socket;

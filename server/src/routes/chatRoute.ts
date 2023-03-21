@@ -246,7 +246,7 @@ router.patch('/leave', async (req: Request, res: Response) => {
 	const { chatId, username } = req.body;
 
 	try {
-		const chat = await prisma.chat.update({
+		await prisma.chat.update({
 			where: {
 				id: chatId,
 			},
@@ -261,15 +261,6 @@ router.patch('/leave', async (req: Request, res: Response) => {
 				users: true,
 			},
 		});
-
-		// Delete a chat when there is no user left in the chat.
-		if (chat.users.length === 0) {
-			await prisma.chat.delete({
-				where: {
-					id: chatId,
-				},
-			});
-		}
 
 		return res.sendStatus(200);
 	} catch (error) {
@@ -309,6 +300,25 @@ router.get('/message/:chatId', async (req: Request, res: Response) => {
 		}
 
 		return res.status(200).json({ message });
+	} catch (error) {
+		console.log(error);
+
+		return res.sendStatus(500);
+	}
+});
+
+router.delete('/:chatId', async (req: Request, res: Response) => {
+	const { chatId } = req.params;
+
+	//? might need a cascade delete.
+	try {
+		await prisma.chat.delete({
+			where: {
+				id: chatId,
+			},
+		});
+
+		return res.sendStatus(200);
 	} catch (error) {
 		console.log(error);
 

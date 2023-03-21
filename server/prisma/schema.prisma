@@ -33,7 +33,7 @@ model Message {
   createdAt DateTime @default(now())
 
   sender User @relation(fields: [senderId], references: [id])
-  chat   Chat @relation(fields: [chatId], references: [id])
+  chat   Chat @relation(fields: [chatId], references: [id], onDelete: Cascade)
 }
 
 model Chat {
@@ -46,6 +46,6 @@ model Chat {
   updatedAt DateTime @updatedAt
 
   users    User[]
-  messages Message[]
+  messages Message[] 
   owner    User      @relation("OwnedChats", fields: [ownerId], references: [id])
 }
