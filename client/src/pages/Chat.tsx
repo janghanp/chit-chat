@@ -36,34 +36,56 @@ const Chat = ({ socket, members, messages, isLoading, setMessages, setMembers }:
 
 	useEffect(() => {
 		const joinChat = async () => {
-			const { data } = await axios.patch(
-				'http://localhost:8080/chat/join',
-				{ chatId, username: currentUser?.username },
-				{ withCredentials: true }
-			);
+			try {
+				const { data } = await axios.patch(
+					'http://localhost:8080/chat/join',
+					{ chatId, username: currentUser?.username },
+					{ withCredentials: true }
+				);
 
-			const { isNewMember, chat } = data;
+				const { isNewMember, chat } = data;
 
-			setMessages(chat.messages);
-			setMembers(chat.users);
-			setOwnerId(chat.owner.id);
-			setChatName(chat.name);
+				setMessages(chat.messages);
+				setMembers(chat.users);
+				setOwnerId(chat.owner.id);
+				setChatName(chat.name);
 
-			socket.emit('join_chat', {
-				chatId,
-				currentUser,
-				isNewMember,
-			});
+				socket.emit('join_chat', {
+					chatId,
+					currentUser,
+					isNewMember,
+				});
 
-			if (isNewMember) {
-				//Add a chat on the sidebar.
-				setCurrentUser((prev) => ({
-					...prev!,
-					chats: [
-						...prev?.chats!,
-						{ name: chat.name, id: chat.id, icon: chat.icon, public_id: chat.public_id, ownerId: chat.ownerId },
-					],
-				}));
+				if (isNewMember) {
+					//For the preview message in the chatRoom list.
+					let messages: any[] = [];
+
+					if (chat.messages && chat.messages[0] && chat.messages[0].text) {
+						messages = [chat.messages.pop()];
+					} else {
+						messages = [];
+					}
+
+					//Add a chat on the sidebar.
+					setCurrentUser((prev) => ({
+						...prev!,
+						chats: [
+							...prev?.chats!,
+							{
+								name: chat.name,
+								id: chat.id,
+								icon: chat.icon,
+								public_id: chat.public_id,
+								ownerId: chat.ownerId,
+								messages,
+							},
+						],
+					}));
+				}
+			} catch (error) {
+				console.log(error);
+
+				navigate('/');
 			}
 		};
 
@@ -132,6 +154,8 @@ const Chat = ({ socket, members, messages, isLoading, setMessages, setMembers }:
 
 		if (result) {
 			await axios.delete(`http://localhost:8080/chat/${chatId}`, { withCredentials: true });
+
+			socket.emit('delete_chat', { chatId });
 
 			navigate('/');
 		}

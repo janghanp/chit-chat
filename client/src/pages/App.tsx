@@ -92,6 +92,20 @@ function App() {
 				}
 			};
 
+			const onDestroyChat = (data: { chatId: string }) => {
+				const { chatId } = data;
+
+				setCurrentUser((prev) => {
+					const newChats = prev?.chats.filter((chat) => {
+						return chat.id !== chatId;
+					});
+
+					return { ...prev, chats: newChats } as User;
+				});
+
+				window.location.reload();
+			};
+
 			const onOnline = (data: { username: string }) => {
 				setMembers((prev) => {
 					return prev.map((member) => {
@@ -131,6 +145,7 @@ function App() {
 			socket.on('receive_message', onReceiveMessage);
 			socket.on('enter_new_member', onEnterNewMember);
 			socket.on('leave_member', onLeaveMember);
+			socket.on('destroy_chat', onDestroyChat);
 			socket.on('online', onOnline);
 			socket.on('offline', onOffline);
 			socket.on('onlineUsers', onOnlineUsers);
@@ -139,6 +154,7 @@ function App() {
 				socket.off('receive_message', onReceiveMessage);
 				socket.off('enter_new_member', onEnterNewMember);
 				socket.off('leave_member', onLeaveMember);
+				socket.off('destroy_chat', onDestroyChat);
 				socket.off('online', onOnline);
 				socket.off('offline', onOffline);
 				socket.off('onlineUsers', onOnlineUsers);

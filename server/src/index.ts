@@ -137,6 +137,16 @@ io.on('connect', (socket: Socket) => {
 		socket.leave(chatId);
 	});
 
+	socket.on('delete_chat', (data: { chatId: string }) => {
+		console.log('delete_chat@@@@@@@@@@@@@@@@@@@@@@@');
+
+		const { chatId } = data;
+
+		io.to(chatId).emit('destroy_chat', { chatId });
+
+		socket.leave(chatId);
+	});
+
 	socket.on('disconnect', () => {
 		const username = socket.handshake.query.username;
 
