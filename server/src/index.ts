@@ -96,7 +96,13 @@ io.on('connect', (socket: Socket) => {
 
 	console.log(usersWithSockets);
 
-	socket.on('join_room', async (data: { chatId: string; currentUser: CurrentUser; isNewMember: boolean }) => {
+	socket.on('join_all_chats', (data: { chatIds: string[] }) => {
+		const { chatIds } = data;
+
+		socket.join(chatIds);
+	});
+
+	socket.on('join_chat', (data: { chatId: string; currentUser: CurrentUser; isNewMember: boolean }) => {
 		const { chatId, currentUser, isNewMember } = data;
 
 		socket.join(chatId);
@@ -104,7 +110,7 @@ io.on('connect', (socket: Socket) => {
 		socket.emit('onlineUsers', { userNames: usersWithSockets.map((el) => el.username) });
 
 		if (isNewMember) {
-			socket.to(chatId).emit('enter_new_member', { newUser: currentUser });
+			socket.to(chatId).emit('enter_new_member', { newUser: currentUser, chatId });
 		}
 	});
 
@@ -114,6 +120,7 @@ io.on('connect', (socket: Socket) => {
 			const { messageId, text, sender, chatId, createdAt } = data;
 
 			io.to(chatId).emit('receive_message', {
+				chatId,
 				messageId,
 				text,
 				sender,
@@ -122,14 +129,12 @@ io.on('connect', (socket: Socket) => {
 		}
 	);
 
-	socket.on('move_room', (data: { chatId: string }) => {
-		socket.leave(data.chatId);
-	});
+	socket.on('leave_chat', (data: { username: string; chatId: string }) => {
+		const { username, chatId } = data;
 
-	socket.on('leave_room', async (data: { username: string; chatId: string }) => {
-		socket.to(data.chatId).emit('leave_member', { username: data.username });
+		socket.to(chatId).emit('leave_member', { username: username, chatId });
 
-		socket.leave(data.chatId);
+		socket.leave(chatId);
 	});
 
 	socket.on('disconnect', () => {
@@ -157,6 +162,10 @@ io.on('connect', (socket: Socket) => {
 
 				break;
 			}
+		}
+
+		for (const room of socket.rooms) {
+			socket.leave(room);
 		}
 
 		console.log(`👋 socket id: ${socket.id}`);

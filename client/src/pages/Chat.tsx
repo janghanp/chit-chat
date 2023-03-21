@@ -47,7 +47,7 @@ const Chat = ({ socket, members, messages, isLoading, setMessages, setMembers }:
 			setOwnerId(chat.owner.id);
 			setChatName(chat.name);
 
-			socket.emit('join_room', {
+			socket.emit('join_chat', {
 				chatId,
 				currentUser,
 				isNewMember,
@@ -74,7 +74,6 @@ const Chat = ({ socket, members, messages, isLoading, setMessages, setMembers }:
 		return () => {
 			if (socket) {
 				isSetRef.current = false;
-				socket.emit('move_room', { chatId });
 			}
 		};
 	}, [chatId, socket]);
@@ -115,7 +114,7 @@ const Chat = ({ socket, members, messages, isLoading, setMessages, setMembers }:
 				{ withCredentials: true }
 			);
 
-			socket.emit('leave_room', { chatId, username: currentUser?.username });
+			socket.emit('leave_chat', { chatId, username: currentUser?.username });
 
 			setCurrentUser({
 				...currentUser!,

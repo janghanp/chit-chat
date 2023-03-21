@@ -12,17 +12,19 @@ import Chat from './Chat';
 import NoMatch from './NoMatch';
 import Explorer from './Explorer';
 import { useUser } from '../context/UserContext';
-import { Message, User } from '../types';
+import { Message, User, Chat as ChatType } from '../types';
 import { connectSocket } from '../socket';
 
 let socket: Socket;
 
 function App() {
-	const { currentUser } = useUser();
+	const { currentUser, setCurrentUser } = useUser();
 
 	const [messages, setMessages] = useState<Message[]>([]);
 	const [members, setMembers] = useState<User[]>([]);
 	const [isLoading, setIsLoading] = useState<boolean>(true);
+
+	const currentChatId = window.location.href.split('/').pop();
 
 	useEffect(() => {
 		if (currentUser?.username) {
@@ -39,28 +41,55 @@ function App() {
 
 	useEffect(() => {
 		if (currentUser?.username) {
-			const onReceiveMessage = (data: { messageId: string; text: string; sender: User; createdAt: string }) => {
-				const { messageId, text, sender, createdAt } = data;
+			const onReceiveMessage = (data: {
+				chatId: string;
+				messageId: string;
+				text: string;
+				sender: User;
+				createdAt: string;
+			}) => {
+				const { chatId, messageId, text, sender, createdAt } = data;
 
-				setMessages((prev) => [...prev, { id: messageId, sender, text, createdAt }]);
+				setCurrentUser((prev) => {
+					const newChats = prev!.chats.map((chat) => {
+						if (chat.id === chatId) {
+							chat.messages![0] = { id: messageId, text, sender, createdAt };
+							return { ...chat };
+						}
+
+						return chat;
+					});
+
+					return { ...prev, chats: newChats } as User;
+				});
+
+				if (currentChatId === chatId) {
+					setMessages((prev) => [...prev, { id: messageId, sender, text, createdAt }]);
+				}
 			};
 
-			const onEnterNewMember = (data: { newUser: User }) => {
-				const newUser = data.newUser;
+			const onEnterNewMember = (data: { newUser: User; chatId: string }) => {
+				const { newUser, chatId } = data;
 
 				newUser.isOnline = true;
 
-				setMembers((prev) => {
-					return [...prev, newUser];
-				});
+				if (currentChatId === chatId) {
+					setMembers((prev) => {
+						return [...prev, newUser];
+					});
+				}
 			};
 
-			const onLeaveMember = (data: { username: string }) => {
-				setMembers((prev) => {
-					return prev.filter((member) => {
-						return member.username !== data.username;
+			const onLeaveMember = (data: { username: string; chatId: string }) => {
+				const { username, chatId } = data;
+
+				if (currentChatId === chatId) {
+					setMembers((prev) => {
+						return prev.filter((member) => {
+							return member.username !== username;
+						});
 					});
-				});
+				}
 			};
 
 			const onOnline = (data: { username: string }) => {
@@ -116,6 +145,14 @@ function App() {
 			};
 		}
 	}, [currentUser?.username]);
+
+	useEffect(() => {
+		if (currentUser?.username && socket && socket.connected) {
+			if (currentUser.chats.length > 0) {
+				socket.emit('join_all_chats', { chatIds: currentUser?.chats.map((chat) => chat.id) });
+			}
+		}
+	}, [socket && socket.connected]);
 
 	return (
 		<Routes>
