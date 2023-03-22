@@ -2,7 +2,7 @@ import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 
 import useAuth, { isAuthSuccessResponse, isAuthErrorResponse } from '../hooks/useAuth';
-import { useUser } from '../context/UserContext';
+import { useUserStore } from '../store';
 
 interface FormData {
 	email: string;
@@ -14,7 +14,7 @@ const Login = () => {
 
 	const { login } = useAuth();
 
-	const { currentUser, setCurrentUser } = useUser();
+	const { currentUser, setCurrentUser } = useUserStore();
 
 	const {
 		register,

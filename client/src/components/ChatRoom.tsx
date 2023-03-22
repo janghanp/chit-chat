@@ -11,8 +11,6 @@ interface Props {
 }
 
 const ChatRoom = ({ chatRoom, setIsSidebarOpen }: Props) => {
-	console.log(chatRoom);
-
 	const hasMessage = chatRoom.messages!.length > 0 ? true : false;
 
 	const params = useParams();

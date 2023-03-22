@@ -5,8 +5,8 @@ import Sidebar from '../components/Sidebar';
 const Layout = () => {
 	return (
 		<>
-			<Sidebar />
-			<Outlet />
+			{/* <Sidebar />
+			<Outlet /> */}
 		</>
 	);
 };

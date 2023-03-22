@@ -1,9 +1,10 @@
 import { Navigate, useLocation } from 'react-router-dom';
 
-import { useUser } from '../context/UserContext';
+import { useUserStore } from '../store';
 
 const RequireAuth = ({ children }: { children: JSX.Element }) => {
-	const { currentUser } = useUser();
+
+	const currentUser = useUserStore(state => state.currentUser);
 
 	const location = useLocation();
 

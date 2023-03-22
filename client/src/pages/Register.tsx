@@ -3,14 +3,14 @@ import { useForm } from 'react-hook-form';
 
 import { FormData } from '../types';
 import useAuth, { isAuthSuccessResponse, isAuthErrorResponse } from '../hooks/useAuth';
-import { useUser } from '../context/UserContext';
+import { useUserStore } from '../store';
 
 const Register = () => {
 	const navigate = useNavigate();
 
 	const { register: authRegister } = useAuth();
 
-	const { currentUser, setCurrentUser } = useUser();
+	const { currentUser, setCurrentUser } = useUserStore();
 
 	const {
 		register,

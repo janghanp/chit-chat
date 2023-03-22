@@ -92,6 +92,8 @@ const useAuth = () => {
 			if (axios.isAxiosError(error)) {
 				result = error.response!.data as AuthErrorResponse;
 			} else if (error instanceof Error) {
+				console.log('??????????????');
+				
 				console.log(error);
 			}
 		}

@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
 import { Outlet } from 'react-router-dom';
 
-import { useUser } from '../context/UserContext';
+import { useUserStore } from '../store';
 import useAuth, { isAuthSuccessResponse, isAuthErrorResponse } from '../hooks/useAuth';
 
 const AutoLogin = () => {
-	const { setCurrentUser } = useUser();
+	const setCurrentUser = useUserStore((state) => state.setCurrentUser);
 
 	const { refresh } = useAuth();
 
@@ -36,7 +36,7 @@ const AutoLogin = () => {
 		};
 
 		autoLogin();
-	}, [setCurrentUser, refresh]);
+	}, []);
 
 	return <>{isAuthenticating ? <div>loading...</div> : <Outlet />}</>;
 };
