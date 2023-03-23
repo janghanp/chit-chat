@@ -28,6 +28,7 @@ interface ChatsStore {
 	setChats: (cahts: Chat[]) => void;
 	addChat: (chat: Chat) => void;
 	removeChat: (chatId: string) => void;
+	updateChat: (chatId: string, message: Message) => void;
 }
 
 interface CurrentChatStore {
@@ -116,6 +117,18 @@ export const useChatsStore = create<ChatsStore>()((set) => ({
 	removeChat: (chatId: string) =>
 		set((state) => ({
 			chats: state.chats.filter((chat) => chat.id !== chatId),
+		})),
+
+	updateChat: (chatId: string, message: Message) =>
+		set((state) => ({
+			chats: state.chats.map((chat) => {
+				if (chat.id === chatId) {
+					chat.messages![0] = message;
+					return { ...chat };
+				}
+
+				return chat;
+			}),
 		})),
 }));
 

@@ -10,22 +10,15 @@ import AutoLogin from '../components/AutoLogin';
 import Chat from './Chat';
 import NoMatch from './NoMatch';
 import Explorer from './Explorer';
-import { User } from '../types';
 import { socket } from '../socket';
 import { useMembersStore, useMessagesStore, useCurrentUserStore, useChatsStore, useCurrentChatStore } from '../store';
 
 function App() {
 	const { setCurrentUser, currentUser } = useCurrentUserStore();
 
-	const addMember = useMembersStore((state) => state.addMember);
-	const removeMember = useMembersStore((state) => state.removeMember);
 	const setMemberOnline = useMembersStore((state) => state.setMemberOnline);
 	const setMemberOffline = useMembersStore((state) => state.setMemberOffline);
 	const setMembersOnline = useMembersStore((state) => state.setMembersOnline);
-	const setChats = useChatsStore((state) => state.setChats);
-	const currentChat = useCurrentChatStore((state) => state.currentChat);
-
-	const addMessage = useMessagesStore((state) => state.addMessage);
 
 	const [isConnected, setIsConnected] = useState<boolean>(false);
 
@@ -63,66 +56,6 @@ function App() {
 
 	useEffect(() => {
 		if (currentUser) {
-			const onReceiveMessage = (data: {
-				chatId: string;
-				messageId: string;
-				text: string;
-				sender: User;
-				createdAt: string;
-			}) => {
-				const { chatId, messageId, text, sender, createdAt } = data;
-
-				const newChats = currentUser!.chats.map((chat) => {
-					if (chat.id === chatId) {
-						chat.messages![0] = { id: messageId, text, sender, createdAt };
-						return { ...chat };
-					}
-
-					return chat;
-				});
-
-				setChats(newChats);
-
-				//! lexical scope now, it needs to be dynamic
-				//? Pass a parameter?
-				//? Event listeners that need a currentChat id can go inside Chat.tsx?
-				// if (currentChat?.id === chatId) {
-					addMessage({ id: messageId, sender, text, createdAt });
-				// }
-			};
-
-			const onEnterNewMember = (data: { newUser: User; chatId: string }) => {
-				const { newUser, chatId } = data;
-
-				newUser.isOnline = true;
-
-				//!
-				if (currentChat?.id === chatId) {
-					addMember(newUser);
-				}
-			};
-
-			const onLeaveMember = (data: { userId: string; chatId: string }) => {
-				const { userId, chatId } = data;
-
-				//!
-				if (currentChat?.id === chatId) {
-					removeMember(userId);
-				}
-			};
-
-			const onDestroyChat = (data: { chatId: string }) => {
-				const { chatId } = data;
-
-				const newChats = currentUser?.chats.filter((chat) => {
-					return chat.id !== chatId;
-				});
-
-				setCurrentUser({ ...currentUser, chats: newChats });
-
-				window.location.reload();
-			};
-
 			const onOnline = (data: { userId: string }) => {
 				const { userId } = data;
 
@@ -141,22 +74,28 @@ function App() {
 				setMembersOnline(userIds);
 			};
 
-			socket.on('receive_message', onReceiveMessage);
-			socket.on('enter_new_member', onEnterNewMember);
-			socket.on('leave_member', onLeaveMember);
-			socket.on('destroy_chat', onDestroyChat);
+			const onDestroyChat = (data: { chatId: string }) => {
+				const { chatId } = data;
+
+				const newChats = currentUser?.chats.filter((chat) => {
+					return chat.id !== chatId;
+				});
+
+				setCurrentUser({ ...currentUser, chats: newChats });
+
+				window.location.reload();
+			};
+
 			socket.on('online', onOnline);
 			socket.on('offline', onOffline);
 			socket.on('onlineUsers', onOnlineUsers);
+			socket.on('destroy_chat', onDestroyChat);
 
 			return () => {
-				socket.off('receive_message', onReceiveMessage);
-				socket.off('enter_new_member', onEnterNewMember);
-				socket.off('leave_member', onLeaveMember);
-				socket.off('destroy_chat', onDestroyChat);
 				socket.off('online', onOnline);
 				socket.off('offline', onOffline);
 				socket.off('onlineUsers', onOnlineUsers);
+				socket.off('destroy_chat', onDestroyChat);
 			};
 		}
 	}, [currentUser]);
