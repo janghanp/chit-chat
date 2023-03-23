@@ -5,8 +5,8 @@ import { HiCamera } from 'react-icons/hi';
 import toast, { Toaster } from 'react-hot-toast';
 
 import { AuthErrorResponse, AxiosResponseWithUsername, User } from '../types';
-import { useUser } from '../context/UserContext';
 import defaultImageUrl from '/default.jpg';
+import { useCurrentUserStore } from '../store';
 
 interface FormData {
 	email: string;
@@ -20,7 +20,7 @@ interface Props {
 }
 
 const Settings = ({ closeSettings }: Props) => {
-	const { currentUser, setCurrentUser } = useUser();
+	const { currentUser, setCurrentUser } = useCurrentUserStore();
 
 	const [preview, setPreview] = useState<string>(currentUser!.avatar || '');
 	const [imageError, setImageError] = useState<string>();
@@ -100,7 +100,7 @@ const Settings = ({ closeSettings }: Props) => {
 				withCredentials: true,
 			});
 
-			setCurrentUser((prev) => ({ ...prev!, username: data.username }));
+			setCurrentUser({ ...currentUser!, username: data.username });
 
 			closeSettings();
 		} catch (error) {

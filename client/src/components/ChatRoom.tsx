@@ -2,8 +2,8 @@ import { Dispatch, memo, SetStateAction, useEffect, useRef, useState } from 'rea
 import { format } from 'date-fns';
 import { Link, useParams } from 'react-router-dom';
 
-import { useUser } from '../context/UserContext';
 import { Chat } from '../types';
+import { useCurrentUserStore } from '../store';
 
 interface Props {
 	chatRoom: Chat;
@@ -15,7 +15,7 @@ const ChatRoom = ({ chatRoom, setIsSidebarOpen }: Props) => {
 
 	const params = useParams();
 
-	const { currentUser } = useUser();
+	const currentUser = useCurrentUserStore((state) => state.currentUser);
 
 	const [isNewMessage, setIsNewMessage] = useState<boolean>(false);
 
