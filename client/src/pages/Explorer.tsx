@@ -1,13 +1,8 @@
 import axios from 'axios';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Socket } from 'socket.io-client';
 
-interface Props {
-	socket: Socket;
-}
-
-const Explorer = ({ socket }: Props) => {
+const Explorer = () => {
 	const [roomName, setRoomName] = useState<string>('');
 
 	const navigate = useNavigate();

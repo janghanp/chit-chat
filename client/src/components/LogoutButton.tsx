@@ -2,15 +2,19 @@ import { createPortal } from 'react-dom';
 import { HiOutlineLogout } from 'react-icons/hi';
 
 import useAuth from '../hooks/useAuth';
-import { useUser } from '../context/UserContext';
+import { useCurrentUserStore } from '../store';
+import { socket } from '../socket';
 
 const LogoutButton = () => {
 	const { logout } = useAuth();
 
-	const { setCurrentUser } = useUser();
+	const { setCurrentUser, currentUser } = useCurrentUserStore();
 
 	const handleLogout = () => {
 		logout();
+
+		socket.disconnect();
+
 		setCurrentUser(null);
 	};
 

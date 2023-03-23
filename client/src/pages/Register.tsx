@@ -3,14 +3,15 @@ import { useForm } from 'react-hook-form';
 
 import { FormData } from '../types';
 import useAuth, { isAuthSuccessResponse, isAuthErrorResponse } from '../hooks/useAuth';
-import { useUserStore } from '../store';
+import { useChatsStore, useCurrentUserStore } from '../store';
 
 const Register = () => {
 	const navigate = useNavigate();
 
 	const { register: authRegister } = useAuth();
 
-	const { currentUser, setCurrentUser } = useUserStore();
+	const { currentUser, setCurrentUser } = useCurrentUserStore();
+	const setChats = useChatsStore((state) => state.setChats);
 
 	const {
 		register,
@@ -35,6 +36,8 @@ const Register = () => {
 
 		if (isAuthSuccessResponse(result)) {
 			setCurrentUser(result);
+			setChats(result.chats);
+
 			navigate('/explorer');
 		}
 

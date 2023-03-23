@@ -62,7 +62,7 @@ app.use('/user', checkToken, userRoute);
 app.use('/chat', checkToken, chatRoute);
 
 interface UserWithSockets {
-	username: string;
+	userId: string;
 	socketIds: string[];
 }
 
@@ -72,20 +72,21 @@ io.on('connect', (socket: Socket) => {
 	console.log(`🔌 socket id: ${socket.id}`);
 
 	// Make another layer to get username.
-	socket.on('user_connect', (data: { username: string }) => {
-		const { username } = data;
-		console.log(username);
-		
+	socket.on('user_connect', (data: { userId: string; chatIds: string[] }) => {
+		const { userId, chatIds } = data;
+
+		// For disconnecting.
+		socket.handshake.query.userId = userId;
 
 		//Control when there are multiple tabs
-		const isExistent = usersWithSockets.map((el) => el.username).includes(username as string);
+		const isExistent = usersWithSockets.map((el) => el.userId).includes(userId as string);
 
 		if (!isExistent) {
-			io.emit('online', { username });
+			io.emit('online', { userId });
 		}
 
 		// Add a user and socketId in the usersWIthSockets.
-		const targetIndex = usersWithSockets.findIndex((userWithSockets) => userWithSockets.username === username);
+		const targetIndex = usersWithSockets.findIndex((userWithSockets) => userWithSockets.userId === userId);
 
 		if (targetIndex >= 0) {
 			// Whene there is an existing user.
@@ -93,16 +94,12 @@ io.on('connect', (socket: Socket) => {
 		} else {
 			// A new user connection established.
 			usersWithSockets.push({
-				username: username as string,
+				userId: userId as string,
 				socketIds: [socket.id],
 			});
 		}
 
 		console.log(usersWithSockets);
-	});
-
-	socket.on('join_all_chats', (data: { chatIds: string[] }) => {
-		const { chatIds } = data;
 
 		socket.join(chatIds);
 	});
@@ -112,7 +109,7 @@ io.on('connect', (socket: Socket) => {
 
 		socket.join(chatId);
 
-		socket.emit('onlineUsers', { userNames: usersWithSockets.map((el) => el.username) });
+		socket.emit('onlineUsers', { userIds: usersWithSockets.map((el) => el.userId) });
 
 		if (isNewMember) {
 			socket.to(chatId).emit('enter_new_member', { newUser: currentUser, chatId });
@@ -134,17 +131,15 @@ io.on('connect', (socket: Socket) => {
 		}
 	);
 
-	socket.on('leave_chat', (data: { username: string; chatId: string }) => {
-		const { username, chatId } = data;
+	socket.on('leave_chat', (data: { userId: string; chatId: string }) => {
+		const { userId, chatId } = data;
 
-		socket.to(chatId).emit('leave_member', { username: username, chatId });
+		socket.to(chatId).emit('leave_member', { userId, chatId });
 
 		socket.leave(chatId);
 	});
 
 	socket.on('delete_chat', (data: { chatId: string }) => {
-		console.log('delete_chat@@@@@@@@@@@@@@@@@@@@@@@');
-
 		const { chatId } = data;
 
 		io.to(chatId).emit('destroy_chat', { chatId });
@@ -152,14 +147,14 @@ io.on('connect', (socket: Socket) => {
 		socket.leave(chatId);
 	});
 
-	socket.on('user_disconnect', (data: { username: string }) => {
-		const { username } = data;
+	socket.on('disconnect', () => {
+		const userId = socket.handshake.query.userId;
 
 		//Control when there are multiple tabs
-		const socketLength = usersWithSockets.filter((el) => el.username === username)[0].socketIds.length;
+		const socketLength = usersWithSockets.filter((el) => el.userId === userId)[0].socketIds.length;
 
 		if (socketLength === 1) {
-			io.emit('offline', { username });
+			io.emit('offline', { userId });
 		}
 
 		// Remove the socketId from usersWithSocketIds array.
@@ -179,17 +174,13 @@ io.on('connect', (socket: Socket) => {
 			}
 		}
 
-		console.log(usersWithSockets);
-
 		for (const room of socket.rooms) {
 			socket.leave(room);
 		}
-	});
 
-	socket.on('disconnect', () => {
 		console.log(`👋 socket id: ${socket.id}`);
-		console.log('-------------------------------------------------------------');
-		console.log('\n');
+		console.log(usersWithSockets);
+		console.log('------------------------------------------------------------- \n');
 	});
 });
 

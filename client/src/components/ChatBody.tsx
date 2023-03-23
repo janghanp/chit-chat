@@ -2,14 +2,11 @@ import { memo, useEffect } from 'react';
 import { format } from 'date-fns';
 
 import defaultImageUrl from '/default.jpg';
-import { Message } from '../types';
-import { useUser } from '../context/UserContext';
+import { useCurrentUserStore, useMessagesStore } from '../store';
 
-interface Props {
-	messages: Message[];
-}
-const ChatBody = ({ messages }: Props) => {
-	const { currentUser } = useUser();
+const ChatBody = () => {
+	const currentUser = useCurrentUserStore((state) => state.currentUser);
+	const messages = useMessagesStore((state) => state.messages);
 
 	useEffect(() => {
 		const element = document.getElementById('chat-body');

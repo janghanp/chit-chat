@@ -1,18 +1,16 @@
 import { memo, useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { useCurrentChatStore, useMembersStore } from '../store';
 
-import { User } from '../types';
 import Member from './Member';
 
-interface Props {
-	members: User[];
-	ownerId: string;
-}
+const MemberList = () => {
+	const members = useMembersStore((state) => state.members);
+	const currentChat = useCurrentChatStore((state) => state.currentChat);
 
-const MemberList = ({ members, ownerId }: Props) => {
 	const [isLoading, setisLoading] = useState<boolean>(true);
 
-	// Render necessary elements in the dom first and then map the members.
+	// Render necessary elements in the dom first and then map the members (createPortal).
 	useEffect(() => {
 		setisLoading(false);
 	}, []);
@@ -40,7 +38,7 @@ const MemberList = ({ members, ownerId }: Props) => {
 				members.map((member) => {
 					return (
 						<div className="felx-col flex" key={member.id}>
-							{ownerId === member.id ? (
+							{currentChat?.ownerId === member.id ? (
 								createPortal(<Member member={member} />, document.getElementById('host')!)
 							) : (
 								<>

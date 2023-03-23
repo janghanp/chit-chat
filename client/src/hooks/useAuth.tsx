@@ -93,7 +93,7 @@ const useAuth = () => {
 				result = error.response!.data as AuthErrorResponse;
 			} else if (error instanceof Error) {
 				console.log('??????????????');
-				
+
 				console.log(error);
 			}
 		}

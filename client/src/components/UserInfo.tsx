@@ -19,6 +19,7 @@ const UserInfo = ({ currentUser }: Props) => {
 
 	const closeSettings = useCallback(() => {
 		setIsSettingsOpen(false);
+
 		navigate('/');
 	}, []);
 

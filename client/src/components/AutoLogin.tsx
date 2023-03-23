@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react';
 import { Outlet } from 'react-router-dom';
 
-import { useUserStore } from '../store';
+import { useChatsStore, useCurrentUserStore } from '../store';
 import useAuth, { isAuthSuccessResponse, isAuthErrorResponse } from '../hooks/useAuth';
 
 const AutoLogin = () => {
-	const setCurrentUser = useUserStore((state) => state.setCurrentUser);
-
 	const { refresh } = useAuth();
+
+	const setCurrentUser = useCurrentUserStore((state) => state.setCurrentUser);
+	const setChats = useChatsStore((state) => state.setChats);
 
 	const [isAuthenticating, setIsAuthenticating] = useState<boolean>(true);
 
@@ -26,6 +27,8 @@ const AutoLogin = () => {
 					public_id,
 					chats,
 				});
+
+				setChats(chats);
 			}
 
 			if (isAuthErrorResponse(result)) {

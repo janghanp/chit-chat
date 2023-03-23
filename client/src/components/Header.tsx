@@ -1,21 +1,25 @@
 import { Dispatch, SetStateAction, useState } from 'react';
 import { HiOutlineChevronDown, HiOutlineX, HiUserGroup } from 'react-icons/hi';
+import { useCurrentChatStore, useCurrentUserStore } from '../store';
 
 interface Props {
-	chatName: string;
-	setIsOpenMemberList: Dispatch<SetStateAction<boolean>>;
-	isOwner: boolean;
 	leavChat: () => void;
 	deleteChat: () => void;
+	setIsOpenMemberList: Dispatch<SetStateAction<boolean>>;
 }
 
-const Header = ({ chatName, setIsOpenMemberList, leavChat, isOwner, deleteChat }: Props) => {
+const Header = ({ setIsOpenMemberList, leavChat, deleteChat }: Props) => {
+	const currentUser = useCurrentUserStore((state) => state.currentUser);
+	const currentChat = useCurrentChatStore((state) => state.currentChat);
+
+	const isOwner = currentUser?.id === currentChat?.ownerId;
+
 	const [isDropDownOpen, setIsDropDownOpen] = useState<boolean>(false);
 
 	return (
 		<div className="fixed left-0 top-0 z-[22] flex h-10 w-full items-center justify-between bg-base-100 pr-5 shadow-md">
 			<div className="relative flex h-full w-[321px] items-center justify-center border-r shadow-inner">
-				<span className="text-base font-semibold">{chatName}</span>
+				<span className="text-base font-semibold">{currentChat?.name}</span>
 				<div className="absolute right-5">
 					<label className="swap-rotate swap z-30">
 						<input type="checkbox" />

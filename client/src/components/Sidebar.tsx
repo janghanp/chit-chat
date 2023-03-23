@@ -1,14 +1,15 @@
 import { useState, memo } from 'react';
-import { useUser } from '../context/UserContext';
 import { HiOutlineMenu, HiX } from 'react-icons/hi';
 
 import ChatRoomList from './ChatRoomList';
 import CreateChatButton from './CreateChatButton';
 import UserInfo from './UserInfo';
 import ExplorerButton from './ExplorerButton';
+import { useChatsStore, useCurrentUserStore } from '../store';
 
 const Sidebar = () => {
-	const { currentUser } = useUser();
+	const currentUser = useCurrentUserStore((state) => state.currentUser);
+	const chats = useChatsStore((state) => state.chats);
 
 	const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
 
@@ -19,35 +20,30 @@ const Sidebar = () => {
 					<HiOutlineMenu className="text-3xl" />
 				</button>
 			</div>
-
 			<div className={`fixed top-0 bottom-0 sm:z-auto ${isSidebarOpen ? 'z-30' : 'z-auto'}`}>
 				<div
 					className={`${
 						!isSidebarOpen && '-translate-x-96'
 					} h-full border-r bg-base-100 pt-10 shadow-md duration-200 ease-linear sm:relative sm:translate-x-0`}
 				>
-					{currentUser && currentUser.email && (
-						<div className="flex h-full w-80 flex-col justify-between">
-							<button
-								className="btn-outline btn-sm btn-circle btn absolute top-1 right-3 block sm:hidden"
-								onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-							>
-								<HiX />
-							</button>
-
-							<div className="flex h-full flex-col justify-between">
-								<ChatRoomList chatRooms={currentUser.chats} setIsSidebarOpen={setIsSidebarOpen} />
-								<div>
-									<ExplorerButton />
-									<CreateChatButton currentUserId={currentUser.id} />
-									<UserInfo currentUser={currentUser} />
-								</div>
+					<div className="flex h-full w-80 flex-col justify-between">
+						<button
+							className="btn-outline btn-sm btn-circle btn absolute top-1 right-3 block sm:hidden"
+							onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+						>
+							<HiX />
+						</button>
+						<div className="flex h-full flex-col justify-between">
+							<ChatRoomList chatRooms={chats} setIsSidebarOpen={setIsSidebarOpen} />
+							<div>
+								<ExplorerButton />
+								<CreateChatButton currentUserId={currentUser!.id} />
+								<UserInfo currentUser={currentUser!} />
 							</div>
 						</div>
-					)}
+					</div>
 				</div>
 			</div>
-
 			{/* Overlay */}
 			{isSidebarOpen && (
 				<div
