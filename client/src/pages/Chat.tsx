@@ -176,11 +176,10 @@ const Chat = () => {
 			navigate('/');
 		}
 	};
-	console.log('Chat.tsx render');
 
 	return (
 		<div className={`fixed left-0 sm:left-80 ${isOpenMemberList ? 'right-56' : 'right-0'}  top-10 bottom-0`}>
-			<Header leavChat={leaveChat} deleteChat={deleteChat} setIsOpenMemberList={setIsOpenMemberList} />
+			<Header leaveChat={leaveChat} deleteChat={deleteChat} setIsOpenMemberList={setIsOpenMemberList} />
 			<ChatBody />
 			<div className="absolute bottom-0 left-[2px] w-full bg-base-100 p-3">
 				<div className="flex gap-x-2">

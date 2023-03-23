@@ -1,16 +1,18 @@
 import { Dispatch, SetStateAction, useState } from 'react';
-import { HiOutlineChevronDown, HiOutlineX, HiUserGroup } from 'react-icons/hi';
-import { useCurrentChatStore, useCurrentUserStore } from '../store';
+import { HiUserGroup } from 'react-icons/hi';
+import { useCurrentChatStore, useCurrentUserStore, useMembersStore } from '../store';
+import Dropdown from './Dropdown';
 
 interface Props {
-	leavChat: () => void;
+	leaveChat: () => void;
 	deleteChat: () => void;
 	setIsOpenMemberList: Dispatch<SetStateAction<boolean>>;
 }
 
-const Header = ({ setIsOpenMemberList, leavChat, deleteChat }: Props) => {
+const Header = ({ setIsOpenMemberList, leaveChat, deleteChat }: Props) => {
 	const currentUser = useCurrentUserStore((state) => state.currentUser);
 	const currentChat = useCurrentChatStore((state) => state.currentChat);
+	const members = useMembersStore((state) => state.members);
 
 	const isOwner = currentUser?.id === currentChat?.ownerId;
 
@@ -20,36 +22,20 @@ const Header = ({ setIsOpenMemberList, leavChat, deleteChat }: Props) => {
 		<div className="fixed left-0 top-0 z-[22] flex h-10 w-full items-center justify-between bg-base-100 pr-5 shadow-md">
 			<div className="relative flex h-full w-[321px] items-center justify-center border-r shadow-inner">
 				<span className="text-base font-semibold">{currentChat?.name}</span>
-				<div className="absolute right-5">
-					<label className="swap-rotate swap z-30">
-						<input type="checkbox" />
-						<HiOutlineChevronDown
-							className="swap-off z-20 h-5 w-5"
-							onClick={() => setIsDropDownOpen((prev) => !prev)}
-						/>
-						<HiOutlineX className="swap-on z-20 h-5 w-5" onClick={() => setIsDropDownOpen((prev) => !prev)} />
-						{isDropDownOpen && (
-							<div
-								className="fixed inset-0 z-10 cursor-default"
-								onClick={() => setIsDropDownOpen((prev) => !prev)}
-							></div>
-						)}
-					</label>
-					{/* overlay */}
-					{isDropDownOpen && (
-						<>
-							<ul className="menu rounded-box absolute right-0 z-30 w-52 border bg-base-100 p-2 shadow-md">
-								<li onClick={isOwner ? deleteChat : leavChat}>
-									<span className="text-error">{isOwner ? 'Delete Chat' : 'Leave Chat'}</span>
-								</li>
-							</ul>
-						</>
-					)}
-				</div>
+				<Dropdown
+					isDropDownOpen={isDropDownOpen}
+					setIsDropDownOpen={setIsDropDownOpen}
+					isOwner={isOwner}
+					leaveChat={leaveChat}
+					deleteChat={deleteChat}
+				/>
 			</div>
-			<button className="btn-ghost btn-sm btn px-2" onClick={() => setIsOpenMemberList((prev) => !prev)}>
-				<HiUserGroup className="text-2xl" />
-			</button>
+			<div className="indicator">
+				<span className="badge badge-sm indicator-item">{members.length}</span>
+				<button className="btn-ghost btn-sm btn px-1" onClick={() => setIsOpenMemberList((prev) => !prev)}>
+					<HiUserGroup className="text-2xl" />
+				</button>
+			</div>
 		</div>
 	);
 };

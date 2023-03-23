@@ -36,21 +36,17 @@ const UserInfo = ({ currentUser }: Props) => {
 									<img src={currentUser.avatar || defaultAvatar} width={20} height={20} alt="avatar" />
 								</div>
 							</div>
-
 							<span className="text-sm font-semibold">{currentUser.username}</span>
 						</div>
-
 						<div className="tooltip" data-tip="User settings">
-							<button className="btn-ghost btn-sm btn px-2" onClick={() => setIsSettingsOpen(true)}>
+							<button className="btn-ghost btn-sm btn px-1" onClick={() => setIsSettingsOpen(true)}>
 								<HiCog className="text-2xl" />
 							</button>
 						</div>
-
 						<LogoutButton />
 					</div>
 				)}
 			</div>
-
 			{isSettingsOpen && createPortal(<Settings closeSettings={closeSettings} />, document.body)}
 		</>
 	);

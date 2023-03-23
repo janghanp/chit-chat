@@ -1,6 +1,6 @@
 import { Dispatch, memo, SetStateAction, useEffect, useRef, useState } from 'react';
 import { format } from 'date-fns';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 
 import { Chat } from '../types';
 import { useCurrentUserStore } from '../store';
@@ -14,6 +14,8 @@ const ChatRoom = ({ chatRoom, setIsSidebarOpen }: Props) => {
 	const hasMessage = chatRoom.messages!.length > 0 ? true : false;
 
 	const params = useParams();
+
+	const navigate = useNavigate();
 
 	const currentUser = useCurrentUserStore((state) => state.currentUser);
 
@@ -45,59 +47,68 @@ const ChatRoom = ({ chatRoom, setIsSidebarOpen }: Props) => {
 		if (isNewMessage) {
 			setIsNewMessage(false);
 		}
+
+		navigate(`/chat/${chatRoom.id}`);
 	};
 
 	return (
-		<Link to={`/chat/${chatRoom.id}`} onClick={clickHandler}>
-			<div className="flex items-center justify-start gap-x-3">
-				<div className="indicator">
-					<span
-						className={`badge-primary badge badge-xs indicator-item right-1 top-1 ${isNewMessage ? 'block' : 'hidden'}`}
-					></span>
-					{chatRoom.icon ? (
-						<div className="avatar">
-							<div className="w-10 rounded-full">
-								<img src={chatRoom.icon} alt={chatRoom.name} />
+		<tr
+			className={`hover:cursor-pointer ${params.chatId === chatRoom.id ? 'active' : ''} w-full`}
+			onClick={clickHandler}
+		>
+			<th className="w-full rounded-none p-3">
+				<div className="flex items-center justify-start gap-x-3">
+					<div className="indicator">
+						<span
+							className={`badge-primary badge badge-xs indicator-item right-1 top-1 ${
+								isNewMessage ? 'block' : 'hidden'
+							}`}
+						></span>
+						{chatRoom.icon ? (
+							<div className="avatar">
+								<div className="w-10 rounded-full">
+									<img src={chatRoom.icon} alt={chatRoom.name} />
+								</div>
 							</div>
-						</div>
-					) : (
-						<div className="placeholder avatar">
-							<div className="w-10 rounded-full bg-neutral-focus text-neutral-content">
-								<span>{chatRoom.name.charAt(0).toUpperCase()}</span>
+						) : (
+							<div className="placeholder avatar">
+								<div className="w-10 rounded-full bg-neutral-focus text-neutral-content">
+									<span>{chatRoom.name.charAt(0).toUpperCase()}</span>
+								</div>
 							</div>
-						</div>
-					)}
-				</div>
-				<div className="flex w-full flex-col">
-					<span className="flex w-full items-center justify-between font-semibold">
-						<span>{chatRoom.name}</span>
-						<span>
-							<time className="ml-2 text-xs opacity-50">
-								{!hasMessage ? (
-									''
-								) : (
-									<>
-										{isToday && hasMessage ? (
-											<>{format(new Date(chatRoom.messages![0].createdAt), 'p')}</>
-										) : (
-											<>{format(new Date(chatRoom.messages![0].createdAt), 'MM/dd')}</>
-										)}
-									</>
-								)}
-							</time>
-						</span>
-					</span>
-
-					<span className="text-sm font-normal">
-						{hasMessage && (
-							<>
-								{chatRoom.messages![0].sender.username}: {chatRoom.messages![0].text}
-							</>
 						)}
-					</span>
+					</div>
+					<div className="flex w-full flex-col">
+						<span className="flex w-full items-center justify-between font-semibold">
+							<span>{chatRoom.name}</span>
+							<span>
+								<time className="ml-2 text-xs opacity-50">
+									{!hasMessage ? (
+										''
+									) : (
+										<>
+											{isToday && hasMessage ? (
+												<>{format(new Date(chatRoom.messages![0].createdAt), 'p')}</>
+											) : (
+												<>{format(new Date(chatRoom.messages![0].createdAt), 'MM/dd')}</>
+											)}
+										</>
+									)}
+								</time>
+							</span>
+						</span>
+
+						<span className="text-sm font-normal">
+							{hasMessage && (
+								<>
+									{chatRoom.messages![0].sender.username}: {chatRoom.messages![0].text}
+								</>
+							)}
+						</span>
+					</div>
 				</div>
-			</div>
-		</Link>
+			</th>
+		</tr>
 	);
 };
 
