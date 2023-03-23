@@ -22,66 +22,11 @@ const Chat = () => {
 	const removeChat = useChatsStore((state) => state.removeChat);
 	const addMember = useMembersStore((state) => state.addMember);
 	const removeMember = useMembersStore((state) => state.removeMember);
-	const setChats = useChatsStore((state) => state.setChats);
 	const addMessage = useMessagesStore((state) => state.addMessage);
 	const updateChat = useChatsStore((state) => state.updateChat);
 
 	const [inputMessage, setInputMessage] = useState<string>('');
 	const [isOpenMemberList, setIsOpenMemberList] = useState<boolean>(true);
-
-	useEffect(() => {
-		const joinChat = async () => {
-			try {
-				const { data } = await axios.patch(
-					'http://localhost:8080/chat/join',
-					{ chatId, username: currentUser?.username },
-					{ withCredentials: true }
-				);
-
-				const { isNewMember, chat } = data;
-
-				setMessages(chat.messages);
-				setMembers(chat.users);
-
-				delete chat.messages;
-				delete chat.users;
-				setCurrentChat(data.chat);
-
-				socket.emit('join_chat', {
-					chatId,
-					currentUser,
-					isNewMember,
-				});
-
-				if (isNewMember) {
-					//For the preview message in the chatRoom list.
-					let messages: any[] = [];
-
-					if (chat.messages && chat.messages[0] && chat.messages[0].text) {
-						messages = [chat.messages.pop()];
-					} else {
-						messages = [];
-					}
-
-					//Add a chat on the sidebar.
-					addChat({
-						name: chat.name,
-						id: chat.id,
-						icon: chat.icon,
-						public_id: chat.public_id,
-						ownerId: chat.ownerId,
-						messages,
-					});
-				}
-			} catch (error) {
-				console.log(error);
-
-				navigate('/');
-			}
-		};
-
-		joinChat();
-	}, [chatId]);
 
 	useEffect(() => {
 		const onReceiveMessage = (data: {
@@ -122,6 +67,58 @@ const Chat = () => {
 			socket.off('enter_new_member', onEnterNewMember);
 			socket.off('leave_member', onLeaveMember);
 		};
+	}, [chatId]);
+
+	useEffect(() => {
+		const joinChat = async () => {
+			try {
+				const { data } = await axios.patch(
+					'http://localhost:8080/chat/join',
+					{ chatId, username: currentUser?.username },
+					{ withCredentials: true }
+				);
+
+				const { isNewMember, chat } = data;
+
+				if (isNewMember) {
+					let messages: any[] = [];
+
+					if (chat.messages && chat.messages[0] && chat.messages[0].text) {
+						messages = [chat.messages.pop()];
+					} else {
+						messages = [];
+					}
+
+					//Add a chat on the sidebar.
+					addChat({
+						name: chat.name,
+						id: chat.id,
+						icon: chat.icon,
+						public_id: chat.public_id,
+						ownerId: chat.ownerId,
+						messages,
+					});
+				}
+
+				setMessages(chat.messages);
+				setMembers(chat.users);
+				delete chat.messages;
+				delete chat.users;
+				setCurrentChat(data.chat);
+
+				socket.emit('join_chat', {
+					chatId,
+					currentUser,
+					isNewMember,
+				});
+			} catch (error) {
+				console.log(error);
+
+				navigate('/');
+			}
+		};
+
+		joinChat();
 	}, [chatId]);
 
 	const sendMessage = async () => {

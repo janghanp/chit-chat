@@ -11,7 +11,7 @@ import Chat from './Chat';
 import NoMatch from './NoMatch';
 import Explorer from './Explorer';
 import { socket } from '../socket';
-import { useMembersStore, useMessagesStore, useCurrentUserStore, useChatsStore, useCurrentChatStore } from '../store';
+import { useMembersStore, useCurrentUserStore } from '../store';
 
 function App() {
 	const { setCurrentUser, currentUser } = useCurrentUserStore();
