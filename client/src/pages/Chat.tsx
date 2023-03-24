@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import produce from 'immer';
 
 import MemberList from '../components/MemberList';
 import ChatBody from '../components/ChatBody';
@@ -9,7 +10,6 @@ import { socket } from '../socket';
 import { useCurrentUserStore } from '../store';
 import { fetchChat } from '../api/chat';
 import { createMessage } from '../api/message';
-import produce from 'immer';
 
 const Chat = () => {
 	const { chatId } = useParams();

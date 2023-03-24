@@ -1,5 +1,5 @@
 import { Routes, Route } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import produce from 'immer';
 
@@ -13,56 +13,13 @@ import Chat from './Chat';
 import NoMatch from './NoMatch';
 import Explorer from './Explorer';
 import { socket } from '../socket';
-import { useMembersStore, useCurrentUserStore, useMessagesStore, useChatsStore } from '../store';
+import { useCurrentUserStore } from '../store';
 import { User } from '../types';
 
 function App() {
 	const { setCurrentUser, currentUser } = useCurrentUserStore();
 
 	const queryClient = useQueryClient();
-
-	const setMemberOnline = useMembersStore((state) => state.setMemberOnline);
-	const setMemberOffline = useMembersStore((state) => state.setMemberOffline);
-	const setMembersOnline = useMembersStore((state) => state.setMembersOnline);
-	const addMember = useMembersStore((state) => state.addMember);
-	const removeMember = useMembersStore((state) => state.removeMember);
-	const addMessage = useMessagesStore((state) => state.addMessage);
-	const updateChat = useChatsStore((state) => state.updateChat);
-
-	const [isConnected, setIsConnected] = useState<boolean>(false);
-
-	//No connection when a user is in login or register page.
-	useEffect(() => {
-		if (currentUser) {
-			socket.connect();
-		}
-	}, [currentUser]);
-
-	// Managing a socket connection.
-	useEffect(() => {
-		function onConnect() {
-			setIsConnected(true);
-		}
-
-		function onDisConnect() {
-			setIsConnected(false);
-		}
-
-		socket.on('connect', onConnect);
-		socket.on('disconnect', onDisConnect);
-
-		return () => {
-			socket.off('connect', onConnect);
-			socket.off('disconnect', onDisConnect);
-		};
-	}, []);
-
-	//TODO: Change all listeners to make use of react-query.
-	useEffect(() => {
-		if (isConnected && currentUser) {
-			socket.emit('user_connect', { userId: currentUser.id, chatIds: currentUser?.chats.map((chat) => chat.id) });
-		}
-	}, [isConnected, currentUser]);
 
 	useEffect(() => {
 		if (currentUser) {
@@ -114,6 +71,7 @@ function App() {
 				});
 			};
 
+			//TODO
 			const onDestroyChat = (data: { chatId: string }) => {
 				const { chatId } = data;
 
@@ -158,13 +116,17 @@ function App() {
 						return newOld;
 					});
 				} else {
-					queryClient.setQueryData(['chat', chatId], (old: any) => {
-						const newOld = produce(old, (draftState: any) => {
-							draftState.chat.messages.push({ id: messageId, sender, text, createdAt });
-						});
+					const state = queryClient.getQueryState(['chat', chatId]);
 
-						return newOld;
-					});
+					if (state) {
+						queryClient.setQueryData(['chat', chatId], (old: any) => {
+							const newOld = produce(old, (draftState: any) => {
+								draftState.chat.messages.push({ id: messageId, sender, text, createdAt });
+							});
+
+							return newOld;
+						});
+					}
 				}
 			};
 
@@ -184,13 +146,17 @@ function App() {
 						return newOld;
 					});
 				} else {
-					queryClient.setQueryData(['chat', chatId], (old: any) => {
-						const newOld = produce(old, (draftState: any) => {
-							draftState.chat.users.push(newUser);
-						});
+					const state = queryClient.getQueryState(['chat', chatId]);
 
-						return newOld;
-					});
+					if (state) {
+						queryClient.setQueryData(['chat', chatId], (old: any) => {
+							const newOld = produce(old, (draftState: any) => {
+								draftState.chat.users.push(newUser);
+							});
+
+							return newOld;
+						});
+					}
 				}
 			};
 
@@ -209,14 +175,18 @@ function App() {
 						return newOld;
 					});
 				} else {
-					queryClient.setQueryData(['chat', chatId], (old: any) => {
-						const newOld = produce(old, (draftState: any) => {
-							const newMembers = draftState.chat.users.filter((user: any) => user.id !== userId);
-							draftState.chat.users = newMembers;
-						});
+					const state = queryClient.getQueryState(['chat', chatId]);
 
-						return newOld;
-					});
+					if (state) {
+						queryClient.setQueryData(['chat', chatId], (old: any) => {
+							const newOld = produce(old, (draftState: any) => {
+								const newMembers = draftState.chat.users.filter((user: any) => user.id !== userId);
+								draftState.chat.users = newMembers;
+							});
+
+							return newOld;
+						});
+					}
 				}
 			};
 

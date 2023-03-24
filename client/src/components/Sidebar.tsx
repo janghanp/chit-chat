@@ -1,12 +1,12 @@
 import { useState, memo } from 'react';
 import { HiOutlineMenu, HiX } from 'react-icons/hi';
+import { useQuery } from '@tanstack/react-query';
 
 import ChatRoomList from './ChatRoomList';
 import CreateChatButton from './CreateChatButton';
 import UserInfo from './UserInfo';
 import ExplorerButton from './ExplorerButton';
 import { useCurrentUserStore } from '../store';
-import { useQuery } from '@tanstack/react-query';
 import { fetchChatRooms } from '../api/chat';
 
 const Sidebar = () => {
