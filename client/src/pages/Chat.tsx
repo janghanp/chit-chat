@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import axios from 'axios';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import MemberList from '../components/MemberList';
 import ChatBody from '../components/ChatBody';
@@ -9,9 +8,13 @@ import Header from '../components/Header';
 import { socket } from '../socket';
 import { useCurrentUserStore } from '../store';
 import { fetchChat } from '../api/chat';
+import { createMessage } from '../api/message';
+import produce from 'immer';
 
 const Chat = () => {
 	const { chatId } = useParams();
+
+	const queryClient = useQueryClient();
 
 	const currentUser = useCurrentUserStore((state) => state.currentUser);
 
@@ -21,8 +24,38 @@ const Chat = () => {
 	const { isLoading, isError, data } = useQuery({
 		queryKey: ['chat', chatId],
 		queryFn: async () => fetchChat(chatId as string, currentUser!.id),
-		// 1 min
-		staleTime: 1000 * 60,
+		onSuccess: (data) => {
+			if (data.isNewMember) {
+				queryClient.setQueryData(['chatRooms', currentUser!.id], (old: any) => {
+					const newOld = produce(old, (draftState: any) => {
+						draftState.chats.push({ ...data.chat, messages: [data.chat.messages.pop()] });
+					});
+
+					return newOld;
+				});
+			}
+		},
+	});
+
+	const { mutate } = useMutation({
+		mutationKey: ['createMessage', chatId],
+		mutationFn: () => {
+			return createMessage(chatId!, inputMessage, currentUser!.id);
+		},
+		onSuccess: (data) => {
+			socket.emit('send_message', {
+				messageId: data.message.id,
+				text: inputMessage,
+				sender: currentUser,
+				chatId,
+				createdAt: data.message.createdAt,
+			});
+
+			setInputMessage('');
+		},
+		onError: (error: any) => {
+			console.log(error);
+		},
 	});
 
 	useEffect(() => {
@@ -32,88 +65,21 @@ const Chat = () => {
 				currentUser,
 				isNewMember: data.isNewMember,
 			});
+
+			if (data.isNewMember) {
+				queryClient.setQueryData(['chat', chatId], (old: any) => {
+					return { ...old, isNewMember: false };
+				});
+			}
 		}
-	}, [data]);
+	}, [data, chatId]);
 
-	//TODO: How to manage for a user who enters a chat for the first time.
-	// useEffect(() => {
-	// 	const joinChat = async () => {
-	// 		try {
-	// 			const { data } = await axios.get('http://localhost:8080/chat/join', {
-	// 				params: {
-	// 					chatId,
-	// 					username: currentUser?.username,
-	// 				},
-	// 				withCredentials: true,
-	// 			});
-
-	// 			const { isNewMember, chat } = data;
-
-	// 			if (isNewMember) {
-	// 				let messages: any[] = [];
-
-	// 				if (chat.messages && chat.messages[0] && chat.messages[0].text) {
-	// 					messages = [chat.messages.pop()];
-	// 				} else {
-	// 					messages = [];
-	// 				}
-
-	// 				//Add a chat on the sidebar.
-	// 				addChat({
-	// 					name: chat.name,
-	// 					id: chat.id,
-	// 					icon: chat.icon,
-	// 					public_id: chat.public_id,
-	// 					ownerId: chat.ownerId,
-	// 					messages,
-	// 				});
-	// 			}
-
-	// 			setMessages(chat.messages);
-	// 			setMembers(chat.users);
-	// 			delete chat.messages;
-	// 			delete chat.users;
-
-	// 			socket.emit('join_chat', {
-	// 				chatId,
-	// 				currentUser,
-	// 				isNewMember,
-	// 			});
-	// 		} catch (error) {
-	// 			console.log(error);
-
-	// 			navigate('/');
-	// 		}
-	// 	};
-
-	// 	joinChat();
-	// }, [chatId]);
-
-	//TODO: react-query
-	const sendMessage = async () => {
+	const clickHandler = async () => {
 		if (!inputMessage) {
 			return;
 		}
 
-		const { data } = await axios.post(
-			'http://localhost:8080/chat/message',
-			{
-				chatId,
-				text: inputMessage,
-				senderId: currentUser?.id,
-			},
-			{ withCredentials: true }
-		);
-
-		socket.emit('send_message', {
-			messageId: data.message.id,
-			text: inputMessage,
-			sender: currentUser,
-			chatId,
-			createdAt: data.message.createdAt,
-		});
-
-		setInputMessage('');
+		mutate();
 	};
 
 	if (isLoading) {
@@ -141,7 +107,7 @@ const Chat = () => {
 						value={inputMessage}
 						onChange={(e) => setInputMessage(e.target.value)}
 					/>
-					<button className="btn" disabled={!inputMessage} onClick={sendMessage}>
+					<button className="btn" disabled={!inputMessage} onClick={clickHandler}>
 						Send
 					</button>
 				</div>

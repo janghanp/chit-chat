@@ -29,7 +29,7 @@ const CreateChatButton = ({ currentUserId }: Props) => {
 			return createChat(formData);
 		},
 		onSuccess: (data) => {
-			queryClient.setQueriesData(['chatRooms', currentUserId], (old: any) => {
+			queryClient.setQueryData(['chatRooms', currentUserId], (old: any) => {
 				return { ...old, chats: [...old.chats, data.chat] };
 			});
 

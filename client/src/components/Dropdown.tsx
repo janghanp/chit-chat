@@ -27,11 +27,13 @@ const Dropdown = ({ isDropDownOpen, setIsDropDownOpen, isOwner, chatId }: Props)
 			return updateChat(chatId!, currentUser!.id);
 		},
 		onSuccess: () => {
-			queryClient.setQueriesData(['chatRooms', currentUser!.id], (old: any) => {
+			queryClient.setQueryData(['chatRooms', currentUser!.id], (old: any) => {
 				const newRooms = old.chats.filter((el: any) => el.id !== chatId);
 
 				return { ...old, chats: newRooms };
 			});
+
+			queryClient.removeQueries(['chat', chatId], { exact: true });
 
 			socket.emit('leave_chat', { chatId, userId: currentUser?.id });
 
@@ -77,7 +79,7 @@ const Dropdown = ({ isDropDownOpen, setIsDropDownOpen, isOwner, chatId }: Props)
 
 	return (
 		<div className="absolute right-5">
-			<label className="swap-rotate swap z-30">
+			<label className="swap swap-rotate z-30">
 				<input type="checkbox" />
 				<HiOutlineChevronDown className="swap-off z-20 h-5 w-5" onClick={() => setIsDropDownOpen((prev) => !prev)} />
 				<HiOutlineX className="swap-on z-20 h-5 w-5" onClick={() => setIsDropDownOpen((prev) => !prev)} />

@@ -229,6 +229,9 @@ router.post('/message', async (req: Request, res: Response) => {
 				text,
 				senderId,
 			},
+			include: {
+				sender: true,
+			},
 		});
 
 		await prisma.chat.update({

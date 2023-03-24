@@ -1,5 +1,7 @@
 import { Routes, Route } from 'react-router-dom';
 import { useEffect, useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
+import produce from 'immer';
 
 import RequireAuth from '../components/RequiredAuth';
 import Layout from './Layout';
@@ -16,6 +18,8 @@ import { User } from '../types';
 
 function App() {
 	const { setCurrentUser, currentUser } = useCurrentUserStore();
+
+	const queryClient = useQueryClient();
 
 	const setMemberOnline = useMembersStore((state) => state.setMemberOnline);
 	const setMemberOffline = useMembersStore((state) => state.setMemberOffline);
@@ -53,7 +57,6 @@ function App() {
 		};
 	}, []);
 
-
 	//TODO: Change all listeners to make use of react-query.
 	useEffect(() => {
 		if (isConnected && currentUser) {
@@ -66,19 +69,49 @@ function App() {
 			const onOnline = (data: { userId: string }) => {
 				const { userId } = data;
 
-				setMemberOnline(userId);
+				queryClient.setQueriesData(['chat'], (old: any) => {
+					const newOld = produce(old, (draftState: any) => {
+						draftState.chat.users.forEach((user: any) => {
+							if (user.id === userId) {
+								user.isOnline = true;
+							}
+						});
+					});
+
+					return newOld;
+				});
 			};
 
 			const onOffline = (data: { userId: string }) => {
 				const { userId } = data;
 
-				setMemberOffline(userId);
+				queryClient.setQueriesData(['chat'], (old: any) => {
+					const newOld = produce(old, (draftState: any) => {
+						draftState.chat.users.forEach((user: any) => {
+							if (user.id === userId) {
+								user.isOnline = false;
+							}
+						});
+					});
+
+					return newOld;
+				});
 			};
 
 			const onOnlineUsers = (data: { userIds: string[] }) => {
 				const { userIds } = data;
 
-				setMembersOnline(userIds);
+				queryClient.setQueriesData(['chat'], (old: any) => {
+					const newOld = produce(old, (draftState: any) => {
+						draftState.chat.users.forEach((user: any) => {
+							if (userIds.includes(user.id)) {
+								user.isOnline = true;
+							}
+						});
+					});
+
+					return newOld;
+				});
 			};
 
 			const onDestroyChat = (data: { chatId: string }) => {
@@ -104,10 +137,34 @@ function App() {
 
 				const currentChatId = window.location.href.split('/').pop();
 
-				updateChat(chatId, { id: messageId, text, sender, createdAt });
+				queryClient.setQueryData(['chatRooms', currentUser!.id], (old: any) => {
+					const newOld = produce(old, (draftState: any) => {
+						draftState.chats.forEach((chat: any) => {
+							if (chat.id === chatId) {
+								chat.messages[0] = { id: messageId, text, sender, createdAt };
+							}
+						});
+					});
+
+					return newOld;
+				});
 
 				if (currentChatId === chatId) {
-					addMessage({ id: messageId, sender, text, createdAt });
+					queryClient.setQueryData(['chat', currentChatId], (old: any) => {
+						const newOld = produce(old, (draftState: any) => {
+							draftState.chat.messages.push({ id: messageId, sender, text, createdAt });
+						});
+
+						return newOld;
+					});
+				} else {
+					queryClient.setQueryData(['chat', chatId], (old: any) => {
+						const newOld = produce(old, (draftState: any) => {
+							draftState.chat.messages.push({ id: messageId, sender, text, createdAt });
+						});
+
+						return newOld;
+					});
 				}
 			};
 
@@ -119,7 +176,21 @@ function App() {
 				newUser.isOnline = true;
 
 				if (currentChatId === chatId) {
-					addMember(newUser);
+					queryClient.setQueryData(['chat', currentChatId], (old: any) => {
+						const newOld = produce(old, (draftState: any) => {
+							draftState.chat.users.push(newUser);
+						});
+
+						return newOld;
+					});
+				} else {
+					queryClient.setQueryData(['chat', chatId], (old: any) => {
+						const newOld = produce(old, (draftState: any) => {
+							draftState.chat.users.push(newUser);
+						});
+
+						return newOld;
+					});
 				}
 			};
 
@@ -129,7 +200,23 @@ function App() {
 				const currentChatId = window.location.href.split('/').pop();
 
 				if (currentChatId === chatId) {
-					removeMember(userId);
+					queryClient.setQueryData(['chat', currentChatId], (old: any) => {
+						const newOld = produce(old, (draftState: any) => {
+							const newMembers = draftState.chat.users.filter((user: any) => user.id !== userId);
+							draftState.chat.users = newMembers;
+						});
+
+						return newOld;
+					});
+				} else {
+					queryClient.setQueryData(['chat', chatId], (old: any) => {
+						const newOld = produce(old, (draftState: any) => {
+							const newMembers = draftState.chat.users.filter((user: any) => user.id !== userId);
+							draftState.chat.users = newMembers;
+						});
+
+						return newOld;
+					});
 				}
 			};
 
