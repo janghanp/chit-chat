@@ -53,6 +53,8 @@ function App() {
 		};
 	}, []);
 
+
+	//TODO: Change all listeners to make use of react-query.
 	useEffect(() => {
 		if (isConnected && currentUser) {
 			socket.emit('user_connect', { userId: currentUser.id, chatIds: currentUser?.chats.map((chat) => chat.id) });

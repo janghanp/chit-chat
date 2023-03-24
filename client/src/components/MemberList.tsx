@@ -1,18 +1,19 @@
 import { memo, useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { useCurrentChatStore, useMembersStore } from '../store';
 
+import { User } from '../types';
 import Member from './Member';
 
-const MemberList = () => {
-	const members = useMembersStore((state) => state.members);
-	const currentChat = useCurrentChatStore((state) => state.currentChat);
+interface Props {
+	members: User[];
+	chatOwnerId: string;
+}
 
-	const [isLoading, setisLoading] = useState<boolean>(true);
+const MemberList = ({ members, chatOwnerId }: Props) => {
+	const [isSet, setIsSet] = useState<boolean>(false);
 
-	// Render necessary elements in the dom first and then map the members (createPortal).
 	useEffect(() => {
-		setisLoading(false);
+		setIsSet(true);
 	}, []);
 
 	return (
@@ -34,11 +35,11 @@ const MemberList = () => {
 				<div id="offline" className="flex flex-col gap-y-3"></div>
 			</div>
 
-			{!isLoading &&
+			{isSet &&
 				members.map((member) => {
 					return (
 						<div className="felx-col flex" key={member.id}>
-							{currentChat?.ownerId === member.id ? (
+							{chatOwnerId === member.id ? (
 								createPortal(<Member member={member} />, document.getElementById('host')!)
 							) : (
 								<>

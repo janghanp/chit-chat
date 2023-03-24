@@ -19,6 +19,7 @@ interface Props {
 	closeSettings: () => void;
 }
 
+//TODO: react-query
 const Settings = ({ closeSettings }: Props) => {
 	const { currentUser, setCurrentUser } = useCurrentUserStore();
 

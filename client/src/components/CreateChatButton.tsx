@@ -1,11 +1,11 @@
 import { ChangeEvent, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { HiCamera, HiPlus } from 'react-icons/hi';
-import axios from 'axios';
 import { SyncLoader } from 'react-spinners';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
-import { AuthErrorResponse } from '../types';
 import { createPortal } from 'react-dom';
+import { createChat } from '../api/chat';
 
 interface Props {
 	currentUserId: string;
@@ -14,14 +14,33 @@ interface Props {
 const CreateChatButton = ({ currentUserId }: Props) => {
 	const navigate = useNavigate();
 
+	const queryClient = useQueryClient();
+
 	const [roomName, setRoomName] = useState<string>('');
 	const [error, setError] = useState<string>('');
 	const [file, setFile] = useState<File | null>();
 	const [preview, setPreview] = useState<string>();
 	const [imageError, setImageError] = useState<string>();
-	const [isLoading, setIsLoading] = useState<boolean>(false);
 
 	const fileInputRef = useRef<HTMLInputElement>(null);
+
+	const { mutate, isLoading } = useMutation({
+		mutationFn: (formData: FormData) => {
+			return createChat(formData);
+		},
+		onSuccess: (data) => {
+			queryClient.setQueriesData(['chatRooms', currentUserId], (old: any) => {
+				return { ...old, chats: [...old.chats, data.chat] };
+			});
+
+			document.getElementById('modal-2')!.click();
+
+			navigate(`/chat/${data.chat.id}`);
+		},
+		onError: (error: any) => {
+			setError(error.response.data.message);
+		},
+	});
 
 	const changeFileHandler = (event: ChangeEvent<HTMLInputElement>) => {
 		const file = event.target.files![0];
@@ -54,7 +73,7 @@ const CreateChatButton = ({ currentUserId }: Props) => {
 		setImageError('');
 	};
 
-	const createChat = async () => {
+	const submitHandler = async () => {
 		if (!roomName) {
 			setError('Please provide a chatroom name');
 			return;
@@ -64,31 +83,13 @@ const CreateChatButton = ({ currentUserId }: Props) => {
 			return;
 		}
 
-		try {
-			setIsLoading(true);
+		const formData = new FormData();
 
-			const formData = new FormData();
+		formData.append('file', file || '');
+		formData.append('roomName', roomName);
+		formData.append('ownerId', currentUserId);
 
-			formData.append('file', file || '');
-			formData.append('roomName', roomName);
-			formData.append('ownerId', currentUserId);
-
-			const { data } = await axios.post('http://localhost:8080/chat', formData, { withCredentials: true });
-
-			document.getElementById('modal-2')!.click();
-
-			navigate(`/chat/${data.chatId}`);
-		} catch (error) {
-			if (axios.isAxiosError(error) && error.response?.status === 400) {
-				//Chat room already exists.
-				const serverError = error.response.data as AuthErrorResponse;
-				setError(serverError.message);
-			} else if (error instanceof Error) {
-				console.log(error);
-			}
-		} finally {
-			setIsLoading(false);
-		}
+		mutate(formData);
 	};
 
 	return (
@@ -156,7 +157,7 @@ const CreateChatButton = ({ currentUserId }: Props) => {
 							</div>
 
 							<div className="w-full text-right">
-								<button className={`btn ${isLoading && 'pointer-events-none'}`} onClick={createChat}>
+								<button className={`btn ${isLoading && 'pointer-events-none'}`} onClick={submitHandler}>
 									{isLoading ? <SyncLoader color="#A3C6FF" size={10} margin={4} /> : <span>create</span>}
 								</button>
 							</div>

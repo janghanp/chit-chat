@@ -5,13 +5,29 @@ import ChatRoomList from './ChatRoomList';
 import CreateChatButton from './CreateChatButton';
 import UserInfo from './UserInfo';
 import ExplorerButton from './ExplorerButton';
-import { useChatsStore, useCurrentUserStore } from '../store';
+import { useCurrentUserStore } from '../store';
+import { useQuery } from '@tanstack/react-query';
+import { fetchChatRooms } from '../api/chat';
 
 const Sidebar = () => {
 	const currentUser = useCurrentUserStore((state) => state.currentUser);
-	const chats = useChatsStore((state) => state.chats);
 
 	const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
+
+	const { isLoading, isError, data } = useQuery({
+		queryKey: ['chatRooms', currentUser!.id],
+		queryFn: async () => fetchChatRooms(currentUser!.id),
+		// 1 min
+		staleTime: 1000 * 60,
+	});
+
+	if (isLoading) {
+		return <div>Loading...</div>;
+	}
+
+	if (isError) {
+		return <div>Error...</div>;
+	}
 
 	return (
 		<>
@@ -34,7 +50,7 @@ const Sidebar = () => {
 							<HiX />
 						</button>
 						<div className="flex h-full flex-col justify-between">
-							<ChatRoomList chatRooms={chats} setIsSidebarOpen={setIsSidebarOpen} />
+							<ChatRoomList chatRooms={data.chats} setIsSidebarOpen={setIsSidebarOpen} />
 							<div>
 								<ExplorerButton />
 								<CreateChatButton currentUserId={currentUser!.id} />

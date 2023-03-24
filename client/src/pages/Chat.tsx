@@ -1,81 +1,95 @@
 import { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import axios from 'axios';
+import { useQuery } from '@tanstack/react-query';
 
 import MemberList from '../components/MemberList';
 import ChatBody from '../components/ChatBody';
 import Header from '../components/Header';
 import { socket } from '../socket';
-import { useMembersStore, useMessagesStore, useCurrentUserStore, useCurrentChatStore, useChatsStore } from '../store';
+import { useCurrentUserStore } from '../store';
+import { fetchChat } from '../api/chat';
 
 const Chat = () => {
 	const { chatId } = useParams();
-	
-	const navigate = useNavigate();
 
 	const currentUser = useCurrentUserStore((state) => state.currentUser);
-	const setMessages = useMessagesStore((state) => state.setMessages);
-	const setMembers = useMembersStore((state) => state.setMembers);
-	const setCurrentChat = useCurrentChatStore((state) => state.setCurrentChat);
-	const addChat = useChatsStore((state) => state.addChat);
-	const removeChat = useChatsStore((state) => state.removeChat);
 
 	const [inputMessage, setInputMessage] = useState<string>('');
 	const [isOpenMemberList, setIsOpenMemberList] = useState<boolean>(true);
 
-	//? Do the following code with react-query.
+	const { isLoading, isError, data } = useQuery({
+		queryKey: ['chat', chatId],
+		queryFn: async () => fetchChat(chatId as string, currentUser!.id),
+		// 1 min
+		staleTime: 1000 * 60,
+	});
+
 	useEffect(() => {
-		const joinChat = async () => {
-			try {
-				const { data } = await axios.patch(
-					'http://localhost:8080/chat/join',
-					{ chatId, username: currentUser?.username },
-					{ withCredentials: true }
-				);
+		if (data) {
+			socket.emit('join_chat', {
+				chatId,
+				currentUser,
+				isNewMember: data.isNewMember,
+			});
+		}
+	}, [data]);
 
-				const { isNewMember, chat } = data;
+	//TODO: How to manage for a user who enters a chat for the first time.
+	// useEffect(() => {
+	// 	const joinChat = async () => {
+	// 		try {
+	// 			const { data } = await axios.get('http://localhost:8080/chat/join', {
+	// 				params: {
+	// 					chatId,
+	// 					username: currentUser?.username,
+	// 				},
+	// 				withCredentials: true,
+	// 			});
 
-				if (isNewMember) {
-					let messages: any[] = [];
+	// 			const { isNewMember, chat } = data;
 
-					if (chat.messages && chat.messages[0] && chat.messages[0].text) {
-						messages = [chat.messages.pop()];
-					} else {
-						messages = [];
-					}
+	// 			if (isNewMember) {
+	// 				let messages: any[] = [];
 
-					//Add a chat on the sidebar.
-					addChat({
-						name: chat.name,
-						id: chat.id,
-						icon: chat.icon,
-						public_id: chat.public_id,
-						ownerId: chat.ownerId,
-						messages,
-					});
-				}
+	// 				if (chat.messages && chat.messages[0] && chat.messages[0].text) {
+	// 					messages = [chat.messages.pop()];
+	// 				} else {
+	// 					messages = [];
+	// 				}
 
-				setMessages(chat.messages);
-				setMembers(chat.users);
-				delete chat.messages;
-				delete chat.users;
-				setCurrentChat(data.chat);
+	// 				//Add a chat on the sidebar.
+	// 				addChat({
+	// 					name: chat.name,
+	// 					id: chat.id,
+	// 					icon: chat.icon,
+	// 					public_id: chat.public_id,
+	// 					ownerId: chat.ownerId,
+	// 					messages,
+	// 				});
+	// 			}
 
-				socket.emit('join_chat', {
-					chatId,
-					currentUser,
-					isNewMember,
-				});
-			} catch (error) {
-				console.log(error);
+	// 			setMessages(chat.messages);
+	// 			setMembers(chat.users);
+	// 			delete chat.messages;
+	// 			delete chat.users;
 
-				navigate('/');
-			}
-		};
+	// 			socket.emit('join_chat', {
+	// 				chatId,
+	// 				currentUser,
+	// 				isNewMember,
+	// 			});
+	// 		} catch (error) {
+	// 			console.log(error);
 
-		joinChat();
-	}, [chatId]);
+	// 			navigate('/');
+	// 		}
+	// 	};
 
+	// 	joinChat();
+	// }, [chatId]);
+
+	//TODO: react-query
 	const sendMessage = async () => {
 		if (!inputMessage) {
 			return;
@@ -102,39 +116,22 @@ const Chat = () => {
 		setInputMessage('');
 	};
 
-	const leaveChat = async () => {
-		const result = window.confirm('Are you sure you want to leave the chat?');
+	if (isLoading) {
+		return <div>Loading...</div>;
+	}
 
-		if (result) {
-			await axios.patch(
-				'http://localhost:8080/chat/leave',
-				{ chatId, username: currentUser?.username },
-				{ withCredentials: true }
-			);
-
-			socket.emit('leave_chat', { chatId, userId: currentUser?.id });
-
-			removeChat(chatId as string);
-
-			navigate('/');
-		}
-	};
-
-	const deleteChat = async () => {
-		const result = window.confirm('Are you sure you want to delete the chat?');
-
-		if (result) {
-			await axios.delete(`http://localhost:8080/chat/${chatId}`, { withCredentials: true });
-
-			socket.emit('delete_chat', { chatId });
-
-			navigate('/');
-		}
-	};
+	if (isError) {
+		return <div>Error...</div>;
+	}
 
 	return (
 		<div className={`fixed left-0 sm:left-80 ${isOpenMemberList ? 'right-56' : 'right-0'}  top-10 bottom-0`}>
-			<Header leaveChat={leaveChat} deleteChat={deleteChat} setIsOpenMemberList={setIsOpenMemberList} />
+			<Header
+				chatId={data.chat.id}
+				isOwner={currentUser!.id === data.chat.id}
+				currentChatName={data.chat.name}
+				setIsOpenMemberList={setIsOpenMemberList}
+			/>
 			<ChatBody />
 			<div className="absolute bottom-0 left-[2px] w-full bg-base-100 p-3">
 				<div className="flex gap-x-2">
@@ -149,7 +146,7 @@ const Chat = () => {
 					</button>
 				</div>
 			</div>
-			{isOpenMemberList && <MemberList />}
+			{isOpenMemberList && <MemberList members={data.chat.users} chatOwnerId={data.chat.ownerId} />}
 		</div>
 	);
 };
