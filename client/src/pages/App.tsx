@@ -11,7 +11,8 @@ import Chat from './Chat';
 import NoMatch from './NoMatch';
 import Explorer from './Explorer';
 import { socket } from '../socket';
-import { useMembersStore, useCurrentUserStore } from '../store';
+import { useMembersStore, useCurrentUserStore, useMessagesStore, useChatsStore } from '../store';
+import { User } from '../types';
 
 function App() {
 	const { setCurrentUser, currentUser } = useCurrentUserStore();
@@ -19,6 +20,10 @@ function App() {
 	const setMemberOnline = useMembersStore((state) => state.setMemberOnline);
 	const setMemberOffline = useMembersStore((state) => state.setMemberOffline);
 	const setMembersOnline = useMembersStore((state) => state.setMembersOnline);
+	const addMember = useMembersStore((state) => state.addMember);
+	const removeMember = useMembersStore((state) => state.removeMember);
+	const addMessage = useMessagesStore((state) => state.addMessage);
+	const updateChat = useChatsStore((state) => state.updateChat);
 
 	const [isConnected, setIsConnected] = useState<boolean>(false);
 
@@ -86,16 +91,62 @@ function App() {
 				window.location.reload();
 			};
 
+			const onReceiveMessage = (data: {
+				chatId: string;
+				messageId: string;
+				text: string;
+				sender: User;
+				createdAt: string;
+			}) => {
+				const { chatId, messageId, text, sender, createdAt } = data;
+
+				const currentChatId = window.location.href.split('/').pop();
+
+				updateChat(chatId, { id: messageId, text, sender, createdAt });
+
+				if (currentChatId === chatId) {
+					addMessage({ id: messageId, sender, text, createdAt });
+				}
+			};
+
+			const onEnterNewMember = (data: { newUser: User; chatId: string }) => {
+				const { newUser, chatId } = data;
+
+				const currentChatId = window.location.href.split('/').pop();
+
+				newUser.isOnline = true;
+
+				if (currentChatId === chatId) {
+					addMember(newUser);
+				}
+			};
+
+			const onLeaveMember = (data: { userId: string; chatId: string }) => {
+				const { userId, chatId } = data;
+
+				const currentChatId = window.location.href.split('/').pop();
+
+				if (currentChatId === chatId) {
+					removeMember(userId);
+				}
+			};
+
 			socket.on('online', onOnline);
 			socket.on('offline', onOffline);
 			socket.on('onlineUsers', onOnlineUsers);
 			socket.on('destroy_chat', onDestroyChat);
+			socket.on('receive_message', onReceiveMessage);
+			socket.on('enter_new_member', onEnterNewMember);
+			socket.on('leave_member', onLeaveMember);
 
 			return () => {
 				socket.off('online', onOnline);
 				socket.off('offline', onOffline);
 				socket.off('onlineUsers', onOnlineUsers);
 				socket.off('destroy_chat', onDestroyChat);
+				socket.off('receive_message', onReceiveMessage);
+				socket.off('enter_new_member', onEnterNewMember);
+				socket.off('leave_member', onLeaveMember);
 			};
 		}
 	}, [currentUser]);

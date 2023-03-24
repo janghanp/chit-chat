@@ -1,17 +1,16 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 import MemberList from '../components/MemberList';
-import axios from 'axios';
 import ChatBody from '../components/ChatBody';
 import Header from '../components/Header';
 import { socket } from '../socket';
 import { useMembersStore, useMessagesStore, useCurrentUserStore, useCurrentChatStore, useChatsStore } from '../store';
-import { User } from '../types';
 
 const Chat = () => {
 	const { chatId } = useParams();
-
+	
 	const navigate = useNavigate();
 
 	const currentUser = useCurrentUserStore((state) => state.currentUser);
@@ -20,55 +19,11 @@ const Chat = () => {
 	const setCurrentChat = useCurrentChatStore((state) => state.setCurrentChat);
 	const addChat = useChatsStore((state) => state.addChat);
 	const removeChat = useChatsStore((state) => state.removeChat);
-	const addMember = useMembersStore((state) => state.addMember);
-	const removeMember = useMembersStore((state) => state.removeMember);
-	const addMessage = useMessagesStore((state) => state.addMessage);
-	const updateChat = useChatsStore((state) => state.updateChat);
 
 	const [inputMessage, setInputMessage] = useState<string>('');
 	const [isOpenMemberList, setIsOpenMemberList] = useState<boolean>(true);
 
-	useEffect(() => {
-		const onReceiveMessage = (data: {
-			chatId: string;
-			messageId: string;
-			text: string;
-			sender: User;
-			createdAt: string;
-		}) => {
-			const { chatId: fromChatId, messageId, text, sender, createdAt } = data;
-			updateChat(fromChatId, { id: messageId, text, sender, createdAt });
-			if (chatId === fromChatId) {
-				addMessage({ id: messageId, sender, text, createdAt });
-			}
-		};
-
-		const onEnterNewMember = (data: { newUser: User; chatId: string }) => {
-			const { newUser, chatId: fromChatId } = data;
-			newUser.isOnline = true;
-			if (chatId === fromChatId) {
-				addMember(newUser);
-			}
-		};
-
-		const onLeaveMember = (data: { userId: string; chatId: string }) => {
-			const { userId, chatId: fromChatId } = data;
-			if (chatId === fromChatId) {
-				removeMember(userId);
-			}
-		};
-
-		socket.on('receive_message', onReceiveMessage);
-		socket.on('enter_new_member', onEnterNewMember);
-		socket.on('leave_member', onLeaveMember);
-
-		return () => {
-			socket.off('receive_message', onReceiveMessage);
-			socket.off('enter_new_member', onEnterNewMember);
-			socket.off('leave_member', onLeaveMember);
-		};
-	}, [chatId]);
-
+	//? Do the following code with react-query.
 	useEffect(() => {
 		const joinChat = async () => {
 			try {
