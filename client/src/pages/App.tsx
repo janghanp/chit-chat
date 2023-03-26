@@ -1,5 +1,5 @@
 import { Routes, Route } from 'react-router-dom';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import produce from 'immer';
 
@@ -19,7 +19,40 @@ import { User } from '../types';
 function App() {
 	const { setCurrentUser, currentUser } = useCurrentUserStore();
 
+	const [isConnected, setIsConnected] = useState<boolean>(false);
+
 	const queryClient = useQueryClient();
+
+	useEffect(() => {
+		if (currentUser) {
+			socket.connect();
+		}
+	}, [currentUser]);
+
+	// Managing a socket connection.
+	useEffect(() => {
+		function onConnect() {
+			setIsConnected(true);
+		}
+
+		function onDisConnect() {
+			setIsConnected(false);
+		}
+
+		socket.on('connect', onConnect);
+		socket.on('disconnect', onDisConnect);
+
+		return () => {
+			socket.off('connect', onConnect);
+			socket.off('disconnect', onDisConnect);
+		};
+	}, []);
+
+	useEffect(() => {
+		if (isConnected && currentUser) {
+			socket.emit('user_connect', { userId: currentUser.id, chatIds: currentUser?.chats.map((chat) => chat.id) });
+		}
+	}, [isConnected, currentUser]);
 
 	useEffect(() => {
 		if (currentUser) {

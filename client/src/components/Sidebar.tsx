@@ -44,7 +44,7 @@ const Sidebar = () => {
 				>
 					<div className="flex h-full w-80 flex-col justify-between">
 						<button
-							className="btn-outline btn-sm btn-circle btn absolute top-1 right-3 block sm:hidden"
+							className="btn-outline btn-sm btn-circle btn absolute top-1 right-3 block flex flex-row items-center justify-center sm:hidden"
 							onClick={() => setIsSidebarOpen(!isSidebarOpen)}
 						>
 							<HiX />

@@ -23,12 +23,9 @@ const Header = ({ setIsOpenMemberList, currentChatName, isOwner, chatId }: Props
 					chatId={chatId}
 				/>
 			</div>
-			<div className="indicator">
-				<span className="badge badge-sm indicator-item">test</span>
-				<button className="btn-ghost btn-sm btn px-1" onClick={() => setIsOpenMemberList((prev) => !prev)}>
-					<HiUserGroup className="text-2xl" />
-				</button>
-			</div>
+			<button className="btn-ghost btn-sm btn px-1" onClick={() => setIsOpenMemberList((prev) => !prev)}>
+				<HiUserGroup className="text-2xl" />
+			</button>
 		</div>
 	);
 };

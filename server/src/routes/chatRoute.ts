@@ -97,6 +97,26 @@ router.get('/', async (req: Request, res: Response) => {
 	}
 });
 
+router.get('/search', async (req: Request, res: Response) => {
+	const { query } = req.query;
+
+	try {
+		const chats = await prisma.chat.findMany({
+			where: {
+				name: {
+					contains: query as string,
+				},
+			},
+		});
+
+		return res.status(200).json(chats);
+	} catch (error) {
+		console.log(error);
+
+		return res.sendStatus(500);
+	}
+});
+
 router.get('/rooms', async (req: Request, res: Response) => {
 	const { userId } = req.query;
 
