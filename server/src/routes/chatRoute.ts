@@ -107,6 +107,9 @@ router.get('/search', async (req: Request, res: Response) => {
 					contains: query as string,
 				},
 			},
+			include: {
+				users: true,
+			},
 		});
 
 		return res.status(200).json(chats);

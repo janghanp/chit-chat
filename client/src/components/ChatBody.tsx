@@ -37,7 +37,7 @@ const ChatBody = () => {
 	const messages = data.chat.messages as Message[];
 
 	return (
-		<div id="chat-body" className="absolute bottom-16 top-0 flex w-full flex-col gap-y-3 overflow-y-scroll px-5 py-5">
+		<div id="chat-body" className="absolute bottom-16 top-0 flex w-full flex-col gap-y-3 overflow-y-auto px-5 py-5">
 			{messages &&
 				messages.map((msg) => {
 					return (

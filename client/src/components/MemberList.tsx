@@ -16,8 +16,6 @@ const MemberList = ({ members, chatOwnerId }: Props) => {
 		setIsSet(true);
 	}, []);
 
-	console.log('MemberList.tsx');
-
 	return (
 		<div className="fixed right-0 top-0 z-20 flex h-full w-full flex-col gap-y-4 border-l bg-base-100 p-5 pt-16 shadow-md sm:w-56">
 			<div>

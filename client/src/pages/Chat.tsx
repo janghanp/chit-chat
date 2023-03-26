@@ -19,7 +19,7 @@ const Chat = () => {
 	const currentUser = useCurrentUserStore((state) => state.currentUser);
 
 	const [inputMessage, setInputMessage] = useState<string>('');
-	const [isOpenMemberList, setIsOpenMemberList] = useState<boolean>(true);
+	const [isOpenMemberList, setIsOpenMemberList] = useState<boolean>(false);
 
 	const { isLoading, isError, data } = useQuery({
 		queryKey: ['chat', chatId],

@@ -1,6 +1,10 @@
 import { Dispatch, SetStateAction, useState } from 'react';
 import { HiUserGroup } from 'react-icons/hi';
+
 import Dropdown from './Dropdown';
+import CreateChatButton from './CreateChatButton';
+import { useCurrentUserStore } from '../store';
+import ExplorerButton from './ExplorerButton';
 
 interface Props {
 	isOwner: boolean;
@@ -10,11 +14,13 @@ interface Props {
 }
 
 const Header = ({ setIsOpenMemberList, currentChatName, isOwner, chatId }: Props) => {
+	const currentUser = useCurrentUserStore((state) => state.currentUser);
+
 	const [isDropDownOpen, setIsDropDownOpen] = useState<boolean>(false);
 
 	return (
 		<div className="fixed left-0 top-0 z-[22] flex h-10 w-full items-center justify-between bg-base-100 pr-5 shadow-md">
-			<div className="relative flex h-full w-[321px] items-center justify-center border-r shadow-inner">
+			<div className="relative hidden h-full w-[321px] items-center justify-center border-r shadow-inner sm:flex">
 				<span className="text-base font-semibold">{currentChatName}</span>
 				<Dropdown
 					isDropDownOpen={isDropDownOpen}
@@ -23,9 +29,15 @@ const Header = ({ setIsOpenMemberList, currentChatName, isOwner, chatId }: Props
 					chatId={chatId}
 				/>
 			</div>
-			<button className="btn-ghost btn-sm btn px-1" onClick={() => setIsOpenMemberList((prev) => !prev)}>
-				<HiUserGroup className="text-2xl" />
-			</button>
+			<div className="flex flex-1 flex-row items-center justify-end gap-x-3 pr-3 sm:flex-auto">
+				<ExplorerButton />
+				<CreateChatButton currentUserId={currentUser!.id} />
+				<div className="tooltip tooltip-bottom" data-tip="Members">
+					<button className="btn-ghost btn-sm btn px-1" onClick={() => setIsOpenMemberList((prev) => !prev)}>
+						<HiUserGroup className="text-2xl" />
+					</button>
+				</div>
+			</div>
 		</div>
 	);
 };

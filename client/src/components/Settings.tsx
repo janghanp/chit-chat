@@ -1,7 +1,7 @@
 import { ChangeEvent, useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import axios from 'axios';
-import { HiCamera } from 'react-icons/hi';
+import { HiCamera, HiX } from 'react-icons/hi';
 import toast, { Toaster } from 'react-hot-toast';
 
 import { AuthErrorResponse, AxiosResponseWithUsername, User } from '../types';
@@ -160,21 +160,13 @@ const Settings = ({ closeSettings }: Props) => {
 	};
 
 	return (
-		<div className="fixed inset-0 z-40 bg-base-300">
-			<div className="mx-auto max-w-xl translate-y-40 rounded-md bg-base-100 p-5 shadow-md">
+		<div className="fixed inset-0 z-40 bg-base-300 flex items-center justify-center h-screen">
+			<div className="rounded-md bg-base-100 p-5 shadow-md w-full max-w-xl m-5">
 				<div className="flex flex-row items-center justify-between">
 					<div className="text-base-con mb-5 text-3xl font-bold">User Settings</div>
 					<div className="flex flex-col items-center justify-center gap-y-3">
-						<button className="btn-outline btn-circle btn" onClick={closeSettings}>
-							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								className="h-6 w-6"
-								fill="none"
-								viewBox="0 0 24 24"
-								stroke="currentColor"
-							>
-								<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-							</svg>
+						<button className="btn-outline btn-circle btn btn-sm" onClick={closeSettings}>
+							<HiX />
 						</button>
 						<kbd className="kbd kbd-sm">ESC</kbd>
 					</div>
