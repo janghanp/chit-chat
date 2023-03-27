@@ -9,7 +9,7 @@ const ExplorerButton = () => {
 	};
 
 	return (
-		<div className="tooltip tooltip-bottom" data-tip="Explorer">
+		<div className="tooltip tooltip-top" data-tip="Explore">
 			<button className="btn-ghost btn-sm btn px-1.5" onClick={handleClick}>
 				<IoCompassSharp className="text-xl" />
 			</button>

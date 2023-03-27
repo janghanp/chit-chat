@@ -75,7 +75,7 @@ const Explorer = () => {
 				onChange={changeHandler}
 				type="text"
 				className="input-bordered input my-3 w-full max-w-lg"
-				placeholder="Explorer chats"
+				placeholder="Explore chats"
 			/>
 
 			{filteredChats && filteredChats.length > 0 && !isLoading && (

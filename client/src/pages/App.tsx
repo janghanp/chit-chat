@@ -11,7 +11,7 @@ import Register from './Register';
 import AutoLogin from '../components/AutoLogin';
 import Chat from './Chat';
 import NoMatch from './NoMatch';
-import Explorer from './Explorer';
+import Explorer from './Explore';
 import { socket } from '../socket';
 import { useCurrentUserStore } from '../store';
 import { User } from '../types';

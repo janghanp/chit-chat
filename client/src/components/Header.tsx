@@ -2,9 +2,7 @@ import { Dispatch, SetStateAction, useState } from 'react';
 import { HiUserGroup } from 'react-icons/hi';
 
 import Dropdown from './Dropdown';
-import CreateChatButton from './CreateChatButton';
-import { useCurrentUserStore } from '../store';
-import ExplorerButton from './ExplorerButton';
+import SearchInChat from './SearchInChat';
 
 interface Props {
 	isOwner: boolean;
@@ -14,8 +12,6 @@ interface Props {
 }
 
 const Header = ({ setIsOpenMemberList, currentChatName, isOwner, chatId }: Props) => {
-	const currentUser = useCurrentUserStore((state) => state.currentUser);
-
 	const [isDropDownOpen, setIsDropDownOpen] = useState<boolean>(false);
 
 	return (
@@ -30,8 +26,7 @@ const Header = ({ setIsOpenMemberList, currentChatName, isOwner, chatId }: Props
 				/>
 			</div>
 			<div className="flex flex-1 flex-row items-center justify-end gap-x-3 pr-3 sm:flex-auto">
-				<ExplorerButton />
-				<CreateChatButton currentUserId={currentUser!.id} />
+				<SearchInChat />
 				<div className="tooltip tooltip-bottom" data-tip="Members">
 					<button className="btn-ghost btn-sm btn px-1" onClick={() => setIsOpenMemberList((prev) => !prev)}>
 						<HiUserGroup className="text-2xl" />
