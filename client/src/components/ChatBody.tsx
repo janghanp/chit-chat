@@ -1,60 +1,95 @@
-import { memo, useEffect } from 'react';
+import { Fragment, memo, useEffect } from 'react';
 import { format } from 'date-fns';
+import { useInfiniteQuery } from '@tanstack/react-query';
+import { useParams } from 'react-router';
+import { useInView } from 'react-intersection-observer';
 
 import defaultImageUrl from '/default.jpg';
 import { useCurrentUserStore } from '../store';
-import { useQuery } from '@tanstack/react-query';
-import { fetchChat } from '../api/chat';
+import { fetchMessages } from '../api/chat';
 import { Message } from '../types';
-import { useParams } from 'react-router';
 
 const ChatBody = () => {
 	const { chatId } = useParams();
 
+	const { ref, inView } = useInView();
+
 	const currentUser = useCurrentUserStore((state) => state.currentUser);
 
-	const { isLoading, isError, data } = useQuery({
-		queryKey: ['chat', chatId],
-		queryFn: async () => fetchChat(chatId as string, currentUser!.id),
+	const { data, fetchNextPage, hasNextPage, isFetching, status } = useInfiniteQuery<Message[]>({
+		queryKey: ['messages', chatId],
+		queryFn: async ({ pageParam }) => fetchMessages(chatId as string, pageParam),
+		getNextPageParam: (lastPage, pages) => {
+			if (lastPage.length < 10) {
+				return undefined;
+			}
+
+			return lastPage[9].id;
+		},
 		// 1 min
 		staleTime: 1000 * 60,
 	});
 
 	useEffect(() => {
 		const element = document.getElementById('chat-body');
-
 		element!.scroll({ top: element!.scrollHeight, behavior: 'smooth' });
 	}, [data]);
 
-	if (isLoading) {
-		return <div>Loading...</div>;
-	}
+	useEffect(() => {
+		if (inView && status !== 'loading' && hasNextPage) {
+			// fetchNextPage();
+			console.log('fetchNextPage');
+		}
+	}, [inView]);
 
-	if (isError) {
-		return <div>Error...</div>;
-	}
-
-	const messages = data.chat.messages as Message[];
+	const reversedPages = data?.pages.map((page) => page).reverse();
 
 	return (
 		<div id="chat-body" className="absolute bottom-16 top-0 flex w-full flex-col gap-y-3 overflow-y-auto px-5 py-5">
-			{messages &&
-				messages.map((msg) => {
-					return (
-						<div key={msg.id} className={`chat ${msg.sender.id === currentUser?.id ? 'chat-end' : 'chat-start'}`}>
-							<div className="chat-image avatar">
-								<div className="w-10 rounded-full border">
-									<img src={msg.sender.avatar || defaultImageUrl} alt={msg.sender.username} />
-								</div>
-							</div>
-							<div className="chat-header text-sm">
-								{msg.sender.username}
-								<time className="ml-2 text-xs opacity-50">{format(new Date(msg.createdAt), 'PP p')}</time>
-							</div>
-							<div className="chat-bubble break-words">{msg.text}</div>
-						</div>
-					);
-				})}
+			{status === 'loading' ? (
+				<div>Loading...</div>
+			) : (
+				<Fragment>
+					{status === 'error' ? (
+						<div>Error...</div>
+					) : (
+						<Fragment>
+							<button className="btn" onClick={() => fetchNextPage()}>
+								load more
+							</button>
+
+							{reversedPages!.map((page, indexP) => {
+								return (
+									<Fragment key={indexP}>
+										{page.map((message, index) => {
+											return (
+												<div
+													ref={index === 0 && indexP === 0 && data.pages.length > 1 ? ref : undefined}
+													key={message.id}
+													className={`chat ${message.sender.id === currentUser?.id ? 'chat-end' : 'chat-start'}`}
+												>
+													<div className="chat-image avatar">
+														<div className="w-10 rounded-full border">
+															<img src={message.sender.avatar || defaultImageUrl} alt={message.sender.username} />
+														</div>
+													</div>
+													<div className="chat-header text-sm">
+														{message.sender.username}
+														<time className="ml-2 text-xs opacity-50">
+															{format(new Date(message.createdAt), 'PP p')}
+														</time>
+													</div>
+													<div className="chat-bubble break-words">{message.text}</div>
+												</div>
+											);
+										})}
+									</Fragment>
+								);
+							})}
+						</Fragment>
+					)}
+				</Fragment>
+			)}
 		</div>
 	);
 };

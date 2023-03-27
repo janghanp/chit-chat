@@ -361,4 +361,54 @@ router.delete('/:chatId', async (req: Request, res: Response) => {
 	}
 });
 
+router.get('/messages', async (req: Request, res: Response) => {
+	const { chatId, lastMessageId } = req.query;
+
+	try {
+		let messages;
+
+		if (lastMessageId) {
+			messages = await prisma.message.findMany({
+				where: {
+					chatId: chatId as string,
+				},
+				orderBy: {
+					createdAt: 'desc',
+				},
+				cursor: {
+					id: lastMessageId as string,
+				},
+				skip: 1,
+				take: 20,
+				include: {
+					sender: true,
+				},
+			});
+		} else {
+			//first page
+			messages = await prisma.message.findMany({
+				where: {
+					chatId: chatId as string,
+				},
+				orderBy: {
+					createdAt: 'desc',
+				},
+				skip: 0,
+				take: 20,
+				include: {
+					sender: true,
+				},
+			});
+		}
+
+		messages.reverse();
+
+		return res.status(200).json(messages);
+	} catch (error) {
+		console.log(error);
+
+		return res.sendStatus(500);
+	}
+});
+
 export default router;

@@ -23,6 +23,18 @@ export const fetchChatRooms = async (userId: string) => {
 	return data;
 };
 
+export const fetchMessages = async (chatId: string, lastMessageId: string | undefined) => {
+	const { data } = await axios.get('http://localhost:8080/chat/messages', {
+		params: {
+			chatId,
+			lastMessageId,
+		},
+		withCredentials: true,
+	});
+
+	return data;
+};
+
 export const createChat = async (formData: FormData) => {
 	const { data } = await axios.post('http://localhost:8080/chat', formData, { withCredentials: true });
 
