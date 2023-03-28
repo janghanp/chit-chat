@@ -1,4 +1,4 @@
-import { Fragment, memo, useEffect } from 'react';
+import { Fragment, memo, useEffect, useRef, useState } from 'react';
 import { format } from 'date-fns';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { useParams } from 'react-router';
@@ -16,7 +16,7 @@ const ChatBody = () => {
 
 	const currentUser = useCurrentUserStore((state) => state.currentUser);
 
-	const { data, fetchNextPage, hasNextPage, isFetching, status } = useInfiniteQuery<Message[]>({
+	const { data, fetchNextPage, hasNextPage, status } = useInfiniteQuery<Message[]>({
 		queryKey: ['messages', chatId],
 		queryFn: async ({ pageParam }) => fetchMessages(chatId as string, pageParam),
 		getNextPageParam: (lastPage, pages) => {
@@ -31,21 +31,16 @@ const ChatBody = () => {
 	});
 
 	useEffect(() => {
-		const element = document.getElementById('chat-body');
-		element!.scroll({ top: element!.scrollHeight, behavior: 'smooth' });
-	}, [data]);
-
-	useEffect(() => {
-		if (inView && status !== 'loading' && hasNextPage) {
-			// fetchNextPage();
-			console.log('fetchNextPage');
+		if (inView && hasNextPage) {
+			fetchNextPage();
 		}
 	}, [inView]);
 
-	const reversedPages = data?.pages.map((page) => page).reverse();
-
 	return (
-		<div id="chat-body" className="absolute bottom-16 top-0 flex w-full flex-col gap-y-3 overflow-y-auto px-5 py-5">
+		<div
+			id="chat-body"
+			className="absolute bottom-20	top-0 flex w-full flex-col-reverse gap-y-3 overflow-y-auto px-5 py-5"
+		>
 			{status === 'loading' ? (
 				<div>Loading...</div>
 			) : (
@@ -54,17 +49,13 @@ const ChatBody = () => {
 						<div>Error...</div>
 					) : (
 						<Fragment>
-							<button className="btn" onClick={() => fetchNextPage()}>
-								load more
-							</button>
-
-							{reversedPages!.map((page, indexP) => {
+							{data.pages!.map((page, indexP) => {
 								return (
 									<Fragment key={indexP}>
 										{page.map((message, index) => {
 											return (
 												<div
-													ref={index === 0 && indexP === 0 && data.pages.length > 1 ? ref : undefined}
+													ref={indexP === data.pages.length - 1 && index === 9 ? ref : undefined}
 													key={message.id}
 													className={`chat ${message.sender.id === currentUser?.id ? 'chat-end' : 'chat-start'}`}
 												>

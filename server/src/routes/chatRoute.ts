@@ -379,7 +379,7 @@ router.get('/messages', async (req: Request, res: Response) => {
 					id: lastMessageId as string,
 				},
 				skip: 1,
-				take: 20,
+				take: 10,
 				include: {
 					sender: true,
 				},
@@ -394,14 +394,12 @@ router.get('/messages', async (req: Request, res: Response) => {
 					createdAt: 'desc',
 				},
 				skip: 0,
-				take: 20,
+				take: 10,
 				include: {
 					sender: true,
 				},
 			});
 		}
-
-		messages.reverse();
 
 		return res.status(200).json(messages);
 	} catch (error) {

@@ -3,6 +3,9 @@
 	"version": "1.0.0",
 	"main": "index.js",
 	"license": "MIT",
+	"prisma": {
+		"seed": "ts-node prisma/seed.ts"
+	},
 	"scripts": {
 		"build": "rimraf dist && swc ./src -d dist",
 		"dev": "nodemon src/index.ts",
