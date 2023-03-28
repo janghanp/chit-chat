@@ -1,21 +1,39 @@
 import { createPortal } from 'react-dom';
 import { HiOutlineLogout } from 'react-icons/hi';
+import { useNavigate } from 'react-router-dom';
+import axios, { AxiosError } from 'axios';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
-import useAuth from '../hooks/useAuth';
-import { useCurrentUserStore } from '../store';
 import { socket } from '../socket';
+import { logOutUser } from '../api/user';
 
 const LogoutButton = () => {
-	const { logout } = useAuth();
+	const navigate = useNavigate();
 
-	const { setCurrentUser } = useCurrentUserStore();
+	const queryClient = useQueryClient();
+
+	const { mutate } = useMutation({
+		mutationFn: () => logOutUser(),
+		onSuccess() {
+			queryClient.removeQueries({ queryKey: ['currentUser'] });
+			queryClient.removeQueries({ queryKey: ['chatRooms'] });
+			queryClient.removeQueries({ queryKey: ['chat'] });
+			queryClient.removeQueries({ queryKey: ['messages'] });
+
+			navigate('/login');
+		},
+		onError(error: AxiosError | Error) {
+			if (axios.isAxiosError(error)) {
+				console.log(error.response?.data);
+			}
+		},
+	});
 
 	const handleLogout = () => {
-		logout();
+		mutate();
+		queryClient.removeQueries({ queryKey: ['currentUser'], exact: true });
 
 		socket.disconnect();
-
-		setCurrentUser(null);
 	};
 
 	return (

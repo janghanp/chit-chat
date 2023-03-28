@@ -38,13 +38,13 @@ router.get('/', async (req: Request, res: Response) => {
 			include: {
 				messages: {
 					orderBy: {
-						createdAt: 'asc',
+						createdAt: 'desc',
 					},
 					include: {
 						sender: true,
 					},
+					take: 1,
 				},
-				users: true,
 			},
 		});
 
@@ -67,27 +67,19 @@ router.get('/', async (req: Request, res: Response) => {
 				include: {
 					messages: {
 						orderBy: {
-							createdAt: 'asc',
+							createdAt: 'desc',
 						},
 						include: {
 							sender: true,
 						},
+						take: 1,
 					},
-					users: true,
 				},
 			});
 
 			chatWithUsersAndMessages = updatedChat;
 			isNewMember = true;
 		}
-
-		chatWithUsersAndMessages?.users.forEach((user) => {
-			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-			// @ts-ignore
-			delete user.password;
-
-			return user;
-		});
 
 		return res.status(200).json({ isNewMember, chat: chatWithUsersAndMessages });
 	} catch (error) {
@@ -123,8 +115,6 @@ router.get('/search', async (req: Request, res: Response) => {
 router.get('/rooms', async (req: Request, res: Response) => {
 	const { userId } = req.query;
 
-	console.log(userId);
-
 	try {
 		const userWithChats = await prisma.user.findUnique({
 			where: {
@@ -151,7 +141,7 @@ router.get('/rooms', async (req: Request, res: Response) => {
 			return res.status(400).json({ message: 'No chat rooms found' });
 		}
 
-		return res.status(200).json({ chats: userWithChats?.chats });
+		return res.status(200).json(userWithChats.chats);
 	} catch (error) {
 		console.log(error);
 
@@ -379,7 +369,7 @@ router.get('/messages', async (req: Request, res: Response) => {
 					id: lastMessageId as string,
 				},
 				skip: 1,
-				take: 10,
+				take: 20,
 				include: {
 					sender: true,
 				},
@@ -394,7 +384,7 @@ router.get('/messages', async (req: Request, res: Response) => {
 					createdAt: 'desc',
 				},
 				skip: 0,
-				take: 10,
+				take: 20,
 				include: {
 					sender: true,
 				},

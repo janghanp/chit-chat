@@ -1,13 +1,14 @@
-import { useState, memo } from 'react';
+import { useState, memo, useEffect } from 'react';
 import { HiOutlineMenu } from 'react-icons/hi';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 
 import ChatRoomList from './ChatRoomList';
 import UserInfo from './UserInfo';
-import { useCurrentUserStore } from '../store';
-import { fetchChatRooms } from '../api/chat';
 import Dropdown from './Dropdown';
 import { useParams } from 'react-router-dom';
+import useUser from '../hooks/useUser';
+import useChatRooms from '../hooks/useChatRooms';
+import { socket } from '../socket';
 
 const Sidebar = () => {
 	const { chatId } = useParams();
@@ -16,17 +17,18 @@ const Sidebar = () => {
 
 	const currentChat = queryClient.getQueryData(['chat', chatId]);
 
-	const currentUser = useCurrentUserStore((state) => state.currentUser);
+	const { data: currentUser } = useUser();
+
+	const { isLoading, isError, data: chatRooms } = useChatRooms();
 
 	const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
 	const [isDropDownOpen, setIsDropDownOpen] = useState<boolean>(false);
 
-	const { isLoading, isError, data } = useQuery({
-		queryKey: ['chatRooms', currentUser!.id],
-		queryFn: async () => fetchChatRooms(currentUser!.id),
-		// 1 min
-		staleTime: 1000 * 60,
-	});
+	useEffect(() => {
+		if (socket.connected && currentUser && chatRooms) {
+			socket.emit('user_connect', { userId: currentUser.id, chatIds: chatRooms.map((chat) => chat.id) });
+		}
+	}, [currentUser, chatRooms]);
 
 	if (isLoading) {
 		return <div>Loading...</div>;
@@ -62,7 +64,7 @@ const Sidebar = () => {
 							</div>
 						)}
 						<div className="flex h-full flex-col justify-between">
-							<ChatRoomList chatRooms={data.chats} setIsSidebarOpen={setIsSidebarOpen} />
+							<ChatRoomList chatRooms={chatRooms} setIsSidebarOpen={setIsSidebarOpen} />
 							<div>
 								<UserInfo currentUser={currentUser!} />
 							</div>

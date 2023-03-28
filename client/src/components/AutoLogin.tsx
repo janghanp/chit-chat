@@ -1,44 +1,19 @@
-import { useEffect, useState } from 'react';
 import { Outlet } from 'react-router-dom';
 
-import { useCurrentUserStore } from '../store';
-import useAuth, { isAuthSuccessResponse, isAuthErrorResponse } from '../hooks/useAuth';
+import useUser from '../hooks/useUser';
 
 const AutoLogin = () => {
-	const { refresh } = useAuth();
+	const { isLoading, isError, data } = useUser();
 
-	const setCurrentUser = useCurrentUserStore((state) => state.setCurrentUser);
+	if (isLoading) {
+		return <div>Loading...</div>;
+	}
 
-	const [isAuthenticating, setIsAuthenticating] = useState<boolean>(true);
+	if (isError) {
+		return <div>Error...</div>;
+	}
 
-	useEffect(() => {
-		const autoLogin = async () => {
-			const result = await refresh();
-
-			if (isAuthSuccessResponse(result)) {
-				const { id, username, email, avatar, public_id, chats } = result;
-
-				setCurrentUser({
-					id,
-					username,
-					email,
-					avatar,
-					public_id,
-					chats,
-				});
-			}
-
-			if (isAuthErrorResponse(result)) {
-				console.log(result);
-			}
-
-			setIsAuthenticating(false);
-		};
-
-		autoLogin();
-	}, []);
-
-	return <>{isAuthenticating ? <div>loading...</div> : <Outlet />}</>;
+	return <>{isLoading ? <div>loading...</div> : <Outlet />}</>;
 };
 
 export default AutoLogin;

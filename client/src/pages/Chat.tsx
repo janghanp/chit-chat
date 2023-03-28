@@ -7,16 +7,16 @@ import MemberList from '../components/MemberList';
 import ChatBody from '../components/ChatBody';
 import Header from '../components/Header';
 import { socket } from '../socket';
-import { useCurrentUserStore } from '../store';
 import { fetchChat } from '../api/chat';
 import { createMessage } from '../api/message';
+import useUser from '../hooks/useUser';
 
 const Chat = () => {
 	const { chatId } = useParams();
 
 	const queryClient = useQueryClient();
 
-	const currentUser = useCurrentUserStore((state) => state.currentUser);
+	const { data: currentUser } = useUser();
 
 	const [inputMessage, setInputMessage] = useState<string>('');
 	const [isOpenMemberList, setIsOpenMemberList] = useState<boolean>(false);
@@ -26,12 +26,10 @@ const Chat = () => {
 		queryFn: async () => fetchChat(chatId as string, currentUser!.id),
 		onSuccess: (data) => {
 			if (data.isNewMember) {
-				queryClient.setQueryData(['chatRooms', currentUser!.id], (old: any) => {
-					const newOld = produce(old, (draftState: any) => {
-						draftState.chats.push({ ...data.chat, messages: [data.chat.messages.pop()] });
+				queryClient.setQueryData(['chatRooms'], (old: any) => {
+					return produce(old, (draftState: any) => {
+						draftState.push({ ...data.chat, messages: data.chat.messages });
 					});
-
-					return newOld;
 				});
 			}
 		},
@@ -78,7 +76,6 @@ const Chat = () => {
 		if (!inputMessage) {
 			return;
 		}
-
 		mutate();
 	};
 
@@ -112,7 +109,7 @@ const Chat = () => {
 					</button>
 				</div>
 			</div>
-			{isOpenMemberList && <MemberList members={data.chat.users} chatOwnerId={data.chat.ownerId} />}
+			{/* {isOpenMemberList && <MemberList members={data.chat.users} chatOwnerId={data.chat.ownerId} />} */}
 		</div>
 	);
 };

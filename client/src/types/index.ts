@@ -5,7 +5,6 @@ export interface User {
 	avatar?: string;
 	public_id?: string;
 	isOnline?: boolean;
-	chats: Chat[];
 }
 
 export interface Chat {

@@ -4,8 +4,12 @@ import { useNavigate } from 'react-router-dom';
 import { SyncLoader } from 'react-spinners';
 
 import useDebounce from '../hooks/useDebounce';
-import { Chat } from '../types';
+import { Chat, User } from '../types';
 import defaultAvatar from '/default.jpg';
+
+interface ChatWithMembers extends Chat {
+	users: User[];
+}
 
 const Explorer = () => {
 	const navigate = useNavigate();
@@ -14,7 +18,7 @@ const Explorer = () => {
 	//* When a user keeps doing like, enter "s" and delete on and on.
 	const [query, setQuery] = useState<{ text: string }>({ text: '' });
 	const [isLoading, setIsLoading] = useState<boolean>(false);
-	const [filteredChats, setFilterdChats] = useState<Chat[] | null>();
+	const [filteredChats, setFilterdChats] = useState<ChatWithMembers[] | null>();
 
 	const debouncedValue = useDebounce<{ text: string }>(query, 500);
 
@@ -70,7 +74,7 @@ const Explorer = () => {
 
 	return (
 		<div className="flex h-screen w-full flex-col items-center justify-start p-5 sm:pl-[345px]">
-			<div className="text-xl font-bold text-base-content my-10">Find your community on chit-chat</div>
+			<div className="my-10 text-xl font-bold text-base-content">Find your community on chit-chat</div>
 			<input
 				onChange={changeHandler}
 				type="text"
@@ -89,15 +93,15 @@ const Explorer = () => {
 										{chat.users.slice(0, 4).map((user) => {
 											return (
 												<div key={user.id} className="avatar border-0">
-													<div className="w-8 border rounded-full">
-														<img src={user.avatar || defaultAvatar} alt={user.name} width={20} height={20} />
+													<div className="w-8 rounded-full border">
+														<img src={user.avatar || defaultAvatar} alt={user.username} width={20} height={20} />
 													</div>
 												</div>
 											);
 										})}
 										{chat.users.length > 4 && (
 											<div className="placeholder avatar border-0">
-												<div className="w-8 bg-neutral-focus text-neutral-content text-xs font-semibold">
+												<div className="w-8 bg-neutral-focus text-xs font-semibold text-neutral-content">
 													<span>+{chat.users.length - 4}</span>
 												</div>
 											</div>

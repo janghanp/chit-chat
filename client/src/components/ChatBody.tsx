@@ -1,4 +1,4 @@
-import { Fragment, memo, useEffect, useRef, useState } from 'react';
+import { Fragment, memo, useEffect } from 'react';
 import { format } from 'date-fns';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { useParams } from 'react-router';
@@ -24,7 +24,7 @@ const ChatBody = () => {
 				return undefined;
 			}
 
-			return lastPage[9].id;
+			return lastPage[lastPage.length - 1].id;
 		},
 		// 1 min
 		staleTime: 1000 * 60,
@@ -55,7 +55,7 @@ const ChatBody = () => {
 										{page.map((message, index) => {
 											return (
 												<div
-													ref={indexP === data.pages.length - 1 && index === 9 ? ref : undefined}
+													ref={indexP === data.pages.length - 1 && index === page.length - 1 ? ref : undefined}
 													key={message.id}
 													className={`chat ${message.sender.id === currentUser?.id ? 'chat-end' : 'chat-start'}`}
 												>

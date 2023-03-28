@@ -41,6 +41,18 @@ async function main() {
 		},
 	});
 
+	await prisma.chat.create({
+		data: {
+			name: 'chat2',
+			ownerId: users[1].id,
+			users: {
+				connect: {
+					id: users[1].id,
+				},
+			},
+		},
+	});
+
 	for (let i = 1; i < 50; i++) {
 		const message = await prisma.message.create({
 			data: {

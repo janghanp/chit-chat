@@ -1,17 +1,37 @@
 import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+
+import axios, { AxiosError } from 'axios';
 
 import { FormData } from '../types';
-import useAuth, { isAuthSuccessResponse, isAuthErrorResponse } from '../hooks/useAuth';
-import { useChatsStore, useCurrentUserStore } from '../store';
+import useUser from '../hooks/useUser';
+import { registerUser } from '../api/user';
 
 const Register = () => {
 	const navigate = useNavigate();
 
-	const { register: authRegister } = useAuth();
+	const queryClient = useQueryClient();
 
-	const { currentUser, setCurrentUser } = useCurrentUserStore();
-	const setChats = useChatsStore((state) => state.setChats);
+	const { data: currentUser } = useUser();
+
+	const { mutate } = useMutation({
+		mutationFn: ({ email, password, username }: { email: string; password: string; username: string }) =>
+			registerUser(email, password, username),
+		async onSuccess() {
+			await queryClient.invalidateQueries(['currentUser']);
+			navigate('/explorer');
+		},
+		onError(error: AxiosError | Error) {
+			if (axios.isAxiosError(error)) {
+				if (error.response?.data.message.includes('email')) {
+					setError('email', { type: 'taken', message: error.response?.data.message });
+				} else if (error.response?.data.message.includes('username')) {
+					setError('username', { type: 'taken', message: error.response?.data.message });
+				}
+			}
+		},
+	});
 
 	const {
 		register,
@@ -32,22 +52,7 @@ const Register = () => {
 			return;
 		}
 
-		const result = await authRegister(email, password, username);
-
-		if (isAuthSuccessResponse(result)) {
-			setCurrentUser(result);
-			setChats(result.chats);
-
-			navigate('/explorer');
-		}
-
-		if (isAuthErrorResponse(result)) {
-			if (result.message.includes('email')) {
-				setError('email', { type: 'taken', message: result.message });
-			} else if (result.message.includes('username')) {
-				setError('username', { type: 'taken', message: result.message });
-			}
-		}
+		mutate({ email, password, username });
 	});
 
 	if (currentUser) {

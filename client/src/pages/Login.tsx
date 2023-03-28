@@ -1,8 +1,10 @@
 import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
-import useAuth, { isAuthSuccessResponse, isAuthErrorResponse } from '../hooks/useAuth';
-import { useChatsStore, useCurrentUserStore } from '../store';
+import useUser from '../hooks/useUser';
+import { logInUser } from '../api/user';
+import axios, { AxiosError } from 'axios';
 
 interface FormData {
 	email: string;
@@ -12,10 +14,23 @@ interface FormData {
 const Login = () => {
 	const navigate = useNavigate();
 
-	const { login } = useAuth();
+	const queryClient = useQueryClient();
 
-	const { currentUser, setCurrentUser } = useCurrentUserStore();
-	const setChats = useChatsStore((state) => state.setChats);
+	const { data: currentUser } = useUser();
+
+	const { mutate } = useMutation({
+		mutationFn: ({ email, password }: { email: string; password: string }) => logInUser(email, password),
+		async onSuccess() {
+			await queryClient.invalidateQueries(['currentUser']);
+			navigate('/explorer');
+		},
+		onError(error: AxiosError | Error) {
+			if (axios.isAxiosError(error)) {
+				setError('email', { type: 'incorrect', message: error.response?.data.message });
+				setError('password', { type: 'incorrect', message: error.response?.data.message });
+			}
+		},
+	});
 
 	const {
 		register,
@@ -27,19 +42,7 @@ const Login = () => {
 	const onSubmit = handleSubmit(async (data) => {
 		const { email, password } = data;
 
-		const result = await login(email, password);
-
-		if (isAuthSuccessResponse(result)) {
-			setCurrentUser(result);
-			setChats(result.chats);
-
-			navigate('/explorer');
-		}
-
-		if (isAuthErrorResponse(result)) {
-			setError('email', { type: 'incorrect', message: result.message });
-			setError('password', { type: 'incorrect', message: result.message });
-		}
+		mutate({ email, password });
 	});
 
 	if (currentUser) {

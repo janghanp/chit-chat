@@ -151,10 +151,12 @@ io.on('connect', (socket: Socket) => {
 		const userId = socket.handshake.query.userId;
 
 		//Control when there are multiple tabs
-		const socketLength = usersWithSockets.filter((el) => el.userId === userId)[0].socketIds.length;
+		if (userId) {
+			const socketLength = usersWithSockets.filter((el) => el.userId === userId)[0].socketIds.length;
 
-		if (socketLength === 1) {
-			io.emit('offline', { userId });
+			if (socketLength === 1) {
+				io.emit('offline', { userId });
+			}
 		}
 
 		// Remove the socketId from usersWithSocketIds array.
