@@ -1,32 +1,33 @@
-import { useState, memo, useEffect } from 'react';
+import { useState, memo, useEffect, useRef } from 'react';
 import { HiOutlineMenu } from 'react-icons/hi';
-import { useQueryClient } from '@tanstack/react-query';
+import { useParams } from 'react-router-dom';
 
 import ChatRoomList from './ChatRoomList';
 import UserInfo from './UserInfo';
 import Dropdown from './Dropdown';
-import { useParams } from 'react-router-dom';
 import useUser from '../hooks/useUser';
 import useChatRooms from '../hooks/useChatRooms';
 import { socket } from '../socket';
+import useChat from '../hooks/useChat';
 
 const Sidebar = () => {
 	const { chatId } = useParams();
 
-	const queryClient = useQueryClient();
-
-	const currentChat = queryClient.getQueryData(['chat', chatId]);
-
 	const { data: currentUser } = useUser();
+
+	const { data: currentChat } = useChat(chatId as string, currentUser!.id);
 
 	const { isLoading, isError, data: chatRooms } = useChatRooms();
 
 	const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
 	const [isDropDownOpen, setIsDropDownOpen] = useState<boolean>(false);
 
+	const setRef = useRef<boolean>(false);
+
 	useEffect(() => {
-		if (socket.connected && currentUser && chatRooms) {
+		if (socket.connected && currentUser && chatRooms && !setRef.current) {
 			socket.emit('user_connect', { userId: currentUser.id, chatIds: chatRooms.map((chat) => chat.id) });
+			setRef.current = true;
 		}
 	}, [currentUser, chatRooms]);
 
@@ -72,7 +73,6 @@ const Sidebar = () => {
 					</div>
 				</div>
 			</div>
-
 			{/* Overlay */}
 			{isSidebarOpen && (
 				<div

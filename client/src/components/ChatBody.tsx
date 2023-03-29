@@ -5,16 +5,16 @@ import { useParams } from 'react-router';
 import { useInView } from 'react-intersection-observer';
 
 import defaultImageUrl from '/default.jpg';
-import { useCurrentUserStore } from '../store';
 import { fetchMessages } from '../api/chat';
 import { Message } from '../types';
+import useUser from '../hooks/useUser';
 
 const ChatBody = () => {
 	const { chatId } = useParams();
 
 	const { ref, inView } = useInView();
 
-	const currentUser = useCurrentUserStore((state) => state.currentUser);
+	const { data: currentUser } = useUser();
 
 	const { data, fetchNextPage, hasNextPage, status } = useInfiniteQuery<Message[]>({
 		queryKey: ['messages', chatId],
@@ -57,7 +57,7 @@ const ChatBody = () => {
 												<div
 													ref={indexP === data.pages.length - 1 && index === page.length - 1 ? ref : undefined}
 													key={message.id}
-													className={`chat ${message.sender.id === currentUser?.id ? 'chat-end' : 'chat-start'}`}
+													className={`chat ${message.sender.id === currentUser!.id ? 'chat-end' : 'chat-start'}`}
 												>
 													<div className="chat-image avatar">
 														<div className="w-10 rounded-full border">

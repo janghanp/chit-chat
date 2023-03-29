@@ -3,6 +3,14 @@ import { Request, Response, Router } from 'express';
 import cloudinary from 'cloudinary';
 import multer from 'multer';
 
+// Exclude keys from user
+function exclude<User, Key extends keyof User>(user: User, keys: Key[]): Omit<User, Key> {
+	for (const key of keys) {
+		delete user[key];
+	}
+	return user;
+}
+
 const prisma = new PrismaClient();
 
 const uploader = multer({
@@ -283,8 +291,18 @@ router.patch('/leave', async (req: Request, res: Response) => {
 					},
 				},
 			},
-			include: {
-				users: true,
+		});
+
+		await prisma.user.update({
+			where: {
+				id: userId,
+			},
+			data: {
+				chats: {
+					disconnect: {
+						id: chatId,
+					},
+				},
 			},
 		});
 
@@ -392,6 +410,31 @@ router.get('/messages', async (req: Request, res: Response) => {
 		}
 
 		return res.status(200).json(messages);
+	} catch (error) {
+		console.log(error);
+
+		return res.sendStatus(500);
+	}
+});
+
+router.get('/members', async (req: Request, res: Response) => {
+	const { chatId } = req.query;
+
+	try {
+		const chat = await prisma.chat.findUnique({
+			where: {
+				id: chatId as string,
+			},
+			include: {
+				users: true,
+			},
+		});
+
+		chat?.users.forEach((user) => {
+			exclude(user, ['password']);
+		});
+
+		return res.status(200).json(chat?.users);
 	} catch (error) {
 		console.log(error);
 

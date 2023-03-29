@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-import { Chat, Message } from '../types';
+import { Chat, Message, User } from '../types';
 
 interface ChatWithIsNewMember {
 	chat: Chat;
@@ -60,6 +60,17 @@ export const updateChat = async (chatId: string, userId: string): Promise<Chat> 
 
 export const deleteChatt = async (chatId: string): Promise<number> => {
 	const { data } = await axios.delete<number>(`http://localhost:8080/chat/${chatId}`, { withCredentials: true });
+
+	return data;
+};
+
+export const fetchMembers = async (chatId: string) => {
+	const { data } = await axios.get<User[]>('http://localhost:8080/chat/members', {
+		params: {
+			chatId,
+		},
+		withCredentials: true,
+	});
 
 	return data;
 };

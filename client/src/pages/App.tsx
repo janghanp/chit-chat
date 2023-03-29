@@ -19,65 +19,80 @@ function App() {
 	const queryClient = useQueryClient();
 
 	useEffect(() => {
-		// const onOnline = (data: { userId: string }) => {
-		// 	const { userId } = data;
+		const onOnline = (data: { userId: string }) => {
+			const { userId } = data;
 
-		// 	queryClient.setQueriesData(['chat'], (old: any) => {
-		// 		const newOld = produce(old, (draftState: any) => {
-		// 			draftState.chat.users.forEach((user: any) => {
-		// 				if (user.id === userId) {
-		// 					user.isOnline = true;
-		// 				}
-		// 			});
-		// 		});
+			const state = queryClient.getQueriesData(['members']);
 
-		// 		return newOld;
-		// 	});
-		// };
+			if (state) {
+				queryClient.setQueriesData(['members'], (old: any) => {
+					if (old) {
+						return produce(old, (draftState: any) => {
+							draftState.forEach((member: any) => {
+								if (member.id === userId) {
+									member.isOnline = true;
+								}
+							});
+						});
+					}
+				});
+			}
+		};
 
-		// const onOffline = (data: { userId: string }) => {
-		// 	const { userId } = data;
+		const onOffline = (data: { userId: string }) => {
+			const { userId } = data;
 
-		// 	queryClient.setQueriesData(['chat'], (old: any) => {
-		// 		const newOld = produce(old, (draftState: any) => {
-		// 			draftState.chat.users.forEach((user: any) => {
-		// 				if (user.id === userId) {
-		// 					user.isOnline = false;
-		// 				}
-		// 			});
-		// 		});
+			const state = queryClient.getQueriesData(['members']);
 
-		// 		return newOld;
-		// 	});
-		// };
+			if (state) {
+				queryClient.setQueriesData(['members'], (old: any) => {
+					if (old) {
+						return produce(old, (draftState: any) => {
+							draftState.forEach((member: any) => {
+								if (member.id === userId) {
+									member.isOnline = false;
+								}
+							});
+						});
+					}
+				});
+			}
+		};
 
-		// const onOnlineUsers = (data: { userIds: string[] }) => {
-		// 	const { userIds } = data;
+		const setMembersStatus = (data: { userIds: string[] }) => {
+			const { userIds } = data;
 
-		// 	queryClient.setQueriesData(['chat'], (old: any) => {
-		// 		const newOld = produce(old, (draftState: any) => {
-		// 			draftState.chat.users.forEach((user: any) => {
-		// 				if (userIds.includes(user.id)) {
-		// 					user.isOnline = true;
-		// 				}
-		// 			});
-		// 		});
+			const state = queryClient.getQueriesData(['members']);
 
-		// 		return newOld;
-		// 	});
-		// };
+			if (state) {
+				queryClient.setQueriesData(['members'], (old: any) => {
+					if (old) {
+						return produce(old, (draftState: any) => {
+							draftState.forEach((member: User) => {
+								if (userIds.includes(member.id)) {
+									member.isOnline = true;
+								} else {
+									member.isOnline = false;
+								}
+							});
+						});
+					}
+				});
+			}
+		};
 
-		// const onDestroyChat = (data: { chatId: string }) => {
-		// 	const { chatId } = data;
+		const onDestroyChat = (data: { chatId: string }) => {
+			const { chatId } = data;
 
-		// 	const newChats = currentUser?.chats.filter((chat) => {
-		// 		return chat.id !== chatId;
-		// 	});
+			queryClient.setQueryData(['chatRooms'], (old: any) => {
+				return produce(old, (draftState: any) => {
+					const newChatRooms = draftState.filter((chatRoom: any) => chatRoom.id !== chatId);
+					draftState = newChatRooms;
+				});
+			});
 
-		// 	setCurrentUser({ ...currentUser, chats: newChats });
-
-		// 	window.location.reload();
-		// };
+			window.location.reload();
+		};
 
 		const onReceiveMessage = (data: {
 			chatId: string;
@@ -90,7 +105,6 @@ function App() {
 
 			const currentChatId = window.location.href.split('/').pop();
 
-			//update the last message in the chat room list.
 			queryClient.setQueryData(['chatRooms'], (old: any) => {
 				return produce(old, (draftState: any) => {
 					draftState.forEach((chat: any) => {
@@ -111,7 +125,7 @@ function App() {
 				const state = queryClient.getQueryState(['chat', chatId]);
 
 				if (state) {
-					queryClient.setQueryData(['messages', currentChatId], (old: any) => {
+					queryClient.setQueryData(['messages', chatId], (old: any) => {
 						return produce(old, (draftState: any) => {
 							draftState.pages[0].unshift({ id: messageId, text, sender, createdAt, chatId, senderId: sender.id });
 						});
@@ -120,82 +134,57 @@ function App() {
 			}
 		};
 
-		// const onEnterNewMember = (data: { newUser: User; chatId: string }) => {
-		// 	const { newUser, chatId } = data;
+		const onEnterNewMember = (data: { newUser: User; chatId: string }) => {
+			const { newUser, chatId } = data;
 
-		// 	const currentChatId = window.location.href.split('/').pop();
+			newUser.isOnline = true;
 
-		// 	newUser.isOnline = true;
+			const currentChatId = window.location.href.split('/').pop();
 
-		// 	if (currentChatId === chatId) {
-		// 		queryClient.setQueryData(['chat', currentChatId], (old: any) => {
-		// 			const newOld = produce(old, (draftState: any) => {
-		// 				draftState.chat.users.push(newUser);
-		// 			});
+			if (currentChatId === chatId) {
+				queryClient.setQueryData(['members', chatId], (old: any) => {
+					if (old) {
+						return produce(old, (draftState: any) => {
+							draftState.push(newUser);
+						});
+					}
+				});
+			}
+		};
 
-		// 			return newOld;
-		// 		});
-		// 	} else {
-		// 		const state = queryClient.getQueryState(['chat', chatId]);
+		const onLeaveMember = (data: { userId: string; chatId: string }) => {
+			const { userId, chatId } = data;
 
-		// 		if (state) {
-		// 			queryClient.setQueryData(['chat', chatId], (old: any) => {
-		// 				const newOld = produce(old, (draftState: any) => {
-		// 					draftState.chat.users.push(newUser);
-		// 				});
+			const currentChatId = window.location.href.split('/').pop();
 
-		// 				return newOld;
-		// 			});
-		// 		}
-		// 	}
-		// };
+			if (currentChatId === chatId) {
+				queryClient.setQueryData(['members', chatId], (old: any) => {
+					if (old) {
+						return produce(old, (draftState: any) => {
+							const targetIndex = draftState.findIndex((member: any) => member.id === userId);
+							draftState.splice(targetIndex, 1);
+						});
+					}
+				});
+			}
+		};
 
-		// const onLeaveMember = (data: { userId: string; chatId: string }) => {
-		// 	const { userId, chatId } = data;
-
-		// 	const currentChatId = window.location.href.split('/').pop();
-
-		// 	if (currentChatId === chatId) {
-		// 		queryClient.setQueryData(['chat', currentChatId], (old: any) => {
-		// 			const newOld = produce(old, (draftState: any) => {
-		// 				const newMembers = draftState.chat.users.filter((user: any) => user.id !== userId);
-		// 				draftState.chat.users = newMembers;
-		// 			});
-
-		// 			return newOld;
-		// 		});
-		// 	} else {
-		// 		const state = queryClient.getQueryState(['chat', chatId]);
-
-		// 		if (state) {
-		// 			queryClient.setQueryData(['chat', chatId], (old: any) => {
-		// 				const newOld = produce(old, (draftState: any) => {
-		// 					const newMembers = draftState.chat.users.filter((user: any) => user.id !== userId);
-		// 					draftState.chat.users = newMembers;
-		// 				});
-
-		// 				return newOld;
-		// 			});
-		// 		}
-		// 	}
-		// };
-
-		// socket.on('online', onOnline);
-		// socket.on('offline', onOffline);
-		// socket.on('onlineUsers', onOnlineUsers);
-		// socket.on('destroy_chat', onDestroyChat);
+		socket.on('online', onOnline);
+		socket.on('offline', onOffline);
+		socket.on('set_members_status', setMembersStatus);
+		socket.on('destroy_chat', onDestroyChat);
 		socket.on('receive_message', onReceiveMessage);
-		// socket.on('enter_new_member', onEnterNewMember);
-		// socket.on('leave_member', onLeaveMember);
+		socket.on('enter_new_member', onEnterNewMember);
+		socket.on('leave_member', onLeaveMember);
 
 		return () => {
-			// socket.off('online', onOnline);
-			// socket.off('offline', onOffline);
-			// socket.off('onlineUsers', onOnlineUsers);
-			// socket.off('destroy_chat', onDestroyChat);
+			socket.off('online', onOnline);
+			socket.off('offline', onOffline);
+			socket.off('set_members_status', setMembersStatus);
+			socket.off('destroy_chat', onDestroyChat);
 			socket.off('receive_message', onReceiveMessage);
-			// socket.off('enter_new_member', onEnterNewMember);
-			// socket.off('leave_member', onLeaveMember);
+			socket.off('enter_new_member', onEnterNewMember);
+			socket.off('leave_member', onLeaveMember);
 		};
 	}, []);
 

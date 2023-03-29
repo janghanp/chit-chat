@@ -160,12 +160,12 @@ const Settings = ({ closeSettings }: Props) => {
 	};
 
 	return (
-		<div className="fixed inset-0 z-40 bg-base-300 flex items-center justify-center h-screen">
-			<div className="rounded-md bg-base-100 p-5 shadow-md w-full max-w-xl m-5">
+		<div className="fixed inset-0 z-40 flex h-screen items-center justify-center bg-base-300">
+			<div className="m-5 w-full max-w-xl rounded-md bg-base-100 p-5 shadow-md">
 				<div className="flex flex-row items-center justify-between">
 					<div className="text-base-con mb-5 text-3xl font-bold">User Settings</div>
 					<div className="flex flex-col items-center justify-center gap-y-3">
-						<button className="btn-outline btn-circle btn btn-sm" onClick={closeSettings}>
+						<button className="btn-outline btn-sm btn-circle btn" onClick={closeSettings}>
 							<HiX />
 						</button>
 						<kbd className="kbd kbd-sm">ESC</kbd>

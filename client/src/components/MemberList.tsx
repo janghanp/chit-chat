@@ -1,58 +1,97 @@
-import { memo, useEffect, useState } from 'react';
-import { createPortal } from 'react-dom';
+import { useQuery } from '@tanstack/react-query';
+import { Fragment, useEffect } from 'react';
 
+import { fetchMembers } from '../api/chat';
+import { socket } from '../socket';
 import { User } from '../types';
 import Member from './Member';
 
 interface Props {
-	members: User[];
 	chatOwnerId: string;
+	chatId: string;
+	isOpenMemberList: boolean;
 }
 
-const MemberList = ({ members, chatOwnerId }: Props) => {
-	const [isSet, setIsSet] = useState<boolean>(false);
+const MemberList = ({ chatOwnerId, chatId, isOpenMemberList }: Props) => {
+	const { isLoading, isError, data } = useQuery({
+		queryKey: ['members', chatId],
+		queryFn: async () => fetchMembers(chatId as string),
+	});
 
 	useEffect(() => {
-		setIsSet(true);
-	}, []);
+		if (data) {
+			socket.emit('fetch_members');
+		}
+	}, [data]);
+
+	if (!isOpenMemberList) {
+		return <div></div>;
+	}
+
+	if (isLoading) {
+		return <div>Loading...</div>;
+	}
+
+	if (isError) {
+		return <div>Error...</div>;
+	}
+
+	const deepCopyData = data.map((el) => ({ ...el }));
+
+	const hostIndex = deepCopyData.findIndex((memebr) => memebr.id === chatOwnerId);
+	const host = deepCopyData.splice(hostIndex, 1)[0];
+
+	const onlineMembers: User[] = [];
+	const offlineMembers: User[] = [];
+
+	if (deepCopyData.length > 0) {
+		deepCopyData.forEach((member) => {
+			if (member.isOnline) {
+				onlineMembers.push(member);
+			} else {
+				offlineMembers.push(member);
+			}
+		});
+	}
 
 	return (
 		<div className="fixed right-0 top-0 z-20 flex h-full w-full flex-col gap-y-4 border-l bg-base-100 p-5 pt-16 shadow-md sm:w-56">
 			<div>
 				<div className="mb-5 text-xs font-extrabold">HOST</div>
-				<div id="host" className="flex flex-col gap-y-3"></div>
+				<div id="host" className="flex flex-col gap-y-3">
+					<Member member={host} />
+				</div>
 				<div className="divider my-1"></div>
 			</div>
-
 			<div>
 				<div className="mb-5 text-xs font-extrabold">ONLINE</div>
-				<div id="online" className="flex flex-col gap-y-3"></div>
+				<div id="online" className="flex flex-col gap-y-3">
+					{onlineMembers.length > 0 &&
+						onlineMembers.map((member) => {
+							return (
+								<Fragment key={member.id}>
+									<Member member={member} />
+								</Fragment>
+							);
+						})}
+				</div>
 				<div className="divider my-1"></div>
 			</div>
-
 			<div>
 				<div className="mb-5 text-xs font-extrabold">OFFLINE</div>
-				<div id="offline" className="flex flex-col gap-y-3"></div>
+				<div id="offline" className="flex flex-col gap-y-3">
+					{offlineMembers.length > 0 &&
+						offlineMembers.map((member) => {
+							return (
+								<Fragment key={member.id}>
+									<Member member={member} />
+								</Fragment>
+							);
+						})}
+				</div>
 			</div>
-
-			{isSet &&
-				members.map((member) => {
-					return (
-						<div className="felx-col flex" key={member.id}>
-							{chatOwnerId === member.id ? (
-								createPortal(<Member member={member} />, document.getElementById('host')!)
-							) : (
-								<>
-									{member.isOnline
-										? createPortal(<Member member={member} />, document.getElementById('online')!)
-										: createPortal(<Member member={member} />, document.getElementById('offline')!)}
-								</>
-							)}
-						</div>
-					);
-				})}
 		</div>
 	);
 };
 
-export default memo(MemberList);
+export default MemberList;

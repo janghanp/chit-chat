@@ -1,15 +1,15 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import produce from 'immer';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import MemberList from '../components/MemberList';
 import ChatBody from '../components/ChatBody';
 import Header from '../components/Header';
 import { socket } from '../socket';
-import { fetchChat } from '../api/chat';
 import { createMessage } from '../api/message';
 import useUser from '../hooks/useUser';
+import useChat from '../hooks/useChat';
+import produce from 'immer';
 
 const Chat = () => {
 	const { chatId } = useParams();
@@ -18,27 +18,20 @@ const Chat = () => {
 
 	const { data: currentUser } = useUser();
 
-	const [inputMessage, setInputMessage] = useState<string>('');
-	const [isOpenMemberList, setIsOpenMemberList] = useState<boolean>(false);
-
-	const { isLoading, isError, data } = useQuery({
-		queryKey: ['chat', chatId],
-		queryFn: async () => fetchChat(chatId as string, currentUser!.id),
-		onSuccess: (data) => {
-			if (data.isNewMember) {
-				queryClient.setQueryData(['chatRooms'], (old: any) => {
-					return produce(old, (draftState: any) => {
-						draftState.push({ ...data.chat, messages: data.chat.messages });
-					});
-				});
-			}
-		},
-	});
+	const { isLoading, isError, data, isSuccess } = useChat(chatId as string, currentUser!.id);
 
 	const { mutate } = useMutation({
 		mutationKey: ['createMessage', chatId],
-		mutationFn: () => {
-			return createMessage(chatId!, inputMessage, currentUser!.id);
+		mutationFn: ({
+			chatId,
+			inputMessage,
+			currentUserId,
+		}: {
+			chatId: string;
+			inputMessage: string;
+			currentUserId: string;
+		}) => {
+			return createMessage(chatId, inputMessage, currentUserId);
 		},
 		onSuccess: (data) => {
 			socket.emit('send_message', {
@@ -56,6 +49,9 @@ const Chat = () => {
 		},
 	});
 
+	const [inputMessage, setInputMessage] = useState<string>('');
+	const [isOpenMemberList, setIsOpenMemberList] = useState<boolean>(false);
+
 	useEffect(() => {
 		if (data) {
 			socket.emit('join_chat', {
@@ -72,11 +68,24 @@ const Chat = () => {
 		}
 	}, [data, chatId]);
 
+	useEffect(() => {
+		if (data && isSuccess) {
+			if (data.isNewMember) {
+				queryClient.setQueryData(['chatRooms'], (old: any) => {
+					return produce(old, (draftState: any) => {
+						draftState.push({ ...data.chat, messages: data.chat.messages });
+					});
+				});
+			}
+		}
+	}, [data, isSuccess]);
+
 	const clickHandler = async () => {
 		if (!inputMessage) {
 			return;
 		}
-		mutate();
+
+		mutate({ chatId: chatId as string, inputMessage, currentUserId: currentUser!.id });
 	};
 
 	if (isLoading) {
@@ -85,6 +94,10 @@ const Chat = () => {
 
 	if (isError) {
 		return <div>Error...</div>;
+	}
+
+	if (!data) {
+		return <div>No data...</div>;
 	}
 
 	return (
@@ -109,7 +122,8 @@ const Chat = () => {
 					</button>
 				</div>
 			</div>
-			{/* {isOpenMemberList && <MemberList members={data.chat.users} chatOwnerId={data.chat.ownerId} />} */}
+
+			<MemberList isOpenMemberList={isOpenMemberList} chatId={chatId as string} chatOwnerId={data.chat.ownerId} />
 		</div>
 	);
 };

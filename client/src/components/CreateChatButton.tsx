@@ -94,7 +94,7 @@ const CreateChatButton = ({ currentUserId }: Props) => {
 
 	return (
 		<div className="">
-			<div className='tooltip tooltip-top' data-tip="Create a chat"> 
+			<div className="tooltip tooltip-top" data-tip="Create a chat">
 				<label htmlFor="modal-2" className="btn-ghost btn-sm btn px-1.5">
 					<HiPlus className="text-xl" />
 				</label>

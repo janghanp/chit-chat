@@ -109,11 +109,13 @@ io.on('connect', (socket: Socket) => {
 
 		socket.join(chatId);
 
-		socket.emit('onlineUsers', { userIds: usersWithSockets.map((el) => el.userId) });
-
 		if (isNewMember) {
 			socket.to(chatId).emit('enter_new_member', { newUser: currentUser, chatId });
 		}
+	});
+
+	socket.on('fetch_members', () => {
+		socket.emit('set_members_status', { userIds: usersWithSockets.map((el) => el.userId) });
 	});
 
 	socket.on(
