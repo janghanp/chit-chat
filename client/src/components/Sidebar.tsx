@@ -1,4 +1,4 @@
-import { useState, memo, useEffect, useRef } from 'react';
+import { useState, memo } from 'react';
 import { HiOutlineMenu } from 'react-icons/hi';
 import { useParams } from 'react-router-dom';
 
@@ -6,8 +6,6 @@ import ChatRoomList from './ChatRoomList';
 import UserInfo from './UserInfo';
 import Dropdown from './Dropdown';
 import useUser from '../hooks/useUser';
-import useChatRooms from '../hooks/useChatRooms';
-import { socket } from '../socket';
 import useChat from '../hooks/useChat';
 
 const Sidebar = () => {
@@ -17,27 +15,8 @@ const Sidebar = () => {
 
 	const { data: currentChat } = useChat(chatId as string, currentUser!.id);
 
-	const { isLoading, isError, data: chatRooms } = useChatRooms();
-
 	const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
 	const [isDropDownOpen, setIsDropDownOpen] = useState<boolean>(false);
-
-	const setRef = useRef<boolean>(false);
-
-	useEffect(() => {
-		if (socket.connected && currentUser && chatRooms && !setRef.current) {
-			socket.emit('user_connect', { userId: currentUser.id, chatIds: chatRooms.map((chat) => chat.id) });
-			setRef.current = true;
-		}
-	}, [currentUser, chatRooms]);
-
-	if (isLoading) {
-		return <div>Loading...</div>;
-	}
-
-	if (isError) {
-		return <div>Error...</div>;
-	}
 
 	return (
 		<>
@@ -65,7 +44,7 @@ const Sidebar = () => {
 							</div>
 						)}
 						<div className="flex h-full flex-col justify-between">
-							<ChatRoomList chatRooms={chatRooms} setIsSidebarOpen={setIsSidebarOpen} />
+							<ChatRoomList setIsSidebarOpen={setIsSidebarOpen} />
 							<div>
 								<UserInfo currentUser={currentUser!} />
 							</div>

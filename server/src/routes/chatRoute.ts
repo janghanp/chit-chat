@@ -293,19 +293,6 @@ router.patch('/leave', async (req: Request, res: Response) => {
 			},
 		});
 
-		await prisma.user.update({
-			where: {
-				id: userId,
-			},
-			data: {
-				chats: {
-					disconnect: {
-						id: chatId,
-					},
-				},
-			},
-		});
-
 		return res.sendStatus(200);
 	} catch (error) {
 		console.log(error);

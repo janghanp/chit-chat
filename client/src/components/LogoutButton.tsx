@@ -1,6 +1,5 @@
 import { createPortal } from 'react-dom';
 import { HiOutlineLogout } from 'react-icons/hi';
-import { useNavigate } from 'react-router-dom';
 import axios, { AxiosError } from 'axios';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
@@ -8,8 +7,6 @@ import { socket } from '../socket';
 import { logOutUser } from '../api/user';
 
 const LogoutButton = () => {
-	const navigate = useNavigate();
-
 	const queryClient = useQueryClient();
 
 	const { mutate } = useMutation({
@@ -20,7 +17,7 @@ const LogoutButton = () => {
 			queryClient.removeQueries({ queryKey: ['chat'] });
 			queryClient.removeQueries({ queryKey: ['messages'] });
 
-			navigate('/login');
+			window.location.href = '/';
 		},
 		onError(error: AxiosError | Error) {
 			if (axios.isAxiosError(error)) {

@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Dispatch, SetStateAction } from 'react';
-import { HiOutlineChevronDown, HiOutlineX } from 'react-icons/hi';
+import { HiOutlineChevronDown, HiOutlineX, HiOutlineTrash, HiOutlineArrowCircleRight } from 'react-icons/hi';
+import { HiOutlineWrenchScrewdriver } from 'react-icons/hi2';
 
 import { deleteChatt, updateChat } from '../api/chat';
 import { socket } from '../socket';
@@ -30,6 +31,10 @@ const Dropdown = ({ isDropDownOpen, setIsDropDownOpen, isOwner, chatId }: Props)
 			queryClient.setQueryData(['chatRooms'], (old: any) => {
 				return old.filter((el: any) => el.id !== chatId);
 			});
+
+			queryClient.removeQueries({ queryKey: ['chat', chatId], exact: true });
+			queryClient.removeQueries({ queryKey: ['members', chatId], exact: true });
+			queryClient.removeQueries({ queryKey: ['messages', chatId], exact: true });
 
 			socket.emit('leave_chat', { chatId, userId: currentUser?.id });
 
@@ -86,9 +91,27 @@ const Dropdown = ({ isDropDownOpen, setIsDropDownOpen, isOwner, chatId }: Props)
 			{/* overlay */}
 			{isDropDownOpen && (
 				<>
-					<ul className="menu rounded-box absolute right-0 z-30 w-52 border bg-base-100 p-2 shadow-md">
+					<ul className="menu rounded-box menu-compact absolute right-0 z-30 w-52 border bg-base-100 p-2 shadow-md">
+						{isOwner && (
+							<li>
+								<div className='flex justify-between items-center'>
+									<span>Settings</span>
+									<HiOutlineWrenchScrewdriver />
+								</div>
+							</li>
+						)}
 						<li onClick={isOwner ? deleteChat : leaveChat}>
-							<span className="text-error">{isOwner ? 'Delete Chat' : 'Leave Chat'}</span>
+							{isOwner ? (
+								<div className="flex items-center justify-between text-error">
+									<span>Delete Chat</span>
+									<HiOutlineTrash />
+								</div>
+							) : (
+								<div className="flex items-center justify-between text-error">
+									<span>Leave Chat</span>
+									<HiOutlineArrowCircleRight />
+								</div>
+							)}
 						</li>
 					</ul>
 				</>

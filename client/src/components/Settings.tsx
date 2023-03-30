@@ -6,7 +6,7 @@ import toast, { Toaster } from 'react-hot-toast';
 
 import { AuthErrorResponse, AxiosResponseWithUsername, User } from '../types';
 import defaultImageUrl from '/default.jpg';
-import { useCurrentUserStore } from '../store';
+import useUser from '../hooks/useUser';
 
 interface FormData {
 	email: string;
@@ -19,9 +19,8 @@ interface Props {
 	closeSettings: () => void;
 }
 
-//TODO: react-query
 const Settings = ({ closeSettings }: Props) => {
-	const { currentUser, setCurrentUser } = useCurrentUserStore();
+	const { data: currentUser } = useUser();
 
 	const [preview, setPreview] = useState<string>(currentUser!.avatar || '');
 	const [imageError, setImageError] = useState<string>();
@@ -97,11 +96,11 @@ const Settings = ({ closeSettings }: Props) => {
 		}
 
 		try {
-			const { data } = await axios.patch<AxiosResponseWithUsername>('http://localhost:8080/user', dataToUpdate, {
+			await axios.patch<AxiosResponseWithUsername>('http://localhost:8080/user', dataToUpdate, {
 				withCredentials: true,
 			});
 
-			setCurrentUser({ ...currentUser!, username: data.username });
+			window.location.href = '/';
 
 			closeSettings();
 		} catch (error) {
@@ -124,11 +123,11 @@ const Settings = ({ closeSettings }: Props) => {
 		formData.append('file', image!);
 		formData.append('public_id', currentUser!.public_id || '');
 
-		const { data } = await axios.post<User>('http://localhost:8080/user/avatar', formData, {
+		await axios.post<User>('http://localhost:8080/user/avatar', formData, {
 			withCredentials: true,
 		});
 
-		setCurrentUser(data);
+		window.location.href = '/';
 		setIsUploading(false);
 	};
 

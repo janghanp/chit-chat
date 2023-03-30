@@ -1,14 +1,36 @@
-import { Dispatch, SetStateAction } from 'react';
+import { Dispatch, SetStateAction, useEffect, useRef } from 'react';
+import useChatRooms from '../hooks/useChatRooms';
+import useUser from '../hooks/useUser';
+import { socket } from '../socket';
 
-import { Chat } from '../types';
 import ChatRoom from './ChatRoom';
 
 interface Props {
-	chatRooms: Chat[] | undefined;
 	setIsSidebarOpen: Dispatch<SetStateAction<boolean>>;
 }
 
-const ChatRoomList = ({ chatRooms, setIsSidebarOpen }: Props) => {
+const ChatRoomList = ({ setIsSidebarOpen }: Props) => {
+	const { isLoading, isError, data: chatRooms } = useChatRooms();
+
+	const { data: currentUser } = useUser();
+
+	const setRef = useRef<boolean>(false);
+
+	useEffect(() => {
+		if (socket.connected && chatRooms && !setRef.current && currentUser) {
+			socket.emit('user_connect', { userId: currentUser.id, chatIds: chatRooms.map((chat) => chat.id) });
+			setRef.current = true;
+		}
+	}, [chatRooms, currentUser]);
+
+	if (isLoading) {
+		return <div>Loading...</div>;
+	}
+
+	if (isError) {
+		return <div>Error...</div>;
+	}
+
 	return (
 		<table className="table w-full">
 			<tbody>

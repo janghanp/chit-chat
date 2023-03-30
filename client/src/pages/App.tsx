@@ -20,6 +20,8 @@ function App() {
 
 	useEffect(() => {
 		const onOnline = (data: { userId: string }) => {
+			console.log('someon is online');
+
 			const { userId } = data;
 
 			const state = queryClient.getQueriesData(['members']);

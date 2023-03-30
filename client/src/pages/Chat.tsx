@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import produce from 'immer';
 
 import MemberList from '../components/MemberList';
 import ChatBody from '../components/ChatBody';
@@ -9,7 +10,6 @@ import { socket } from '../socket';
 import { createMessage } from '../api/message';
 import useUser from '../hooks/useUser';
 import useChat from '../hooks/useChat';
-import produce from 'immer';
 
 const Chat = () => {
 	const { chatId } = useParams();
@@ -50,7 +50,7 @@ const Chat = () => {
 	});
 
 	const [inputMessage, setInputMessage] = useState<string>('');
-	const [isOpenMemberList, setIsOpenMemberList] = useState<boolean>(false);
+	const [isOpenMemberList, setIsOpenMemberList] = useState<boolean>(true);
 
 	useEffect(() => {
 		if (data) {
@@ -104,7 +104,7 @@ const Chat = () => {
 		<div className={`fixed left-0 sm:left-80 ${isOpenMemberList ? 'right-56' : 'right-0'}  top-10 bottom-0`}>
 			<Header
 				chatId={data.chat.id}
-				isOwner={currentUser!.id === data.chat.id}
+				isOwner={currentUser!.id === data.chat.ownerId}
 				currentChatName={data.chat.name}
 				setIsOpenMemberList={setIsOpenMemberList}
 			/>

@@ -22,18 +22,19 @@ const SearchInChat = () => {
 
 	useEffect(() => {
 		if (query) {
-			const { data } = queryClient.getQueryState(['chat', chatId]);
+			const messagesData = queryClient.getQueryData(['messages', chatId]);
+			const membersData = queryClient.getQueryData(['members', chatId]);
 
-			const members = data.chat.users.filter((member) => {
+			const members = membersData.filter((member) => {
 				return member.username.includes(query);
 			});
 
-			const messages = data.chat.messages.filter((message) => {
-				return message.text.includes(query);
+			const messages = messagesData.pages.map((page) => {
+				return page.filter((message) => message.text.includes(query));
 			});
 
 			setFilteredMembers(members);
-			setFilteredMessages(messages);
+			setFilteredMessages(messages.flat().reverse());
 		}
 	}, [query]);
 

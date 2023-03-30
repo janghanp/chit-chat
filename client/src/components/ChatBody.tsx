@@ -85,4 +85,4 @@ const ChatBody = () => {
 	);
 };
 
-export default memo(ChatBody);
+export default ChatBody;
