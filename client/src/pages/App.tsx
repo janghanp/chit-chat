@@ -20,8 +20,6 @@ function App() {
 
 	useEffect(() => {
 		const onOnline = (data: { userId: string }) => {
-			console.log('someon is online');
-
 			const { userId } = data;
 
 			const state = queryClient.getQueriesData(['members']);
@@ -137,38 +135,36 @@ function App() {
 		};
 
 		const onEnterNewMember = (data: { newUser: User; chatId: string }) => {
+			// console.log('someone in some chat');
+
 			const { newUser, chatId } = data;
 
 			newUser.isOnline = true;
 
-			const currentChatId = window.location.href.split('/').pop();
+			queryClient.setQueryData(['members', chatId], (old: any) => {
+				if (old) {
+					return produce(old, (draftState: any) => {
+						console.log('Add a member');
 
-			if (currentChatId === chatId) {
-				queryClient.setQueryData(['members', chatId], (old: any) => {
-					if (old) {
-						return produce(old, (draftState: any) => {
-							draftState.push(newUser);
-						});
-					}
-				});
-			}
+						draftState.push(newUser);
+					});
+				}
+			});
 		};
 
 		const onLeaveMember = (data: { userId: string; chatId: string }) => {
+			// console.log('someone left the  some chat');
+
 			const { userId, chatId } = data;
 
-			const currentChatId = window.location.href.split('/').pop();
-
-			if (currentChatId === chatId) {
-				queryClient.setQueryData(['members', chatId], (old: any) => {
-					if (old) {
-						return produce(old, (draftState: any) => {
-							const targetIndex = draftState.findIndex((member: any) => member.id === userId);
-							draftState.splice(targetIndex, 1);
-						});
-					}
-				});
-			}
+			queryClient.setQueryData(['members', chatId], (old: any) => {
+				if (old) {
+					return produce(old, (draftState: any) => {
+						const targetIndex = draftState.findIndex((member: any) => member.id === userId);
+						draftState.splice(targetIndex, 1);
+					});
+				}
+			});
 		};
 
 		socket.on('online', onOnline);

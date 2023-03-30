@@ -232,7 +232,7 @@ router.post('/', uploader.single('file'), async (req: Request, res: Response) =>
 			},
 		});
 
-		return res.status(200).json({ chat: newChat });
+		return res.status(200).json(newChat);
 	} catch (error) {
 		console.log(error);
 

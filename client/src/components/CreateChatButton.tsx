@@ -29,13 +29,13 @@ const CreateChatButton = ({ currentUserId }: Props) => {
 			return createChat(formData);
 		},
 		onSuccess: (data) => {
-			queryClient.setQueryData(['chatRooms', currentUserId], (old: any) => {
-				return { ...old, chats: [...old.chats, data.chat] };
+			queryClient.setQueryData(['chatRooms'], (old: any) => {
+				return [...old, data];
 			});
 
 			document.getElementById('modal-2')!.click();
 
-			navigate(`/chat/${data.chat.id}`);
+			navigate(`/chat/${data.id}`);
 		},
 		onError: (error: any) => {
 			setError(error.response.data.message);
@@ -99,7 +99,6 @@ const CreateChatButton = ({ currentUserId }: Props) => {
 					<HiPlus className="text-xl" />
 				</label>
 			</div>
-
 			{createPortal(
 				<div>
 					<input type="checkbox" id="modal-2" className="modal-toggle" onChange={clearStates} />

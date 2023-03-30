@@ -80,7 +80,7 @@ const Dropdown = ({ isDropDownOpen, setIsDropDownOpen, isOwner, chatId }: Props)
 
 	return (
 		<div className="absolute right-5">
-			<label className="swap-rotate swap z-30">
+			<label className="swap swap-rotate z-30">
 				<input type="checkbox" />
 				<HiOutlineChevronDown className="swap-off z-20 h-5 w-5" onClick={() => setIsDropDownOpen((prev) => !prev)} />
 				<HiOutlineX className="swap-on z-20 h-5 w-5" onClick={() => setIsDropDownOpen((prev) => !prev)} />
@@ -88,13 +88,12 @@ const Dropdown = ({ isDropDownOpen, setIsDropDownOpen, isOwner, chatId }: Props)
 					<div className="fixed inset-0 z-10 cursor-default" onClick={() => setIsDropDownOpen((prev) => !prev)}></div>
 				)}
 			</label>
-			{/* overlay */}
 			{isDropDownOpen && (
 				<>
 					<ul className="menu rounded-box menu-compact absolute right-0 z-30 w-52 border bg-base-100 p-2 shadow-md">
 						{isOwner && (
 							<li>
-								<div className='flex justify-between items-center'>
+								<div className="flex items-center justify-between">
 									<span>Settings</span>
 									<HiOutlineWrenchScrewdriver />
 								</div>
