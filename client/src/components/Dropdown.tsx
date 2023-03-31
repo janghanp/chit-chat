@@ -1,12 +1,13 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { Dispatch, SetStateAction } from 'react';
+import { Dispatch, SetStateAction, useState } from 'react';
 import { HiOutlineChevronDown, HiOutlineX, HiOutlineTrash, HiOutlineArrowCircleRight } from 'react-icons/hi';
 import { HiOutlineWrenchScrewdriver } from 'react-icons/hi2';
 
-import { deleteChatt, updateChat } from '../api/chat';
+import { deleteChat, leaveChat } from '../api/chat';
 import { socket } from '../socket';
 import { useNavigate } from 'react-router';
 import useUser from '../hooks/useUser';
+import ChatSettings from './ChatSettings';
 
 interface Props {
 	isDropDownOpen: boolean;
@@ -25,7 +26,7 @@ const Dropdown = ({ isDropDownOpen, setIsDropDownOpen, isOwner, chatId }: Props)
 	const { mutate: updateMutate } = useMutation({
 		mutationKey: ['leaveChat', chatId],
 		mutationFn: () => {
-			return updateChat(chatId!, currentUser!.id);
+			return leaveChat(chatId!, currentUser!.id);
 		},
 		onSuccess: () => {
 			queryClient.setQueryData(['chatRooms'], (old: any) => {
@@ -46,7 +47,7 @@ const Dropdown = ({ isDropDownOpen, setIsDropDownOpen, isOwner, chatId }: Props)
 	const { mutate: deleteMutate } = useMutation({
 		mutationKey: ['deleteChat', chatId],
 		mutationFn: () => {
-			return deleteChatt(chatId!);
+			return deleteChat(chatId!);
 		},
 		onSuccess: () => {
 			queryClient.setQueriesData(['chatRooms', currentUser!.id], (old: any) => {
@@ -62,7 +63,9 @@ const Dropdown = ({ isDropDownOpen, setIsDropDownOpen, isOwner, chatId }: Props)
 		onError() {},
 	});
 
-	const leaveChat = async () => {
+	const [isOpen, setIsOpen] = useState<boolean>(false);
+
+	const leaveChatHandler = async () => {
 		const result = window.confirm('Are you sure you want to leave the chat?');
 
 		if (result) {
@@ -70,7 +73,7 @@ const Dropdown = ({ isDropDownOpen, setIsDropDownOpen, isOwner, chatId }: Props)
 		}
 	};
 
-	const deleteChat = async () => {
+	const deleteChatHandler = async () => {
 		const result = window.confirm('Are you sure you want to delete the chat?');
 
 		if (result) {
@@ -78,28 +81,30 @@ const Dropdown = ({ isDropDownOpen, setIsDropDownOpen, isOwner, chatId }: Props)
 		}
 	};
 
+	console.log('dropdown.tsx');
+
 	return (
-		<div className="absolute right-5">
-			<label className="swap swap-rotate z-30">
-				<input type="checkbox" />
-				<HiOutlineChevronDown className="swap-off z-20 h-5 w-5" onClick={() => setIsDropDownOpen((prev) => !prev)} />
-				<HiOutlineX className="swap-on z-20 h-5 w-5" onClick={() => setIsDropDownOpen((prev) => !prev)} />
+		<>
+			<div className="absolute right-5">
+				<label className="swap-rotate swap z-30">
+					<input type="checkbox" />
+					<HiOutlineChevronDown className="swap-off z-20 h-5 w-5" onClick={() => setIsDropDownOpen((prev) => !prev)} />
+					<HiOutlineX className="swap-on z-20 h-5 w-5" onClick={() => setIsDropDownOpen((prev) => !prev)} />
+					{isDropDownOpen && (
+						<div className="fixed inset-0 z-10 cursor-default" onClick={() => setIsDropDownOpen((prev) => !prev)}></div>
+					)}
+				</label>
 				{isDropDownOpen && (
-					<div className="fixed inset-0 z-10 cursor-default" onClick={() => setIsDropDownOpen((prev) => !prev)}></div>
-				)}
-			</label>
-			{isDropDownOpen && (
-				<>
 					<ul className="menu rounded-box menu-compact absolute right-0 z-30 w-52 border bg-base-100 p-2 shadow-md">
 						{isOwner && (
-							<li>
-								<div className="flex items-center justify-between">
+							<li onClick={() => setIsOpen(true)}>
+								<label htmlFor="modal-3" className="flex w-full items-center justify-between">
 									<span>Settings</span>
 									<HiOutlineWrenchScrewdriver />
-								</div>
+								</label>
 							</li>
 						)}
-						<li onClick={isOwner ? deleteChat : leaveChat}>
+						<li onClick={isOwner ? deleteChatHandler : leaveChatHandler}>
 							{isOwner ? (
 								<div className="flex items-center justify-between text-error">
 									<span>Delete Chat</span>
@@ -113,9 +118,10 @@ const Dropdown = ({ isDropDownOpen, setIsDropDownOpen, isOwner, chatId }: Props)
 							)}
 						</li>
 					</ul>
-				</>
-			)}
-		</div>
+				)}
+			</div>
+			{isOwner && isOpen && <ChatSettings chatId={chatId} currentUserId={currentUser!.id} />}
+		</>
 	);
 };
 

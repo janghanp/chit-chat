@@ -122,7 +122,6 @@ const Chat = () => {
 					</button>
 				</div>
 			</div>
-
 			<MemberList isOpenMemberList={isOpenMemberList} chatId={chatId as string} chatOwnerId={data.chat.ownerId} />
 		</div>
 	);

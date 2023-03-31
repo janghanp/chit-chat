@@ -159,7 +159,7 @@ const Settings = ({ closeSettings }: Props) => {
 	};
 
 	return (
-		<div className="fixed inset-0 z-40 flex h-screen items-center justify-center bg-base-300">
+		<div className="fixed inset-0 z-40 flex h-screen items-center justify-center bg-gray-500/50">
 			<div className="m-5 w-full max-w-xl rounded-md bg-base-100 p-5 shadow-md">
 				<div className="flex flex-row items-center justify-between">
 					<div className="text-base-con mb-5 text-3xl font-bold">User Settings</div>

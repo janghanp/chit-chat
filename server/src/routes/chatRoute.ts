@@ -342,11 +342,15 @@ router.delete('/:chatId', async (req: Request, res: Response) => {
 	const { chatId } = req.params;
 
 	try {
-		await prisma.chat.delete({
+		const chat = await prisma.chat.delete({
 			where: {
 				id: chatId,
 			},
 		});
+
+		if (chat && chat.public_id) {
+			await cloudinary.v2.uploader.destroy(chat.public_id);
+		}
 
 		return res.sendStatus(200);
 	} catch (error) {
@@ -422,6 +426,80 @@ router.get('/members', async (req: Request, res: Response) => {
 		});
 
 		return res.status(200).json(chat?.users);
+	} catch (error) {
+		console.log(error);
+
+		return res.sendStatus(500);
+	}
+});
+
+router.patch('/', uploader.single('file'), async (req: Request, res: Response) => {
+	const { roomName, chatId }: { roomName: string; chatId: string } = req.body;
+	console.log(roomName, chatId);
+
+	try {
+		const chat = await prisma.chat.findFirst({
+			where: {
+				AND: [
+					{
+						name: roomName,
+					},
+					{
+						NOT: {
+							id: chatId,
+						},
+					},
+				],
+			},
+		});
+
+		console.log(chat);
+
+		if (chat) {
+			return res.status(400).json({ message: 'The chatroom is being used by someone' });
+		}
+
+		const currentChat = await prisma.chat.findUnique({
+			where: {
+				id: chatId,
+			},
+		});
+
+		if (currentChat) {
+			// Delete the existing image from cloudinary.
+			if (currentChat.public_id) {
+				await cloudinary.v2.uploader.destroy(currentChat.public_id);
+			}
+
+			if (req.file) {
+				// Upload a new image.
+				const upload = await cloudinary.v2.uploader.upload(req.file.path, { folder: '/chit-chat/icon' });
+
+				await prisma.chat.update({
+					where: {
+						id: chatId,
+					},
+					data: {
+						name: roomName,
+						icon: upload.secure_url,
+						public_id: upload.public_id,
+					},
+				});
+			} else {
+				await prisma.chat.update({
+					where: {
+						id: chatId,
+					},
+					data: {
+						name: roomName,
+						public_id: null,
+						icon: null,
+					},
+				});
+			}
+		}
+
+		return res.sendStatus(200);
 	} catch (error) {
 		console.log(error);
 
