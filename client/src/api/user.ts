@@ -7,7 +7,7 @@ export const isUser = (item: any): item is User => {
 };
 
 export const fetchUser = async (): Promise<User | null> => {
-	const { data } = await axios.get<User | { status: 'ok' }>('http://localhost:8080/auth/refresh', {
+	const { data } = await axios.get<User | { status: 'ok' }>('/auth/refresh', {
 		withCredentials: true,
 	});
 
@@ -20,7 +20,7 @@ export const fetchUser = async (): Promise<User | null> => {
 
 export const logInUser = async (email: string, password: string): Promise<User> => {
 	const { data } = await axios.post<User>(
-		'http://localhost:8080/auth/login',
+		'/auth/login',
 		{
 			email,
 			password,
@@ -33,7 +33,7 @@ export const logInUser = async (email: string, password: string): Promise<User> 
 
 export const registerUser = async (email: string, password: string, username: string): Promise<User> => {
 	const { data } = await axios.post<User>(
-		'http://localhost:8080/auth/register',
+		'/auth/register',
 		{
 			email,
 			password,
@@ -46,7 +46,7 @@ export const registerUser = async (email: string, password: string, username: st
 };
 
 export const logOutUser = async () => {
-	await axios.delete('http://localhost:8080/auth/logout', {
+	await axios.delete('/auth/logout', {
 		withCredentials: true,
 	});
 };

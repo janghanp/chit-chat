@@ -27,8 +27,6 @@ const ChatRoom = ({ chatRoom, setIsSidebarOpen }: Props) => {
 
 	const messageRef = useRef<string>(hasMessage ? chatRoom.messages![0].text : '');
 
-	console.log(hasMessage);
-
 	useEffect(() => {
 		if (hasMessage) {
 			if (messageRef.current !== chatRoom.messages![0].text) {

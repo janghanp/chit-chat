@@ -41,7 +41,7 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
 	cors: {
-		origin: ['http://localhost:5173', 'https://admin.socket.io'],
+		origin: ['http://localhost:5173', 'https://admin.socket.io', 'http://192.168.20.14:5173/'],
 		methods: ['GET', 'POST'],
 		credentials: true,
 	},
@@ -54,6 +54,7 @@ instrument(io, {
 
 app.use(morgan('dev'));
 app.use(cors({ origin: 'http://localhost:5173', credentials: true }));
+// app.use(cors({ origin: 'http://192.168.20.14:5173/', credentials: true }));
 app.use(express.json());
 app.use(cookieParser());
 
@@ -209,6 +210,7 @@ io.on('connect', (socket: Socket) => {
 });
 
 const port = process.env.PORT || 8080;
+// const hostname = '119.18.1.139';
 
 server.listen(port, () => {
 	console.log(`Listening on port ${port}`);

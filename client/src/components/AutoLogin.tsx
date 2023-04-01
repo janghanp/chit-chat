@@ -3,7 +3,7 @@ import { Outlet } from 'react-router-dom';
 import useUser from '../hooks/useUser';
 
 const AutoLogin = () => {
-	const { isLoading, isError, data } = useUser();
+	const { isLoading, isError } = useUser();
 
 	if (isLoading) {
 		return <div>Loading...</div>;

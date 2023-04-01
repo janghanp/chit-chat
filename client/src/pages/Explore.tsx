@@ -26,7 +26,7 @@ const Explorer = () => {
 		if (debouncedValue.text) {
 			const fetchChatsByQuery = async () => {
 				try {
-					const { data } = await axios.get('http://localhost:8080/chat/search', {
+					const { data } = await axios.get('/chat/search', {
 						withCredentials: true,
 						params: {
 							query: debouncedValue.text,
@@ -47,7 +47,7 @@ const Explorer = () => {
 
 	const joinRoomHandler = async (roomName: string) => {
 		try {
-			const { data } = await axios.get('http://localhost:8080/chat/name', {
+			const { data } = await axios.get('/chat/name', {
 				params: { chatName: roomName },
 				withCredentials: true,
 			});
@@ -86,7 +86,7 @@ const Explorer = () => {
 				<ul className="menu mt-3 w-full max-w-lg rounded-lg border bg-base-100 p-2 shadow-md">
 					{filteredChats?.map((chat) => {
 						return (
-							<li key={chat.id} onClick={() => joinRoomHandler(chat.name)}>
+							<li key={chat.id} onClick={() => joinRoomHandler(chat.name!)}>
 								<div className="flex flex-row items-center justify-between">
 									<span>{chat.name}</span>
 									<div className="avatar-group -space-x-3">

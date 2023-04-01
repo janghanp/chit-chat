@@ -8,7 +8,7 @@ interface ChatWithIsNewMember {
 }
 
 export const fetchChat = async (chatId: string, userId: string): Promise<ChatWithIsNewMember> => {
-	const { data } = await axios.get<ChatWithIsNewMember>('http://localhost:8080/chat', {
+	const { data } = await axios.get<ChatWithIsNewMember>('/chat', {
 		params: {
 			chatId,
 			userId,
@@ -20,7 +20,7 @@ export const fetchChat = async (chatId: string, userId: string): Promise<ChatWit
 };
 
 export const fetchChatRooms = async (userId: string): Promise<Chat[]> => {
-	const { data } = await axios.get<Chat[]>('http://localhost:8080/chat/rooms', {
+	const { data } = await axios.get<Chat[]>('/chat/rooms', {
 		params: {
 			userId,
 		},
@@ -31,7 +31,7 @@ export const fetchChatRooms = async (userId: string): Promise<Chat[]> => {
 };
 
 export const fetchMessages = async (chatId: string, lastMessageId: string | undefined): Promise<Message[]> => {
-	const { data } = await axios.get<Message[]>('http://localhost:8080/chat/messages', {
+	const { data } = await axios.get<Message[]>('/chat/messages', {
 		params: {
 			chatId,
 			lastMessageId,
@@ -43,29 +43,25 @@ export const fetchMessages = async (chatId: string, lastMessageId: string | unde
 };
 
 export const createChat = async (formData: FormData): Promise<Chat> => {
-	const { data } = await axios.post<Chat>('http://localhost:8080/chat', formData, { withCredentials: true });
+	const { data } = await axios.post<Chat>('/chat', formData, { withCredentials: true });
 
 	return data;
 };
 
 export const leaveChat = async (chatId: string, userId: string): Promise<Chat> => {
-	const { data } = await axios.patch<Chat>(
-		'http://localhost:8080/chat/leave',
-		{ chatId, userId },
-		{ withCredentials: true }
-	);
+	const { data } = await axios.patch<Chat>('/chat/leave', { chatId, userId }, { withCredentials: true });
 
 	return data;
 };
 
 export const deleteChat = async (chatId: string): Promise<number> => {
-	const { data } = await axios.delete<number>(`http://localhost:8080/chat/${chatId}`, { withCredentials: true });
+	const { data } = await axios.delete<number>(`/chat/${chatId}`, { withCredentials: true });
 
 	return data;
 };
 
 export const fetchMembers = async (chatId: string): Promise<User[]> => {
-	const { data } = await axios.get<User[]>('http://localhost:8080/chat/members', {
+	const { data } = await axios.get<User[]>('/chat/members', {
 		params: {
 			chatId,
 		},
@@ -76,7 +72,7 @@ export const fetchMembers = async (chatId: string): Promise<User[]> => {
 };
 
 export const updateChat = async (formData: FormData): Promise<Chat> => {
-	const { data } = await axios.patch<Chat>('http://localhost:8080/chat', formData, { withCredentials: true });
+	const { data } = await axios.patch<Chat>('/chat', formData, { withCredentials: true });
 
 	return data;
 };
