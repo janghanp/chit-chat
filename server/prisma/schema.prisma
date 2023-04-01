@@ -38,14 +38,14 @@ model Message {
 
 model Chat {
   id        String   @id @unique @default(cuid())
-  name      String   @unique
+  name      String?
   icon      String?
   public_id String?
-  ownerId   String
+  ownerId   String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   users    User[]
-  messages Message[] 
-  owner    User      @relation("OwnedChats", fields: [ownerId], references: [id])
+  messages Message[]
+  owner    User?     @relation("OwnedChats", fields: [ownerId], references: [id])
 }

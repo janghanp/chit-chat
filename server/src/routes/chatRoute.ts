@@ -162,7 +162,7 @@ router.get('/name', async (req: Request, res: Response) => {
 
 	try {
 		// Check the presence of a chat room.
-		const chat = await prisma.chat.findUnique({
+		const chat = await prisma.chat.findFirst({
 			where: {
 				name: chatName as string,
 			},
@@ -185,7 +185,7 @@ router.post('/', uploader.single('file'), async (req: Request, res: Response) =>
 
 	try {
 		// Check if a chat room to create already exists.
-		const chat = await prisma.chat.findUnique({
+		const chat = await prisma.chat.findFirst({
 			where: {
 				name: roomName,
 			},

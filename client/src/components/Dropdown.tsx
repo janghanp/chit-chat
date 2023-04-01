@@ -81,8 +81,6 @@ const Dropdown = ({ isDropDownOpen, setIsDropDownOpen, isOwner, chatId }: Props)
 		}
 	};
 
-	console.log('dropdown.tsx');
-
 	return (
 		<>
 			<div className="absolute right-5">
@@ -97,11 +95,16 @@ const Dropdown = ({ isDropDownOpen, setIsDropDownOpen, isOwner, chatId }: Props)
 				{isDropDownOpen && (
 					<ul className="menu rounded-box menu-compact absolute right-0 z-30 w-52 border bg-base-100 p-2 shadow-md">
 						{isOwner && (
-							<li onClick={() => setIsOpen(true)}>
-								<label htmlFor="modal-3" className="flex w-full items-center justify-between">
+							<li
+								onClick={() => {
+									setIsDropDownOpen(false);
+									setIsOpen(true);
+								}}
+							>
+								<div className="flex w-full items-center justify-between">
 									<span>Settings</span>
 									<HiOutlineWrenchScrewdriver />
-								</label>
+								</div>
 							</li>
 						)}
 						<li onClick={isOwner ? deleteChatHandler : leaveChatHandler}>
@@ -120,7 +123,7 @@ const Dropdown = ({ isDropDownOpen, setIsDropDownOpen, isOwner, chatId }: Props)
 					</ul>
 				)}
 			</div>
-			{isOwner && isOpen && <ChatSettings chatId={chatId} currentUserId={currentUser!.id} />}
+			{isOwner && isOpen && <ChatSettings chatId={chatId} currentUserId={currentUser!.id} setIsOpen={setIsOpen} />}
 		</>
 	);
 };

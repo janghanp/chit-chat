@@ -1,4 +1,4 @@
-import { Fragment, memo, useEffect } from 'react';
+import { Fragment, useEffect } from 'react';
 import { format } from 'date-fns';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { useParams } from 'react-router';

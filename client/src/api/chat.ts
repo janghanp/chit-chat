@@ -80,3 +80,9 @@ export const updateChat = async (formData: FormData): Promise<Chat> => {
 
 	return data;
 };
+
+export const createPrivateChat = async (): Promise<Chat> => {
+	const { data } = await axios.post<Chat>('http://localhost:8080/chat', { withCredentials: true });
+
+	return data;
+};
