@@ -181,18 +181,24 @@ router.get('/name', async (req: Request, res: Response) => {
 });
 
 router.post('/', uploader.single('file'), async (req: Request, res: Response) => {
-	const { roomName, ownerId }: { roomName: string; ownerId: string } = req.body;
+	const {
+		roomName,
+		ownerId,
+		receiverId,
+	}: { roomName: string | undefined; ownerId: string | undefined; receiverId: string | undefined } = req.body;
 
 	try {
 		// Check if a chat room to create already exists.
-		const chat = await prisma.chat.findFirst({
-			where: {
-				name: roomName,
-			},
-		});
+		if (roomName && ownerId) {
+			const chat = await prisma.chat.findFirst({
+				where: {
+					name: roomName,
+				},
+			});
 
-		if (chat) {
-			return res.status(400).json({ message: 'The chatroom name already exists.' });
+			if (chat) {
+				return res.status(400).json({ message: 'The chatroom name already exists.' });
+			}
 		}
 
 		let newChat: any;
@@ -221,7 +227,7 @@ router.post('/', uploader.single('file'), async (req: Request, res: Response) =>
 
 		await prisma.user.update({
 			where: {
-				id: ownerId,
+				id: req.token.id,
 			},
 			data: {
 				chats: {
@@ -231,6 +237,21 @@ router.post('/', uploader.single('file'), async (req: Request, res: Response) =>
 				},
 			},
 		});
+
+		if (receiverId) {
+			await prisma.user.update({
+				where: {
+					id: receiverId,
+				},
+				data: {
+					chats: {
+						connect: {
+							id: newChat.id,
+						},
+					},
+				},
+			});
+		}
 
 		return res.status(200).json(newChat);
 	} catch (error) {

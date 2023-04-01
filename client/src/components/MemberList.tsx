@@ -1,22 +1,18 @@
-import { useQuery } from '@tanstack/react-query';
 import { Fragment, useEffect } from 'react';
 
-import { fetchMembers } from '../api/chat';
 import { socket } from '../socket';
 import { User } from '../types';
 import Member from './Member';
+import useMembers from '../hooks/useMembers';
 
 interface Props {
-	chatOwnerId: string;
+	chatOwnerId: string | undefined;
 	chatId: string;
 	isOpenMemberList: boolean;
 }
 
 const MemberList = ({ chatOwnerId, chatId, isOpenMemberList }: Props) => {
-	const { isLoading, isError, data } = useQuery({
-		queryKey: ['members', chatId],
-		queryFn: async () => fetchMembers(chatId as string),
-	});
+	const { isLoading, isError, data } = useMembers(chatId);
 
 	useEffect(() => {
 		if (data) {
@@ -36,10 +32,14 @@ const MemberList = ({ chatOwnerId, chatId, isOpenMemberList }: Props) => {
 		return <div>Error...</div>;
 	}
 
-	const deepCopyData = data.map((el) => ({ ...el }));
+	const deepCopyData = data!.map((el) => ({ ...el }));
 
-	const hostIndex = deepCopyData.findIndex((memebr) => memebr.id === chatOwnerId);
-	const host = deepCopyData.splice(hostIndex, 1)[0];
+	let host: User | undefined;
+
+	if (chatOwnerId) {
+		const hostIndex = deepCopyData.findIndex((memebr) => memebr.id === chatOwnerId);
+		host = deepCopyData.splice(hostIndex, 1)[0];
+	}
 
 	const onlineMembers: User[] = [];
 	const offlineMembers: User[] = [];
@@ -56,13 +56,15 @@ const MemberList = ({ chatOwnerId, chatId, isOpenMemberList }: Props) => {
 
 	return (
 		<div className="fixed right-0 top-0 z-20 flex h-full w-full flex-col gap-y-4 border-l bg-base-100 p-5 pt-16 shadow-md sm:w-56">
-			<div>
-				<div className="mb-5 text-xs font-extrabold">HOST</div>
-				<div id="host" className="flex flex-col gap-y-3">
-					<Member member={host} />
+			{host && (
+				<div>
+					<div className="mb-5 text-xs font-extrabold">HOST</div>
+					<div id="host" className="flex flex-col gap-y-3">
+						<Member member={host} />
+					</div>
+					<div className="divider my-1"></div>
 				</div>
-				<div className="divider my-1"></div>
-			</div>
+			)}
 			<div>
 				<div className="mb-5 text-xs font-extrabold">ONLINE</div>
 				<div id="online" className="flex flex-col gap-y-3">

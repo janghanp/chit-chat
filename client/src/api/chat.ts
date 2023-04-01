@@ -64,7 +64,7 @@ export const deleteChat = async (chatId: string): Promise<number> => {
 	return data;
 };
 
-export const fetchMembers = async (chatId: string) => {
+export const fetchMembers = async (chatId: string): Promise<User[]> => {
 	const { data } = await axios.get<User[]>('http://localhost:8080/chat/members', {
 		params: {
 			chatId,
@@ -77,12 +77,6 @@ export const fetchMembers = async (chatId: string) => {
 
 export const updateChat = async (formData: FormData): Promise<Chat> => {
 	const { data } = await axios.patch<Chat>('http://localhost:8080/chat', formData, { withCredentials: true });
-
-	return data;
-};
-
-export const createPrivateChat = async (): Promise<Chat> => {
-	const { data } = await axios.post<Chat>('http://localhost:8080/chat', { withCredentials: true });
 
 	return data;
 };

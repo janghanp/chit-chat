@@ -51,7 +51,7 @@ router.post('/register', async (req: Request, res: Response) => {
 		});
 
 		// Generate a token
-		const token = generateToken(username, email);
+		const token = generateToken(username, email, user.id);
 
 		// Set a cookie for 1 day
 		res.cookie('token', token, {
@@ -65,7 +65,6 @@ router.post('/register', async (req: Request, res: Response) => {
 			email: user.email,
 			avatar: user.avatar,
 			public_id: user.public_id,
-			// chats: user.chats,
 		});
 	} catch (error) {
 		return res.json({ message: 'Something went wrong, please try again...' });
@@ -80,25 +79,6 @@ router.post('/login', async (req: Request, res: Response) => {
 			where: {
 				email,
 			},
-			// include: {
-			// 	chats: {
-			// 		include: {
-			// 			messages: {
-			// 				include: {
-			// 					sender: {
-			// 						select: {
-			// 							username: true,
-			// 						},
-			// 					},
-			// 				},
-			// 				orderBy: {
-			// 					createdAt: 'desc',
-			// 				},
-			// 				take: 1,
-			// 			},
-			// 		},
-			// 	},
-			// },
 		});
 
 		if (!user) {
@@ -113,7 +93,7 @@ router.post('/login', async (req: Request, res: Response) => {
 		}
 
 		// Generate a token
-		const token = generateToken(user.username, user.email);
+		const token = generateToken(user.username, user.email, user.id);
 
 		// Set a cookie for 1 day
 		res.cookie('token', token, {
@@ -127,7 +107,6 @@ router.post('/login', async (req: Request, res: Response) => {
 			email: user.email,
 			avatar: user.avatar,
 			public_id: user.public_id,
-			// chats: user.chats,
 		});
 	} catch (error) {
 		return res.status(400).json({ message: 'Something went wrong, please try again...' });
@@ -143,35 +122,16 @@ router.get('/refresh', async (req: Request, res: Response) => {
 			const decodedToken = verifyToken(token);
 
 			if (decodedToken) {
-				const { username, email } = decodedToken;
+				const { username, email, id } = decodedToken;
 
 				// Generate a new token
-				const newToken = generateToken(username, email);
+				const newToken = generateToken(username, email, id);
 
 				// Find a user to get avatar and public_id.
 				const user = await prisma.user.findUnique({
 					where: {
 						email,
 					},
-					// include: {
-					// 	chats: {
-					// 		include: {
-					// 			messages: {
-					// 				include: {
-					// 					sender: {
-					// 						select: {
-					// 							username: true,
-					// 						},
-					// 					},
-					// 				},
-					// 				orderBy: {
-					// 					createdAt: 'desc',
-					// 				},
-					// 				take: 1,
-					// 			},
-					// 		},
-					// 	},
-					// },
 				});
 
 				if (!user) {
@@ -190,7 +150,6 @@ router.get('/refresh', async (req: Request, res: Response) => {
 					email: user.email,
 					avatar: user.avatar,
 					public_id: user.public_id,
-					// chats: user.chats,
 				});
 			}
 		}
@@ -200,7 +159,6 @@ router.get('/refresh', async (req: Request, res: Response) => {
 		return res.status(500).json({ message: 'Somthing went wrong, please try again...' });
 	}
 
-	// Refresh page wihout a token
 	return res.status(200).json({ status: 'ok' });
 });
 

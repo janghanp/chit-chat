@@ -13,7 +13,7 @@ import Chat from './Chat';
 import NoMatch from './NoMatch';
 import Explorer from './Explore';
 import { socket } from '../socket';
-import { User } from '../types';
+import { User, Chat as ChatType } from '../types';
 
 function App() {
 	const queryClient = useQueryClient();
@@ -105,6 +105,8 @@ function App() {
 
 			const currentChatId = window.location.href.split('/').pop();
 
+			//?When doing a private chat, the receiver has no way to notice the incomming message since the person has never connected to the socket of private chat.
+
 			queryClient.setQueryData(['chatRooms'], (old: any) => {
 				return produce(old, (draftState: any) => {
 					draftState.forEach((chat: any) => {
@@ -123,6 +125,20 @@ function App() {
 				});
 			} else {
 				const state = queryClient.getQueryState(['chat', chatId]);
+
+				if (!state) {
+					queryClient.setQueryData(['chatRooms'], (old: any) => {
+						const newChat: ChatType = {
+							id: chatId,
+							createdAt,
+							messages: [],
+						};
+
+						newChat.messages!.push({ id: messageId, text, sender, createdAt, chatId, senderId: sender.id });
+
+						return [...old, newChat];
+					});
+				}
 
 				if (state) {
 					queryClient.setQueryData(['messages', chatId], (old: any) => {
@@ -167,6 +183,14 @@ function App() {
 			});
 		};
 
+		const onPrivateRequest = (data: { chatId: string }) => {
+			const { chatId } = data;
+
+			console.log('someone created a private chat');
+
+			socket.emit('private_join', { chatId });
+		};
+
 		socket.on('online', onOnline);
 		socket.on('offline', onOffline);
 		socket.on('set_members_status', setMembersStatus);
@@ -174,6 +198,7 @@ function App() {
 		socket.on('receive_message', onReceiveMessage);
 		socket.on('enter_new_member', onEnterNewMember);
 		socket.on('leave_member', onLeaveMember);
+		socket.on('private_request', onPrivateRequest);
 
 		return () => {
 			socket.off('online', onOnline);
@@ -183,6 +208,7 @@ function App() {
 			socket.off('receive_message', onReceiveMessage);
 			socket.off('enter_new_member', onEnterNewMember);
 			socket.off('leave_member', onLeaveMember);
+			socket.off('private_request', onPrivateRequest);
 		};
 	}, []);
 

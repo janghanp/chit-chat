@@ -1,9 +1,11 @@
 import { Dispatch, memo, SetStateAction, useEffect, useRef, useState } from 'react';
 import { format } from 'date-fns';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
 import { Chat } from '../types';
-import { useCurrentUserStore } from '../store';
+import useUser from '../hooks/useUser';
+import useMembers from '../hooks/useMembers';
+import defaultAvatar from '/default.jpg';
 
 interface Props {
 	chatRoom: Chat;
@@ -17,11 +19,15 @@ const ChatRoom = ({ chatRoom, setIsSidebarOpen }: Props) => {
 
 	const navigate = useNavigate();
 
-	const currentUser = useCurrentUserStore((state) => state.currentUser);
+	const { data: currentUser } = useUser();
+
+	const { data: members } = useMembers(chatRoom.id);
 
 	const [isNewMessage, setIsNewMessage] = useState<boolean>(false);
 
 	const messageRef = useRef<string>(hasMessage ? chatRoom.messages![0].text : '');
+
+	console.log(hasMessage);
 
 	useEffect(() => {
 		if (hasMessage) {
@@ -71,11 +77,26 @@ const ChatRoom = ({ chatRoom, setIsSidebarOpen }: Props) => {
 								</div>
 							</div>
 						) : (
-							<div className="placeholder avatar">
-								<div className="w-10 rounded-full bg-neutral-focus text-neutral-content">
-									<span>{chatRoom.name.charAt(0).toUpperCase()}</span>
-								</div>
-							</div>
+							<>
+								{chatRoom.name ? (
+									<div className="placeholder avatar">
+										<div className="w-10 rounded-full bg-neutral-focus text-neutral-content">
+											<span>{chatRoom.name.charAt(0).toUpperCase()}</span>
+										</div>
+									</div>
+								) : (
+									<div>
+										<div className="avatar">
+											<div className="w-10 rounded-full border">
+												<img
+													src={members?.filter((member) => member.id !== currentUser!.id)[0].avatar || defaultAvatar}
+													alt={members?.filter((member) => member.id !== currentUser!.id)[0].username}
+												/>
+											</div>
+										</div>
+									</div>
+								)}
+							</>
 						)}
 					</div>
 					<div className="flex w-full flex-col">

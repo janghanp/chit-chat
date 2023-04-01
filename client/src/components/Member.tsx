@@ -3,18 +3,51 @@ import { useState } from 'react';
 import { User } from '../types';
 import defaultAvatar from '/default.jpg';
 import useUser from '../hooks/useUser';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { createChat } from '../api/chat';
+import { useNavigate, useParams } from 'react-router-dom';
+import { socket } from '../socket';
 
 interface Props {
 	member: User;
 }
 
 const Member = ({ member }: Props) => {
+	const navigate = useNavigate();
+
+	const queryClient = useQueryClient();
+
 	const { data: currentUser } = useUser();
+
+	const { mutate } = useMutation({
+		mutationFn: (formData: FormData) => {
+			return createChat(formData);
+		},
+		onSuccess: (data) => {
+			queryClient.setQueryData(['chatRooms'], (old: any) => {
+				return [...old, data];
+			});
+
+			socket.emit('private', {
+				receiverId: member.id,
+				chatId: data.id,
+			});
+
+			navigate(`/chat/${data.id}`);
+		},
+		onError: (error: any) => {
+			console.log(error);
+		},
+	});
 
 	const [isOpen, setIsOpen] = useState<boolean>(false);
 
-	const privateChatHandler = () => {
-		//Creaet a chat between two people.
+	const createPrivateChatHandler = () => {
+		const formData = new FormData();
+
+		formData.append('receiverId', member.id);
+
+		mutate(formData);
 	};
 
 	return (
@@ -39,7 +72,7 @@ const Member = ({ member }: Props) => {
 			{isOpen && (
 				<>
 					<ul className="menu menu-compact absolute top-0 -left-[210px] z-40 w-52 rounded-lg border bg-base-100 p-2 shadow">
-						<li onClick={privateChatHandler}>
+						<li onClick={createPrivateChatHandler}>
 							<a>private chat</a>
 						</li>
 					</ul>

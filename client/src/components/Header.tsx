@@ -6,7 +6,7 @@ import SearchInChat from './SearchInChat';
 
 interface Props {
 	isOwner: boolean;
-	currentChatName: string;
+	currentChatName?: string;
 	chatId: string;
 	setIsOpenMemberList: Dispatch<SetStateAction<boolean>>;
 }
@@ -17,7 +17,7 @@ const Header = ({ setIsOpenMemberList, currentChatName, isOwner, chatId }: Props
 	return (
 		<div className="fixed left-0 top-0 z-[22] flex h-10 w-full items-center justify-between bg-base-100 pr-5 shadow-md">
 			<div className="relative hidden h-full w-[321px] items-center justify-center border-r shadow-inner sm:flex">
-				<span className="text-base font-semibold">{currentChatName}</span>
+				{currentChatName && <span className="text-base font-semibold">{currentChatName}</span>}
 				<Dropdown
 					isDropDownOpen={isDropDownOpen}
 					setIsDropDownOpen={setIsDropDownOpen}

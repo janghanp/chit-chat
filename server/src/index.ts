@@ -118,6 +118,26 @@ io.on('connect', (socket: Socket) => {
 		socket.emit('set_members_status', { userIds: usersWithSockets.map((el) => el.userId) });
 	});
 
+	socket.on('private', (data: { receiverId: string; chatId: string }) => {
+		const { receiverId, chatId } = data;
+
+		const socketIds = usersWithSockets.map((el) => {
+			if (el.userId === receiverId) {
+				return el.socketIds;
+			}
+		})[0];
+
+		if (socketIds && socketIds?.length > 0) {
+			socket.to(socketIds).emit('private_request', { chatId });
+		}
+	});
+
+	socket.on('private_join', (data: { chatId: string }) => {
+		const { chatId } = data;
+
+		socket.join(chatId);
+	});
+
 	socket.on(
 		'send_message',
 		async (data: { messageId: string; text: string; chatId: string; sender: CurrentUser; createdAt: string }) => {

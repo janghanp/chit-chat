@@ -9,16 +9,19 @@ export interface User {
 
 export interface Chat {
 	id: string;
-	name: string;
+	name?: string;
 	icon?: string;
 	public_id?: string;
-	ownerId: string;
+	ownerId?: string;
+	createdAt: string;
 	messages?: Message[];
 }
 
 export interface Message {
 	id: string;
 	text: string;
+	senderId: string;
+	chatId: string;
 	sender: User;
 	createdAt: string;
 }
