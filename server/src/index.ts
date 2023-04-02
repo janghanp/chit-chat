@@ -8,6 +8,7 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import cloudinary from 'cloudinary';
 import { instrument } from '@socket.io/admin-ui';
+import { PrismaClient } from '@prisma/client';
 
 import { checkToken } from './middleware/auth';
 import authRoute from './routes/authRoute';
@@ -31,6 +32,8 @@ interface CurrentUser {
 	isOnline?: boolean;
 	chats: Chat[];
 }
+
+const prisma = new PrismaClient();
 
 // cloudinary picks up env and is now configured.
 cloudinary.v2.config({ secure: true });
@@ -119,25 +122,51 @@ io.on('connect', (socket: Socket) => {
 		socket.emit('set_members_status', { userIds: usersWithSockets.map((el) => el.userId) });
 	});
 
-	socket.on('private', (data: { receiverId: string; chatId: string }) => {
-		const { receiverId, chatId } = data;
+	socket.on(
+		'private_message',
+		async (data: { chatId: string; messageId: string; text: string; sender: CurrentUser; createdAt: string }) => {
+			const { chatId, messageId, text, sender, createdAt } = data;
 
-		const socketIds = usersWithSockets.map((el) => {
-			if (el.userId === receiverId) {
-				return el.socketIds;
+			const chat = await prisma.chat.findUnique({
+				where: {
+					id: chatId,
+				},
+				select: {
+					users: {
+						where: {
+							NOT: {
+								id: sender.id,
+							},
+						},
+						select: {
+							id: true,
+						},
+					},
+				},
+			});
+
+			const receiverId = chat?.users[0].id;
+
+			const socketIds = usersWithSockets.map((el) => {
+				if (el.userId === receiverId) {
+					return el.socketIds;
+				}
+			})[0];
+
+			if (socketIds && socketIds?.length > 0) {
+				//Connect a receiver's sockets to the chat so that the person can get message.
+				socket.to(socketIds).socketsJoin(chatId);
 			}
-		})[0];
 
-		if (socketIds && socketIds?.length > 0) {
-			socket.to(socketIds).emit('private_request', { chatId });
+			io.to(chatId).emit('receive_message', {
+				chatId,
+				messageId,
+				text,
+				sender,
+				createdAt,
+			});
 		}
-	});
-
-	socket.on('private_join', (data: { chatId: string }) => {
-		const { chatId } = data;
-
-		socket.join(chatId);
-	});
+	);
 
 	socket.on(
 		'send_message',

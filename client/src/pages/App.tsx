@@ -101,11 +101,11 @@ function App() {
 			sender: User;
 			createdAt: string;
 		}) => {
+			console.log('got a message');
+
 			const { chatId, messageId, text, sender, createdAt } = data;
 
 			const currentChatId = window.location.href.split('/').pop();
-
-			//?When doing a private chat, the receiver has no way to notice the incomming message since the person has never connected to the socket of private chat.
 
 			queryClient.setQueryData(['chatRooms'], (old: any) => {
 				return produce(old, (draftState: any) => {
@@ -151,8 +151,6 @@ function App() {
 		};
 
 		const onEnterNewMember = (data: { newUser: User; chatId: string }) => {
-			// console.log('someone in some chat');
-
 			const { newUser, chatId } = data;
 
 			newUser.isOnline = true;
@@ -169,8 +167,6 @@ function App() {
 		};
 
 		const onLeaveMember = (data: { userId: string; chatId: string }) => {
-			// console.log('someone left the  some chat');
-
 			const { userId, chatId } = data;
 
 			queryClient.setQueryData(['members', chatId], (old: any) => {
@@ -183,14 +179,6 @@ function App() {
 			});
 		};
 
-		const onPrivateRequest = (data: { chatId: string }) => {
-			const { chatId } = data;
-
-			console.log('someone created a private chat');
-
-			socket.emit('private_join', { chatId });
-		};
-
 		socket.on('online', onOnline);
 		socket.on('offline', onOffline);
 		socket.on('set_members_status', setMembersStatus);
@@ -198,7 +186,6 @@ function App() {
 		socket.on('receive_message', onReceiveMessage);
 		socket.on('enter_new_member', onEnterNewMember);
 		socket.on('leave_member', onLeaveMember);
-		socket.on('private_request', onPrivateRequest);
 
 		return () => {
 			socket.off('online', onOnline);
@@ -208,7 +195,6 @@ function App() {
 			socket.off('receive_message', onReceiveMessage);
 			socket.off('enter_new_member', onEnterNewMember);
 			socket.off('leave_member', onLeaveMember);
-			socket.off('private_request', onPrivateRequest);
 		};
 	}, []);
 

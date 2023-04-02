@@ -18,7 +18,7 @@ const Chat = () => {
 
 	const { data: currentUser } = useUser();
 
-	const { isLoading, isError, data, isSuccess } = useChat(chatId as string, currentUser!.id);
+	const { isLoading, isError, data: currentChat, isSuccess } = useChat(chatId as string, currentUser!.id);
 
 	const { mutate } = useMutation({
 		mutationKey: ['createMessage', chatId],
@@ -34,13 +34,25 @@ const Chat = () => {
 			return createMessage(chatId, inputMessage, currentUserId);
 		},
 		onSuccess: (data) => {
-			socket.emit('send_message', {
-				messageId: data.message.id,
-				text: inputMessage,
-				sender: currentUser,
-				chatId,
-				createdAt: data.message.createdAt,
-			});
+			if (currentChat?.chat.ownerId) {
+				// Group chat message
+				socket.emit('send_message', {
+					messageId: data.message.id,
+					text: inputMessage,
+					sender: currentUser,
+					chatId,
+					createdAt: data.message.createdAt,
+				});
+			} else {
+				// Private chat message
+				socket.emit('private_message', {
+					messageId: data.message.id,
+					text: inputMessage,
+					sender: currentUser,
+					chatId,
+					createdAt: data.message.createdAt,
+				});
+			}
 
 			setInputMessage('');
 		},
@@ -53,32 +65,32 @@ const Chat = () => {
 	const [isOpenMemberList, setIsOpenMemberList] = useState<boolean>(true);
 
 	useEffect(() => {
-		if (data) {
+		if (currentChat) {
 			socket.emit('join_chat', {
 				chatId,
 				currentUser,
-				isNewMember: data.isNewMember,
+				isNewMember: currentChat.isNewMember,
 			});
 
-			if (data.isNewMember) {
+			if (currentChat.isNewMember) {
 				queryClient.setQueryData(['chat', chatId], (old: any) => {
 					return { ...old, isNewMember: false };
 				});
 			}
 		}
-	}, [data, chatId]);
+	}, [currentChat, chatId]);
 
 	useEffect(() => {
-		if (data && isSuccess) {
-			if (data.isNewMember) {
+		if (currentChat && isSuccess) {
+			if (currentChat.isNewMember) {
 				queryClient.setQueryData(['chatRooms'], (old: any) => {
 					return produce(old, (draftState: any) => {
-						draftState.push({ ...data.chat, messages: data.chat.messages });
+						draftState.push({ ...currentChat.chat, messages: currentChat.chat.messages });
 					});
 				});
 			}
 		}
-	}, [data, isSuccess]);
+	}, [currentChat, isSuccess]);
 
 	const clickHandler = async () => {
 		if (!inputMessage) {
@@ -96,16 +108,16 @@ const Chat = () => {
 		return <div>Error...</div>;
 	}
 
-	if (!data) {
-		return <div>No data...</div>;
+	if (!currentChat) {
+		return <div>No currentChat...</div>;
 	}
 
 	return (
 		<div className={`fixed left-0 sm:left-80 ${isOpenMemberList ? 'right-56' : 'right-0'}  top-10 bottom-0`}>
 			<Header
-				chatId={data.chat.id}
-				isOwner={currentUser!.id === data.chat.ownerId}
-				currentChatName={data.chat.name}
+				chatId={currentChat.chat.id}
+				isOwner={currentUser!.id === currentChat.chat.ownerId}
+				currentChatName={currentChat.chat.name}
 				setIsOpenMemberList={setIsOpenMemberList}
 			/>
 			<ChatBody />
@@ -122,7 +134,11 @@ const Chat = () => {
 					</button>
 				</div>
 			</div>
-			<MemberList isOpenMemberList={isOpenMemberList} chatId={chatId as string} chatOwnerId={data.chat.ownerId} />
+			<MemberList
+				isOpenMemberList={isOpenMemberList}
+				chatId={chatId as string}
+				chatOwnerId={currentChat.chat.ownerId}
+			/>
 		</div>
 	);
 };

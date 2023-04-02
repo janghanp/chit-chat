@@ -43,17 +43,17 @@ router.get('/', async (req: Request, res: Response) => {
 					},
 				],
 			},
-			include: {
-				messages: {
-					orderBy: {
-						createdAt: 'desc',
-					},
-					include: {
-						sender: true,
-					},
-					take: 1,
-				},
-			},
+			// include: {
+			// 	messages: {
+			// 		orderBy: {
+			// 			createdAt: 'desc',
+			// 		},
+			// 		include: {
+			// 			sender: true,
+			// 		},
+			// 		take: 1,
+			// 	},
+			// },
 		});
 
 		chatWithUsersAndMessages = chat;
@@ -181,11 +181,7 @@ router.get('/name', async (req: Request, res: Response) => {
 });
 
 router.post('/', uploader.single('file'), async (req: Request, res: Response) => {
-	const {
-		roomName,
-		ownerId,
-		receiverId,
-	}: { roomName: string | undefined; ownerId: string | undefined; receiverId: string | undefined } = req.body;
+	const { roomName, ownerId, receiverId }: { roomName?: string; ownerId?: string; receiverId?: string } = req.body;
 
 	try {
 		// Check if a chat room to create already exists.
@@ -212,6 +208,11 @@ router.post('/', uploader.single('file'), async (req: Request, res: Response) =>
 					ownerId,
 					icon: upload.secure_url,
 					public_id: upload.public_id,
+					users: {
+						connect: {
+							id: req.token.id,
+						},
+					},
 				},
 				include: {
 					messages: true,
@@ -220,33 +221,31 @@ router.post('/', uploader.single('file'), async (req: Request, res: Response) =>
 
 			newChat = result;
 		} else {
-			const result = await prisma.chat.create({ data: { name: roomName, ownerId }, include: { messages: true } });
+			const result = await prisma.chat.create({
+				data: {
+					name: roomName,
+					ownerId,
+					users: {
+						connect: {
+							id: req.token.id,
+						},
+					},
+				},
+				include: { messages: true },
+			});
 
 			newChat = result;
 		}
 
-		await prisma.user.update({
-			where: {
-				id: req.token.id,
-			},
-			data: {
-				chats: {
-					connect: {
-						id: newChat.id,
-					},
-				},
-			},
-		});
-
 		if (receiverId) {
-			await prisma.user.update({
+			await prisma.chat.update({
 				where: {
-					id: receiverId,
+					id: newChat.id,
 				},
 				data: {
-					chats: {
+					users: {
 						connect: {
-							id: newChat.id,
+							id: receiverId,
 						},
 					},
 				},

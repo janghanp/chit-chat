@@ -48,6 +48,7 @@ const Member = ({ member }: Props) => {
 
 		formData.append('receiverId', member.id);
 
+		// Check if there is already a private chat between users.
 		const { data } = await axios.get('/chat/private', {
 			params: {
 				senderId: currentUser!.id,
