@@ -528,4 +528,27 @@ router.patch('/', uploader.single('file'), async (req: Request, res: Response) =
 	}
 });
 
+router.get('/private', async (req: Request, res: Response) => {
+	const { senderId, receiverId } = req.query;
+
+	try {
+		const chat = await prisma.chat.findFirst({
+			where: {
+				AND: [
+					{ name: null },
+					{ icon: null },
+					{ users: { some: { id: senderId as string } } },
+					{ users: { some: { id: receiverId as string } } },
+				],
+			},
+		});
+
+		return res.status(200).json(chat);
+	} catch (error) {
+		console.log(error);
+
+		return res.sendStatus(500);
+	}
+});
+
 export default router;
