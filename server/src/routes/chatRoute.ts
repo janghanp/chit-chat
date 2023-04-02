@@ -43,17 +43,6 @@ router.get('/', async (req: Request, res: Response) => {
 					},
 				],
 			},
-			// include: {
-			// 	messages: {
-			// 		orderBy: {
-			// 			createdAt: 'desc',
-			// 		},
-			// 		include: {
-			// 			sender: true,
-			// 		},
-			// 		take: 1,
-			// 	},
-			// },
 		});
 
 		chatWithUsersAndMessages = chat;
@@ -300,18 +289,50 @@ router.patch('/leave', async (req: Request, res: Response) => {
 	const { chatId, userId } = req.body;
 
 	try {
-		await prisma.chat.update({
+		const chat = await prisma.chat.findUnique({
 			where: {
 				id: chatId,
 			},
-			data: {
-				users: {
-					disconnect: {
-						id: userId,
+		});
+
+		if (!chat?.ownerId) {
+			// Private Chat
+			await prisma.user.findUnique({
+				where: {
+					id: userId,
+				},
+				include: {
+					chats: true,
+				},
+			});
+
+			await prisma.user.update({
+				where: {
+					id: userId,
+				},
+				data: {
+					chats: {
+						disconnect: {
+							id: chatId,
+						},
 					},
 				},
-			},
-		});
+			});
+		} else {
+			// Group chat
+			await prisma.chat.update({
+				where: {
+					id: chatId,
+				},
+				data: {
+					users: {
+						disconnect: {
+							id: userId,
+						},
+					},
+				},
+			});
+		}
 
 		return res.sendStatus(200);
 	} catch (error) {

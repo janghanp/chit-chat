@@ -147,15 +147,13 @@ io.on('connect', (socket: Socket) => {
 
 			const receiverId = chat?.users[0].id;
 
-			const socketIds = usersWithSockets.map((el) => {
-				if (el.userId === receiverId) {
-					return el.socketIds;
-				}
-			})[0];
+			const target = usersWithSockets.filter((el) => {
+				return el.userId === receiverId;
+			});
 
-			if (socketIds && socketIds?.length > 0) {
+			if (target && target[0].socketIds?.length > 0) {
 				//Connect a receiver's sockets to the chat so that the person can get message.
-				socket.to(socketIds).socketsJoin(chatId);
+				socket.to(target[0].socketIds).socketsJoin(chatId);
 			}
 
 			io.to(chatId).emit('receive_message', {

@@ -158,8 +158,6 @@ function App() {
 			queryClient.setQueryData(['members', chatId], (old: any) => {
 				if (old) {
 					return produce(old, (draftState: any) => {
-						console.log('Add a member');
-
 						draftState.push(newUser);
 					});
 				}
