@@ -34,8 +34,8 @@ const Chat = () => {
 			return createMessage(chatId, inputMessage, currentUserId);
 		},
 		onSuccess: (data) => {
-			if (currentChat?.chat.ownerId) {
-				// Group chat message
+			// Group chat message
+			if (currentChat!.chat.type === 'GROUP') {
 				socket.emit('send_message', {
 					messageId: data.message.id,
 					text: inputMessage,
@@ -43,8 +43,10 @@ const Chat = () => {
 					chatId,
 					createdAt: data.message.createdAt,
 				});
-			} else {
-				// Private chat message
+			}
+
+			// Private chat message
+			if (currentChat!.chat.type === 'PRIVATE') {
 				socket.emit('private_message', {
 					messageId: data.message.id,
 					text: inputMessage,

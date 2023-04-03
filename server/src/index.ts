@@ -127,6 +127,7 @@ io.on('connect', (socket: Socket) => {
 		async (data: { chatId: string; messageId: string; text: string; sender: CurrentUser; createdAt: string }) => {
 			const { chatId, messageId, text, sender, createdAt } = data;
 
+			// Find a receiverId
 			const chat = await prisma.chat.findUnique({
 				where: {
 					id: chatId,
@@ -146,6 +147,24 @@ io.on('connect', (socket: Socket) => {
 			});
 
 			const receiverId = chat?.users[0].id;
+
+			const receiver = await prisma.user.findUnique({
+				where: {
+					id: receiverId,
+				},
+			});
+
+			// A receiver needs to the private chat room.
+			await prisma.user.update({
+				where: {
+					id: receiverId,
+				},
+				data: {
+					leftPrivateChatIds: {
+						set: receiver?.leftPrivateChatIds.filter((id) => id !== chatId),
+					},
+				},
+			});
 
 			const target = usersWithSockets.filter((el) => {
 				return el.userId === receiverId;
@@ -181,10 +200,18 @@ io.on('connect', (socket: Socket) => {
 		}
 	);
 
-	socket.on('leave_chat', (data: { userId: string; chatId: string }) => {
+	socket.on('leave_chat', async (data: { userId: string; chatId: string }) => {
 		const { userId, chatId } = data;
 
-		socket.to(chatId).emit('leave_member', { userId, chatId });
+		const chat = await prisma.chat.findUnique({
+			where: {
+				id: chatId,
+			},
+		});
+
+		const isPrivate = chat?.type === 'PRIVATE' ? true : false;
+
+		socket.to(chatId).emit('leave_member', { userId, chatId, isPrivate });
 
 		socket.leave(chatId);
 	});

@@ -164,8 +164,12 @@ function App() {
 			});
 		};
 
-		const onLeaveMember = (data: { userId: string; chatId: string }) => {
-			const { userId, chatId } = data;
+		const onLeaveMember = (data: { userId: string; chatId: string; isPrivate: boolean }) => {
+			const { userId, chatId, isPrivate } = data;
+
+			if (isPrivate) {
+				return;
+			}
 
 			queryClient.setQueryData(['members', chatId], (old: any) => {
 				if (old) {

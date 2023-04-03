@@ -48,6 +48,12 @@ export const createChat = async (formData: FormData): Promise<Chat> => {
 	return data;
 };
 
+export const createPrivateChat = async (senderId: string, receiverId: string) => {
+	const { data } = await axios.post<Chat>('/chat/private', { senderId, receiverId }, { withCredentials: true });
+
+	return data;
+};
+
 export const leaveChat = async (chatId: string, userId: string): Promise<Chat> => {
 	const { data } = await axios.patch<Chat>('/chat/leave', { chatId, userId }, { withCredentials: true });
 

@@ -14,6 +14,24 @@ const uploader = multer({
 
 const router = Router();
 
+router.get('/:userId', async (req: Request, res: Response) => {
+	const { userId } = req.params;
+
+	try {
+		const user = await prisma.user.findUnique({
+			where: {
+				id: userId,
+			},
+		});
+
+		return res.status(200).json(user);
+	} catch (error) {
+		console.log(error);
+
+		return res.status(500).json({ message: 'Something went wrong, please try again...' });
+	}
+});
+
 router.get('/chats', async (req: Request, res: Response) => {
 	const { email } = req.token;
 

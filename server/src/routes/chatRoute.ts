@@ -134,11 +134,16 @@ router.get('/rooms', async (req: Request, res: Response) => {
 			},
 		});
 
+		// Filter left private chats out.
+		const activeChats = userWithChats?.chats.filter((chat) => {
+			return !userWithChats?.leftPrivateChatIds.includes(chat.id);
+		});
+
 		if (!userWithChats) {
 			return res.status(400).json({ message: 'No chat rooms found' });
 		}
 
-		return res.status(200).json(userWithChats.chats);
+		return res.status(200).json(activeChats);
 	} catch (error) {
 		console.log(error);
 
@@ -170,20 +175,18 @@ router.get('/name', async (req: Request, res: Response) => {
 });
 
 router.post('/', uploader.single('file'), async (req: Request, res: Response) => {
-	const { roomName, ownerId, receiverId }: { roomName?: string; ownerId?: string; receiverId?: string } = req.body;
+	const { roomName, ownerId }: { roomName?: string; ownerId?: string } = req.body;
 
 	try {
 		// Check if a chat room to create already exists.
-		if (roomName && ownerId) {
-			const chat = await prisma.chat.findFirst({
-				where: {
-					name: roomName,
-				},
-			});
+		const chat = await prisma.chat.findFirst({
+			where: {
+				name: roomName,
+			},
+		});
 
-			if (chat) {
-				return res.status(400).json({ message: 'The chatroom name already exists.' });
-			}
+		if (chat) {
+			return res.status(400).json({ message: 'The chatroom name already exists.' });
 		}
 
 		let newChat: any;
@@ -197,11 +200,6 @@ router.post('/', uploader.single('file'), async (req: Request, res: Response) =>
 					ownerId,
 					icon: upload.secure_url,
 					public_id: upload.public_id,
-					users: {
-						connect: {
-							id: req.token.id,
-						},
-					},
 				},
 				include: {
 					messages: true,
@@ -214,31 +212,11 @@ router.post('/', uploader.single('file'), async (req: Request, res: Response) =>
 				data: {
 					name: roomName,
 					ownerId,
-					users: {
-						connect: {
-							id: req.token.id,
-						},
-					},
 				},
 				include: { messages: true },
 			});
 
 			newChat = result;
-		}
-
-		if (receiverId) {
-			await prisma.chat.update({
-				where: {
-					id: newChat.id,
-				},
-				data: {
-					users: {
-						connect: {
-							id: receiverId,
-						},
-					},
-				},
-			});
 		}
 
 		return res.status(200).json(newChat);
@@ -295,31 +273,7 @@ router.patch('/leave', async (req: Request, res: Response) => {
 			},
 		});
 
-		if (!chat?.ownerId) {
-			// Private Chat
-			await prisma.user.findUnique({
-				where: {
-					id: userId,
-				},
-				include: {
-					chats: true,
-				},
-			});
-
-			await prisma.user.update({
-				where: {
-					id: userId,
-				},
-				data: {
-					chats: {
-						disconnect: {
-							id: chatId,
-						},
-					},
-				},
-			});
-		} else {
-			// Group chat
+		if (chat?.type === 'GROUP') {
 			await prisma.chat.update({
 				where: {
 					id: chatId,
@@ -329,6 +283,19 @@ router.patch('/leave', async (req: Request, res: Response) => {
 						disconnect: {
 							id: userId,
 						},
+					},
+				},
+			});
+		}
+
+		if (chat?.type === 'PRIVATE') {
+			await prisma.user.update({
+				where: {
+					id: userId,
+				},
+				data: {
+					leftPrivateChatIds: {
+						push: chatId,
 					},
 				},
 			});
@@ -548,11 +515,12 @@ router.patch('/', uploader.single('file'), async (req: Request, res: Response) =
 	}
 });
 
-router.get('/private', async (req: Request, res: Response) => {
-	const { senderId, receiverId } = req.query;
+router.post('/private', async (req: Request, res: Response) => {
+	const { senderId, receiverId }: { senderId?: string; receiverId?: string } = req.body;
 
 	try {
-		const chat = await prisma.chat.findFirst({
+		//Check if there is already a private chat between users.
+		const previousChat = await prisma.chat.findFirst({
 			where: {
 				AND: [
 					{ name: null },
@@ -561,9 +529,41 @@ router.get('/private', async (req: Request, res: Response) => {
 					{ users: { some: { id: receiverId as string } } },
 				],
 			},
+			include: {
+				messages: true,
+			},
 		});
 
-		return res.status(200).json(chat);
+		if (previousChat) {
+			return res.status(200).json(previousChat);
+		}
+
+		// Create a private chat.
+		const privateChat = await prisma.chat.create({
+			data: {
+				type: 'PRIVATE',
+				users: {
+					connect: [{ id: senderId }, { id: receiverId }],
+				},
+			},
+			include: {
+				messages: true,
+			},
+		});
+
+		// Not showing the private chat initially to the receiver.
+		await prisma.user.update({
+			where: {
+				id: receiverId,
+			},
+			data: {
+				leftPrivateChatIds: {
+					push: privateChat.id,
+				},
+			},
+		});
+
+		return res.status(200).json(privateChat);
 	} catch (error) {
 		console.log(error);
 

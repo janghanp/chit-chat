@@ -4,10 +4,8 @@ import { User } from '../types';
 import defaultAvatar from '/default.jpg';
 import useUser from '../hooks/useUser';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { createChat } from '../api/chat';
-import { useNavigate, useParams } from 'react-router-dom';
-import { socket } from '../socket';
-import axios from 'axios';
+import { createPrivateChat } from '../api/chat';
+import { useNavigate } from 'react-router-dom';
 
 interface Props {
 	member: User;
@@ -21,17 +19,12 @@ const Member = ({ member }: Props) => {
 	const { data: currentUser } = useUser();
 
 	const { mutate } = useMutation({
-		mutationFn: (formData: FormData) => {
-			return createChat(formData);
+		mutationFn: ({ senderId, receiverId }: { senderId: string; receiverId: string }) => {
+			return createPrivateChat(senderId, receiverId);
 		},
-		onSuccess: (data) => {
+		onSuccess: async (data) => {
 			queryClient.setQueryData(['chatRooms'], (old: any) => {
 				return [...old, data];
-			});
-
-			socket.emit('private', {
-				receiverId: member.id,
-				chatId: data.id,
 			});
 
 			navigate(`/chat/${data.id}`);
@@ -44,25 +37,7 @@ const Member = ({ member }: Props) => {
 	const [isOpen, setIsOpen] = useState<boolean>(false);
 
 	const createPrivateChatHandler = async () => {
-		const formData = new FormData();
-
-		formData.append('receiverId', member.id);
-
-		// Check if there is already a private chat between users.
-		const { data } = await axios.get('/chat/private', {
-			params: {
-				senderId: currentUser!.id,
-				receiverId: member.id,
-			},
-			withCredentials: true,
-		});
-
-		if (data) {
-			navigate(`/chat/${data.id}`);
-			return;
-		}
-
-		mutate(formData);
+		mutate({ senderId: currentUser!.id, receiverId: member.id });
 	};
 
 	return (
