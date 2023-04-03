@@ -49,7 +49,7 @@ export const createChat = async (formData: FormData): Promise<Chat> => {
 };
 
 export const createPrivateChat = async (senderId: string, receiverId: string) => {
-	const { data } = await axios.post<Chat>('/chat/private', { senderId, receiverId }, { withCredentials: true });
+	const { data } = await axios.post('/chat/private', { senderId, receiverId }, { withCredentials: true });
 
 	return data;
 };

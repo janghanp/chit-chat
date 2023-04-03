@@ -100,10 +100,12 @@ function App() {
 			text: string;
 			sender: User;
 			createdAt: string;
+			isPrivate: boolean;
+			receiverAvatar?: string;
 		}) => {
 			console.log('got a message');
 
-			const { chatId, messageId, text, sender, createdAt } = data;
+			const { chatId, messageId, text, sender, createdAt, isPrivate, receiverAvatar } = data;
 
 			const currentChatId = window.location.href.split('/').pop();
 
@@ -124,15 +126,41 @@ function App() {
 					});
 				});
 			} else {
-				const state = queryClient.getQueryState(['chat', chatId]);
+				const state = queryClient.getQueryState<ChatType[]>(['chatRooms']);
 
-				if (!state) {
+				let isOnChatRoomList: boolean = false;
+
+				if (state && state.data) {
+					const chatRoomIds = state.data.map((chat: ChatType) => {
+						return chat.id;
+					});
+
+					// Check the chat that needs to be updated on the chatroom list.
+					isOnChatRoomList = chatRoomIds.includes(chatId);
+				}
+
+				// When there is no the chat that needs to be updated on the chatroom list.
+				if (!isOnChatRoomList) {
 					queryClient.setQueryData(['chatRooms'], (old: any) => {
-						const newChat: ChatType = {
-							id: chatId,
-							createdAt,
-							messages: [],
-						};
+						let newChat!: ChatType;
+
+						if (isPrivate) {
+							newChat = {
+								id: chatId,
+								createdAt,
+								messages: [],
+								type: 'PRIVATE',
+							};
+						}
+
+						if (!isPrivate) {
+							newChat = {
+								id: chatId,
+								createdAt,
+								messages: [],
+								type: 'GROUP',
+							};
+						}
 
 						newChat.messages!.push({ id: messageId, text, sender, createdAt, chatId, senderId: sender.id });
 
@@ -140,12 +168,19 @@ function App() {
 					});
 				}
 
-				if (state) {
-					queryClient.setQueryData(['messages', chatId], (old: any) => {
-						return produce(old, (draftState: any) => {
-							draftState.pages[0].unshift({ id: messageId, text, sender, createdAt, chatId, senderId: sender.id });
+				// When there is the chat that needs to be updated on the chatroom list.
+				if (isOnChatRoomList) {
+					const state = queryClient.getQueryState<ChatType>(['chat', chatId]);
+
+					// When the chat has been fetched then update the messages of the chat, otherwise it doesn't have to be updated.
+					// It is going to fetch new messages.
+					if (state) {
+						queryClient.setQueryData(['messages', chatId], (old: any) => {
+							return produce(old, (draftState: any) => {
+								draftState.pages[0].unshift({ id: messageId, text, sender, createdAt, chatId, senderId: sender.id });
+							});
 						});
-					});
+					}
 				}
 			}
 		};

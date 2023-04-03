@@ -23,11 +23,16 @@ const Member = ({ member }: Props) => {
 			return createPrivateChat(senderId, receiverId);
 		},
 		onSuccess: async (data) => {
-			queryClient.setQueryData(['chatRooms'], (old: any) => {
-				return [...old, data];
-			});
+			if (!data.isPrevious) {
+				queryClient.setQueryData(['chatRooms'], (old: any) => {
+					return [...old, data];
+				});
 
-			navigate(`/chat/${data.id}`);
+				navigate(`/chat/${data.id}`);
+				return;
+			}
+
+			navigate(`/chat/${data.previousChat.id}`);
 		},
 		onError: (error: any) => {
 			console.log(error);

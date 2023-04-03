@@ -181,6 +181,8 @@ io.on('connect', (socket: Socket) => {
 				text,
 				sender,
 				createdAt,
+				isPrivate: true,
+				receiverAvatar: receiver?.avatar,
 			});
 		}
 	);
@@ -196,6 +198,7 @@ io.on('connect', (socket: Socket) => {
 				text,
 				sender,
 				createdAt,
+				isPrivate: false,
 			});
 		}
 	);

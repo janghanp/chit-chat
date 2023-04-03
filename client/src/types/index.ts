@@ -7,17 +7,12 @@ export interface User {
 	isOnline?: boolean;
 }
 
-enum Type {
-	GROUP = "GROUP",
-	PRIVATE = "PRIVATE",
-}
-
 export interface Chat {
 	id: string;
 	name?: string;
 	icon?: string;
 	public_id?: string;
-	type: Type;
+	type: 'GROUP' | 'PRIVATE';
 	ownerId?: string;
 	createdAt: string;
 	messages?: Message[];

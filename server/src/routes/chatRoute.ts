@@ -530,12 +530,16 @@ router.post('/private', async (req: Request, res: Response) => {
 				],
 			},
 			include: {
-				messages: true,
+				messages: {
+					include: {
+						sender: true,
+					},
+				},
 			},
 		});
 
 		if (previousChat) {
-			return res.status(200).json(previousChat);
+			return res.status(200).json({ previousChat, isPrevious: true });
 		}
 
 		// Create a private chat.
@@ -547,7 +551,11 @@ router.post('/private', async (req: Request, res: Response) => {
 				},
 			},
 			include: {
-				messages: true,
+				messages: {
+					include: {
+						sender: true,
+					},
+				},
 			},
 		});
 
@@ -564,6 +572,33 @@ router.post('/private', async (req: Request, res: Response) => {
 		});
 
 		return res.status(200).json(privateChat);
+	} catch (error) {
+		console.log(error);
+
+		return res.sendStatus(500);
+	}
+});
+
+router.get('/private', async (req: Request, res: Response) => {
+	const { chatId, userId } = req.query;
+
+	try {
+		const chatWithReciver = await prisma.chat.findUnique({
+			where: {
+				id: chatId as string,
+			},
+			select: {
+				users: {
+					where: {
+						NOT: {
+							id: userId as string,
+						},
+					},
+				},
+			},
+		});
+
+		return res.status(200).json(chatWithReciver?.users[0]);
 	} catch (error) {
 		console.log(error);
 
