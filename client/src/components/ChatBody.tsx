@@ -5,7 +5,7 @@ import { useParams } from 'react-router';
 import { useInView } from 'react-intersection-observer';
 
 import defaultImageUrl from '/default.jpg';
-import { fetchMessages } from '../api/chat';
+import { fetchMessages } from '../api/message';
 import { Message } from '../types';
 import useUser from '../hooks/useUser';
 

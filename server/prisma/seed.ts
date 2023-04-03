@@ -33,6 +33,9 @@ async function main() {
 		data: {
 			name: 'chat1',
 			ownerId: users[0].id,
+			readBy: {
+				set: [users[0].id],
+			},
 			users: {
 				connect: {
 					id: users[0].id,
@@ -45,6 +48,9 @@ async function main() {
 		data: {
 			name: 'chat2',
 			ownerId: users[1].id,
+			readBy: {
+				set: [users[1].id]
+			},
 			users: {
 				connect: {
 					id: users[1].id,

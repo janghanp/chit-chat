@@ -101,17 +101,16 @@ function App() {
 			sender: User;
 			createdAt: string;
 			isPrivate: boolean;
-			receiverAvatar?: string;
 		}) => {
 			console.log('got a message');
 
-			const { chatId, messageId, text, sender, createdAt, isPrivate, receiverAvatar } = data;
+			const { chatId, messageId, text, sender, createdAt, isPrivate } = data;
 
 			const currentChatId = window.location.href.split('/').pop();
 
 			queryClient.setQueryData(['chatRooms'], (old: any) => {
-				return produce(old, (draftState: any) => {
-					draftState.forEach((chat: any) => {
+				return produce(old, (draftState: ChatType[]) => {
+					draftState.forEach((chat: ChatType) => {
 						if (chat.id === chatId) {
 							chat.messages[0] = { id: messageId, text, sender, createdAt };
 						}
@@ -149,6 +148,7 @@ function App() {
 								id: chatId,
 								createdAt,
 								messages: [],
+								readBy: [],
 								type: 'PRIVATE',
 							};
 						}
@@ -158,6 +158,7 @@ function App() {
 								id: chatId,
 								createdAt,
 								messages: [],
+								readBy: [],
 								type: 'GROUP',
 							};
 						}
@@ -171,6 +172,18 @@ function App() {
 				// When there is the chat that needs to be updated on the chatroom list.
 				if (isOnChatRoomList) {
 					const state = queryClient.getQueryState<ChatType>(['chat', chatId]);
+
+					const state2 = queryClient.getQueryData<User>(['currentUser']);
+
+					queryClient.setQueryData(['chatRooms'], (old: any) => {
+						return produce(old, (draftState: ChatType[]) => {
+							draftState.forEach((chat: ChatType) => {
+								if (chat.id === chatId) {
+									chat.readBy = chat.readBy.filter((userId) => userId !== state2!.id);
+								}
+							});
+						});
+					});
 
 					// When the chat has been fetched then update the messages of the chat, otherwise it doesn't have to be updated.
 					// It is going to fetch new messages.

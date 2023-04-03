@@ -13,8 +13,6 @@ interface Props {
 }
 
 const ChatRoom = ({ chatRoom, setIsSidebarOpen }: Props) => {
-	const hasMessage = chatRoom.messages!.length > 0 ? true : false;
-
 	const { chatId } = useParams();
 
 	const navigate = useNavigate();
@@ -24,29 +22,16 @@ const ChatRoom = ({ chatRoom, setIsSidebarOpen }: Props) => {
 	const [isNewMessage, setIsNewMessage] = useState<boolean>(false);
 	const [receiverAvatar, setReceiverAvatar] = useState<string | undefined>('');
 
-	const messageRef = useRef<string>(hasMessage ? chatRoom.messages![0].text : '');
 	const receiverRef = useRef<boolean>(false);
 
 	useEffect(() => {
-		if (hasMessage) {
-			if (messageRef.current !== chatRoom.messages![0].text) {
-				if (currentUser?.id !== chatRoom.messages![0].sender.id && chatRoom.id !== chatId) {
-					setIsNewMessage(true);
-				}
-			}
-		}
-	}, [chatRoom]);
-
-	useEffect(() => {
 		// When it is a private chat, set the receiver avatar as a chat icon.
-		console.log(chatRoom);
-
 		if (chatRoom.type === 'PRIVATE') {
 			const fetchReceiver = async () => {
 				const { data } = await axios.get<User>('/chat/private', {
 					withCredentials: true,
 					params: {
-						chatId,
+						chatId: chatRoom.id,
 						userId: currentUser!.id,
 					},
 				});
@@ -57,12 +42,23 @@ const ChatRoom = ({ chatRoom, setIsSidebarOpen }: Props) => {
 				}
 			};
 
-			if (chatId && currentUser && !receiverRef.current) {
-				console.log('fetch receiver');
+			if (currentUser && !receiverRef.current) {
 				fetchReceiver();
 			}
 		}
-	}, [chatId, currentUser]);
+	}, [currentUser]);
+
+	useEffect(() => {
+		setIsNewMessage(!chatRoom.readBy.includes(currentUser!.id));
+	}, [chatRoom]);
+
+	useEffect(() => {
+		if (chatId === chatRoom.id) {
+			setIsNewMessage(false);
+		}
+	}, [chatRoom]);
+
+	const hasMessage = chatRoom.messages!.length > 0 ? true : false;
 
 	let isToday: boolean = true;
 
@@ -72,12 +68,18 @@ const ChatRoom = ({ chatRoom, setIsSidebarOpen }: Props) => {
 		isToday = gap < 86400000;
 	}
 
-	const clickHandler = () => {
+	const clickHandler = async () => {
 		setIsSidebarOpen(false);
 
 		if (isNewMessage) {
 			setIsNewMessage(false);
 		}
+
+		// don't need to wait.
+		// if (!chatRoom.readBy.includes(currentUser!.id) && chatId) {
+		// 	console.log('read the current chat');
+		// 	axios.patch('/chat/read', { chatId, userId: currentUser!.id }, { withCredentials: true });
+		// }
 
 		navigate(`/chat/${chatRoom.id}`);
 	};

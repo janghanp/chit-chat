@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-import { Chat, Message, User } from '../types';
+import { Chat, User } from '../types';
 
 interface ChatWithIsNewMember {
 	chat: Chat;
@@ -23,18 +23,6 @@ export const fetchChatRooms = async (userId: string): Promise<Chat[]> => {
 	const { data } = await axios.get<Chat[]>('/chat/rooms', {
 		params: {
 			userId,
-		},
-		withCredentials: true,
-	});
-
-	return data;
-};
-
-export const fetchMessages = async (chatId: string, lastMessageId: string | undefined): Promise<Message[]> => {
-	const { data } = await axios.get<Message[]>('/chat/messages', {
-		params: {
-			chatId,
-			lastMessageId,
 		},
 		withCredentials: true,
 	});

@@ -3,13 +3,7 @@ import { Request, Response, Router } from 'express';
 import cloudinary from 'cloudinary';
 import multer from 'multer';
 
-// Exclude keys from user
-function exclude<User, Key extends keyof User>(user: User, keys: Key[]): Omit<User, Key> {
-	for (const key of keys) {
-		delete user[key];
-	}
-	return user;
-}
+import { exclude } from '../utils/exclude';
 
 const prisma = new PrismaClient();
 
@@ -45,6 +39,25 @@ router.get('/', async (req: Request, res: Response) => {
 			},
 		});
 
+		if (chat) {
+			const newReadBy = chat.readBy;
+
+			if (!chat.readBy.includes(userId as string)) {
+				newReadBy.push(userId as string);
+			}
+
+			await prisma.chat.update({
+				where: {
+					id: chat.id,
+				},
+				data: {
+					readBy: {
+						set: newReadBy,
+					},
+				},
+			});
+		}
+
 		chatWithUsersAndMessages = chat;
 
 		// A new member to the room.
@@ -55,6 +68,9 @@ router.get('/', async (req: Request, res: Response) => {
 					id: chatId as string,
 				},
 				data: {
+					readBy: {
+						push: userId as string,
+					},
 					users: {
 						connect: {
 							id: userId as string,
@@ -119,6 +135,9 @@ router.get('/rooms', async (req: Request, res: Response) => {
 			},
 			include: {
 				chats: {
+					orderBy: {
+						createdAt: 'asc',
+					},
 					include: {
 						messages: {
 							take: 1,
@@ -200,6 +219,9 @@ router.post('/', uploader.single('file'), async (req: Request, res: Response) =>
 					ownerId,
 					icon: upload.secure_url,
 					public_id: upload.public_id,
+					readBy: {
+						set: [ownerId as string],
+					},
 				},
 				include: {
 					messages: true,
@@ -212,6 +234,9 @@ router.post('/', uploader.single('file'), async (req: Request, res: Response) =>
 				data: {
 					name: roomName,
 					ownerId,
+					readBy: {
+						set: [ownerId as string],
+					},
 				},
 				include: { messages: true },
 			});
@@ -220,42 +245,6 @@ router.post('/', uploader.single('file'), async (req: Request, res: Response) =>
 		}
 
 		return res.status(200).json(newChat);
-	} catch (error) {
-		console.log(error);
-
-		return res.sendStatus(500);
-	}
-});
-
-router.post('/message', async (req: Request, res: Response) => {
-	const { chatId, text, senderId } = req.body;
-
-	try {
-		const message = await prisma.message.create({
-			data: {
-				chatId,
-				text,
-				senderId,
-			},
-			include: {
-				sender: true,
-			},
-		});
-
-		await prisma.chat.update({
-			where: {
-				id: chatId,
-			},
-			data: {
-				messages: {
-					connect: {
-						id: message.id,
-					},
-				},
-			},
-		});
-
-		return res.status(200).json({ message });
 	} catch (error) {
 		console.log(error);
 
@@ -309,43 +298,6 @@ router.patch('/leave', async (req: Request, res: Response) => {
 	}
 });
 
-router.get('/message/:chatId', async (req: Request, res: Response) => {
-	const { chatId } = req.params;
-
-	try {
-		const chat = await prisma.chat.findUnique({
-			where: {
-				id: chatId,
-			},
-			include: {
-				messages: {
-					include: {
-						sender: true,
-					},
-					orderBy: {
-						createdAt: 'desc',
-					},
-					take: 1,
-				},
-			},
-		});
-
-		const message = chat?.messages[0];
-
-		if (message) {
-			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-			// @ts-ignore
-			delete message.sender.password;
-		}
-
-		return res.status(200).json({ message });
-	} catch (error) {
-		console.log(error);
-
-		return res.sendStatus(500);
-	}
-});
-
 router.delete('/:chatId', async (req: Request, res: Response) => {
 	const { chatId } = req.params;
 
@@ -361,54 +313,6 @@ router.delete('/:chatId', async (req: Request, res: Response) => {
 		}
 
 		return res.sendStatus(200);
-	} catch (error) {
-		console.log(error);
-
-		return res.sendStatus(500);
-	}
-});
-
-router.get('/messages', async (req: Request, res: Response) => {
-	const { chatId, lastMessageId } = req.query;
-
-	try {
-		let messages;
-
-		if (lastMessageId) {
-			messages = await prisma.message.findMany({
-				where: {
-					chatId: chatId as string,
-				},
-				orderBy: {
-					createdAt: 'desc',
-				},
-				cursor: {
-					id: lastMessageId as string,
-				},
-				skip: 1,
-				take: 20,
-				include: {
-					sender: true,
-				},
-			});
-		} else {
-			//first page
-			messages = await prisma.message.findMany({
-				where: {
-					chatId: chatId as string,
-				},
-				orderBy: {
-					createdAt: 'desc',
-				},
-				skip: 0,
-				take: 20,
-				include: {
-					sender: true,
-				},
-			});
-		}
-
-		return res.status(200).json(messages);
 	} catch (error) {
 		console.log(error);
 
@@ -599,6 +503,41 @@ router.get('/private', async (req: Request, res: Response) => {
 		});
 
 		return res.status(200).json(chatWithReciver?.users[0]);
+	} catch (error) {
+		console.log(error);
+
+		return res.sendStatus(500);
+	}
+});
+
+router.patch('/read', async (req: Request, res: Response) => {
+	const { chatId, userId } = req.body;
+
+	try {
+		const chat = await prisma.chat.findUnique({
+			where: {
+				id: chatId,
+			},
+		});
+
+		if (chat) {
+			const newReadBy = chat?.readBy;
+
+			if (!chat.readBy.includes(userId as string)) {
+				newReadBy.push(userId as string);
+			}
+
+			await prisma.chat.update({
+				where: {
+					id: chatId,
+				},
+				data: {
+					readBy: newReadBy,
+				},
+			});
+
+			return res.sendStatus(200);
+		}
 	} catch (error) {
 		console.log(error);
 

@@ -15,6 +15,7 @@ export interface Chat {
 	type: 'GROUP' | 'PRIVATE';
 	ownerId?: string;
 	createdAt: string;
+	readBy: string[];
 	messages?: Message[];
 }
 

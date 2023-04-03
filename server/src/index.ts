@@ -14,6 +14,7 @@ import { checkToken } from './middleware/auth';
 import authRoute from './routes/authRoute';
 import userRoute from './routes/userRoute';
 import chatRoute from './routes/chatRoute';
+import messageRoute from './routes/messageRoute';
 
 interface Chat {
 	id: string;
@@ -64,6 +65,7 @@ app.use(cookieParser());
 app.use('/auth', authRoute);
 app.use('/user', checkToken, userRoute);
 app.use('/chat', checkToken, chatRoute);
+app.use('/message', checkToken, messageRoute);
 
 interface UserWithSockets {
 	userId: string;
@@ -182,7 +184,6 @@ io.on('connect', (socket: Socket) => {
 				sender,
 				createdAt,
 				isPrivate: true,
-				receiverAvatar: receiver?.avatar,
 			});
 		}
 	);
