@@ -2,7 +2,7 @@ import { ChangeEvent, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { HiCamera, HiPlus } from 'react-icons/hi';
 import { SyncLoader } from 'react-spinners';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 
 import { createPortal } from 'react-dom';
 import { createChat } from '../api/chat';
@@ -13,26 +13,17 @@ interface Props {
 
 const CreateChatButton = ({ currentUserId }: Props) => {
 	const navigate = useNavigate();
-
-	const queryClient = useQueryClient();
-
 	const [roomName, setRoomName] = useState<string>('');
 	const [error, setError] = useState<string>('');
 	const [file, setFile] = useState<File | null>();
 	const [preview, setPreview] = useState<string>();
 	const [imageError, setImageError] = useState<string>();
-
 	const fileInputRef = useRef<HTMLInputElement>(null);
-
 	const { mutate, isLoading } = useMutation({
 		mutationFn: (formData: FormData) => {
 			return createChat(formData);
 		},
 		onSuccess: (data) => {
-			queryClient.setQueryData(['chatRooms'], (old: any) => {
-				return [...old, data];
-			});
-
 			document.getElementById('modal-2')!.click();
 
 			navigate(`/chat/${data.id}`);
