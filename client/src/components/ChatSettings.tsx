@@ -15,7 +15,12 @@ interface Props {
 
 const ChatSettings = ({ chatId, currentUserId, setIsOpen }: Props) => {
 	const { data } = useChat(chatId, currentUserId);
-
+	const [roomName, setRoomName] = useState<string>('');
+	const [error, setError] = useState<string>('');
+	const [file, setFile] = useState<File | null>();
+	const [preview, setPreview] = useState<string>();
+	const [imageError, setImageError] = useState<string>();
+	const fileInputRef = useRef<HTMLInputElement>(null);
 	const { isLoading, mutate } = useMutation({
 		mutationFn: (formData: FormData) => {
 			return updateChat(formData);
@@ -31,15 +36,6 @@ const ChatSettings = ({ chatId, currentUserId, setIsOpen }: Props) => {
 			console.log(error);
 		},
 	});
-
-	const [roomName, setRoomName] = useState<string>('');
-	const [error, setError] = useState<string>('');
-	const [file, setFile] = useState<File | null>();
-	const [preview, setPreview] = useState<string>();
-	const [imageError, setImageError] = useState<string>();
-	const [a, b] = useState<boolean>(false);
-
-	const fileInputRef = useRef<HTMLInputElement>(null);
 
 	useEffect(() => {
 		if (data) {

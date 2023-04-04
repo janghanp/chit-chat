@@ -5,7 +5,6 @@ import useUser from '../hooks/useUser';
 
 const RequireAuth = () => {
 	const location = useLocation();
-
 	const { data: currentUser } = useUser();
 
 	if (!currentUser) {

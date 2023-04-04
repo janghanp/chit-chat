@@ -8,9 +8,7 @@ import defaultAvatar from '/default.jpg';
 
 const SearchInChat = () => {
 	const { chatId } = useParams();
-
 	const queryClient = useQueryClient();
-
 	const [query, setQuery] = useState<string>('');
 	const [isFocused, setIsFocused] = useState<boolean>(false);
 	const [filteredMembers, setFilteredMembers] = useState<User[]>();

@@ -13,11 +13,8 @@ interface FormData {
 
 const Login = () => {
 	const navigate = useNavigate();
-
 	const queryClient = useQueryClient();
-
 	const { data: currentUser } = useUser();
-
 	const { mutate } = useMutation({
 		mutationFn: ({ email, password }: { email: string; password: string }) => logInUser(email, password),
 		async onSuccess() {
@@ -31,7 +28,6 @@ const Login = () => {
 			}
 		},
 	});
-
 	const {
 		register,
 		handleSubmit,
@@ -50,10 +46,8 @@ const Login = () => {
 	}
 
 	return (
-		//  background
 		<div className="min-h-screen bg-base-300">
 			<div className="container mx-auto flex min-h-screen max-w-lg flex-col items-center justify-center">
-				{/* form card */}
 				<div className="w-full rounded-lg border bg-base-100 p-10">
 					<div className="text-center text-2xl font-bold">Welcome to chit-chat</div>
 					<form onSubmit={onSubmit} className="flex flex-col items-center justify-center gap-y-5">
@@ -70,26 +64,22 @@ const Login = () => {
 								})}
 								aria-invalid={errors.email ? 'true' : 'false'}
 							/>
-
 							{errors.email?.type === 'required' && (
 								<p role="alert" className="text-error">
 									{errors.email.message}
 								</p>
 							)}
-
 							{errors.email?.type === 'pattern' && (
 								<p role="alert" className="text-error">
 									{errors.email.message}
 								</p>
 							)}
-
 							{errors.email?.type === 'incorrect' && (
 								<p role="alert" className="text-error">
 									{errors.email.message}
 								</p>
 							)}
 						</div>
-
 						<div className="w-full">
 							<label className="label">Password</label>
 							<input
@@ -99,20 +89,17 @@ const Login = () => {
 									required: { value: true, message: 'Password is required' },
 								})}
 							/>
-
 							{errors.password?.type === 'required' && (
 								<p role="alert" className="text-error">
 									{errors.password.message}
 								</p>
 							)}
-
 							{errors.password?.type === 'incorrect' && (
 								<p role="alert" className="text-error">
 									{errors.password.message}
 								</p>
 							)}
 						</div>
-
 						<button className="btn w-full" type="submit">
 							Log In
 						</button>

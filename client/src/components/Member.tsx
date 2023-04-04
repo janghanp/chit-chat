@@ -13,11 +13,9 @@ interface Props {
 
 const Member = ({ member }: Props) => {
 	const navigate = useNavigate();
-
 	const queryClient = useQueryClient();
-
 	const { data: currentUser } = useUser();
-
+	const [isOpen, setIsOpen] = useState<boolean>(false);
 	const { mutate } = useMutation({
 		mutationFn: ({ senderId, receiverId }: { senderId: string; receiverId: string }) => {
 			return createPrivateChat(senderId, receiverId);
@@ -38,8 +36,6 @@ const Member = ({ member }: Props) => {
 			console.log(error);
 		},
 	});
-
-	const [isOpen, setIsOpen] = useState<boolean>(false);
 
 	const createPrivateChatHandler = async () => {
 		mutate({ senderId: currentUser!.id, receiverId: member.id });

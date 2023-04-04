@@ -13,13 +13,11 @@ interface ChatWithMembers extends Chat {
 
 const Explorer = () => {
 	const navigate = useNavigate();
-
 	//* By setting this value as an object, even if you get the same text as before, it is going to be a different reference.
 	//* When a user keeps doing like, enter "s" and delete on and on.
 	const [query, setQuery] = useState<{ text: string }>({ text: '' });
 	const [isLoading, setIsLoading] = useState<boolean>(false);
 	const [filteredChats, setFilterdChats] = useState<ChatWithMembers[] | null>();
-
 	const debouncedValue = useDebounce<{ text: string }>(query, 500);
 
 	useEffect(() => {
@@ -81,7 +79,6 @@ const Explorer = () => {
 				className="input-bordered input my-3 w-full max-w-lg"
 				placeholder="Explore chats"
 			/>
-
 			{filteredChats && filteredChats.length > 0 && !isLoading && (
 				<ul className="menu mt-3 w-full max-w-lg rounded-lg border bg-base-100 p-2 shadow-md">
 					{filteredChats?.map((chat) => {
@@ -113,7 +110,6 @@ const Explorer = () => {
 					})}
 				</ul>
 			)}
-
 			{isLoading && (
 				<ul className="menu mt-3 w-full max-w-lg rounded-lg border bg-base-100 p-2 shadow-md">
 					<div className="text-center">

@@ -18,11 +18,9 @@ interface Props {
 
 const Dropdown = ({ isDropDownOpen, setIsDropDownOpen, isOwner, chatId }: Props) => {
 	const queryClient = useQueryClient();
-
 	const navigate = useNavigate();
-
 	const { data: currentUser } = useUser();
-
+	const [isOpen, setIsOpen] = useState<boolean>(false);
 	const { mutate: updateMutate } = useMutation({
 		mutationKey: ['leaveChat', chatId],
 		mutationFn: () => {
@@ -43,7 +41,6 @@ const Dropdown = ({ isDropDownOpen, setIsDropDownOpen, isOwner, chatId }: Props)
 		},
 		onError() {},
 	});
-
 	const { mutate: deleteMutate } = useMutation({
 		mutationKey: ['deleteChat', chatId],
 		mutationFn: () => {
@@ -62,8 +59,6 @@ const Dropdown = ({ isDropDownOpen, setIsDropDownOpen, isOwner, chatId }: Props)
 		},
 		onError() {},
 	});
-
-	const [isOpen, setIsOpen] = useState<boolean>(false);
 
 	const leaveChatHandler = async () => {
 		const result = window.confirm('Are you sure you want to leave the chat?');

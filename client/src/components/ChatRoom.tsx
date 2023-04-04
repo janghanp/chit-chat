@@ -1,11 +1,13 @@
 import { Dispatch, memo, SetStateAction, useEffect, useRef, useState } from 'react';
 import { format } from 'date-fns';
 import { useNavigate, useParams } from 'react-router-dom';
+import produce from 'immer';
+import axios from 'axios';
+import { useQueryClient } from '@tanstack/react-query';
 
 import { Chat, User } from '../types';
 import useUser from '../hooks/useUser';
 import defaultAvatar from '/default.jpg';
-import axios from 'axios';
 
 interface Props {
 	chatRoom: Chat;
@@ -14,18 +16,15 @@ interface Props {
 
 const ChatRoom = ({ chatRoom, setIsSidebarOpen }: Props) => {
 	const { chatId } = useParams();
-
 	const navigate = useNavigate();
-
+	const queryClient = useQueryClient();
 	const { data: currentUser } = useUser();
-
 	const [isNewMessage, setIsNewMessage] = useState<boolean>(false);
 	const [receiverAvatar, setReceiverAvatar] = useState<string | undefined>('');
-
 	const receiverRef = useRef<boolean>(false);
 
+	// When it is a private chat, set the receiver avatar as a chat icon.
 	useEffect(() => {
-		// When it is a private chat, set the receiver avatar as a chat icon.
 		if (chatRoom.type === 'PRIVATE') {
 			const fetchReceiver = async () => {
 				const { data } = await axios.get<User>('/chat/private', {
@@ -48,15 +47,43 @@ const ChatRoom = ({ chatRoom, setIsSidebarOpen }: Props) => {
 		}
 	}, [currentUser]);
 
+	// Set new message indicator.
 	useEffect(() => {
-		setIsNewMessage(!chatRoom.readBy.includes(currentUser!.id));
-	}, [chatRoom]);
-
-	useEffect(() => {
-		if (chatId === chatRoom.id) {
-			setIsNewMessage(false);
+		if (!chatRoom.readBy.includes(currentUser!.id) && chatId !== chatRoom.id) {
+			setIsNewMessage(true);
 		}
 	}, [chatRoom]);
+
+	// Mark as read.
+	useEffect(() => {
+		if (chatId === chatRoom.id) {
+			axios.patch('/chat/read', { chatId, userId: currentUser!.id }, { withCredentials: true });
+
+			queryClient.setQueryData(['chatRooms'], (old: any) => {
+				return produce(old, (draftState: Chat[]) => {
+					draftState.forEach((chat: Chat) => {
+						if (chat.id === chatId) {
+							if (!chat.readBy.includes(currentUser!.id)) {
+								chat.readBy.push(currentUser!.id);
+							}
+						}
+					});
+				});
+			});
+
+			setIsNewMessage(false);
+
+			return () => {
+				axios.patch('/chat/read', { chatId, userId: currentUser!.id }, { withCredentials: true });
+			};
+		}
+	}, [chatId]);
+
+	const clickHandler = async () => {
+		setIsSidebarOpen(false);
+
+		navigate(`/chat/${chatRoom.id}`);
+	};
 
 	const hasMessage = chatRoom.messages!.length > 0 ? true : false;
 
@@ -67,22 +94,6 @@ const ChatRoom = ({ chatRoom, setIsSidebarOpen }: Props) => {
 		// 86400000 = 24 hours
 		isToday = gap < 86400000;
 	}
-
-	const clickHandler = async () => {
-		setIsSidebarOpen(false);
-
-		if (isNewMessage) {
-			setIsNewMessage(false);
-		}
-
-		// don't need to wait.
-		// if (!chatRoom.readBy.includes(currentUser!.id) && chatId) {
-		// 	console.log('read the current chat');
-		// 	axios.patch('/chat/read', { chatId, userId: currentUser!.id }, { withCredentials: true });
-		// }
-
-		navigate(`/chat/${chatRoom.id}`);
-	};
 
 	return (
 		<tr className={`hover:cursor-pointer ${chatId === chatRoom.id ? 'active' : ''} w-full`} onClick={clickHandler}>

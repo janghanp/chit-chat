@@ -102,8 +102,6 @@ function App() {
 			createdAt: string;
 			isPrivate: boolean;
 		}) => {
-			console.log('got a message');
-
 			const { chatId, messageId, text, sender, createdAt, isPrivate } = data;
 
 			const currentChatId = window.location.href.split('/').pop();
@@ -173,17 +171,20 @@ function App() {
 				if (isOnChatRoomList) {
 					const state = queryClient.getQueryState<ChatType>(['chat', chatId]);
 
-					const state2 = queryClient.getQueryData<User>(['currentUser']);
+					const currentUser = queryClient.getQueryData<User>(['currentUser']);
 
-					queryClient.setQueryData(['chatRooms'], (old: any) => {
-						return produce(old, (draftState: ChatType[]) => {
-							draftState.forEach((chat: ChatType) => {
-								if (chat.id === chatId) {
-									chat.readBy = chat.readBy.filter((userId) => userId !== state2!.id);
-								}
+					// Show new message indicator
+					if (sender.id !== currentUser!.id) {
+						queryClient.setQueryData(['chatRooms'], (old: any) => {
+							return produce(old, (draftState: ChatType[]) => {
+								draftState.forEach((chat: ChatType) => {
+									if (chat.id === chatId) {
+										chat.readBy = chat.readBy.filter((userId) => userId !== currentUser!.id);
+									}
+								});
 							});
 						});
-					});
+					}
 
 					// When the chat has been fetched then update the messages of the chat, otherwise it doesn't have to be updated.
 					// It is going to fetch new messages.

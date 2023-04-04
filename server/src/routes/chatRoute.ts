@@ -39,25 +39,6 @@ router.get('/', async (req: Request, res: Response) => {
 			},
 		});
 
-		if (chat) {
-			const newReadBy = chat.readBy;
-
-			if (!chat.readBy.includes(userId as string)) {
-				newReadBy.push(userId as string);
-			}
-
-			await prisma.chat.update({
-				where: {
-					id: chat.id,
-				},
-				data: {
-					readBy: {
-						set: newReadBy,
-					},
-				},
-			});
-		}
-
 		chatWithUsersAndMessages = chat;
 
 		// A new member to the room.

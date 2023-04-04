@@ -1,7 +1,6 @@
 import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-
 import axios, { AxiosError } from 'axios';
 
 import { FormData } from '../types';
@@ -10,11 +9,8 @@ import { registerUser } from '../api/user';
 
 const Register = () => {
 	const navigate = useNavigate();
-
 	const queryClient = useQueryClient();
-
 	const { data: currentUser } = useUser();
-
 	const { mutate } = useMutation({
 		mutationFn: ({ email, password, username }: { email: string; password: string; username: string }) =>
 			registerUser(email, password, username),
@@ -32,7 +28,6 @@ const Register = () => {
 			}
 		},
 	});
-
 	const {
 		register,
 		handleSubmit,
@@ -83,20 +78,17 @@ const Register = () => {
 									{errors.email.message}
 								</p>
 							)}
-
 							{errors.email?.type === 'pattern' && (
 								<p role="alert" className="text-error">
 									{errors.email.message}
 								</p>
 							)}
-
 							{errors.email?.type === 'taken' && (
 								<p role="alert" className="text-error">
 									{errors.email.message}
 								</p>
 							)}
 						</div>
-
 						<div className="w-full">
 							<label className="label">Password</label>
 							<input
@@ -106,20 +98,17 @@ const Register = () => {
 									required: { value: true, message: 'Password is required' },
 								})}
 							/>
-
 							{errors.password?.type === 'required' && (
 								<p role="alert" className="text-error">
 									{errors.password.message}
 								</p>
 							)}
-
 							{errors.password?.type === 'match' && (
 								<p role="alert" className="text-error">
 									{errors.password.message}
 								</p>
 							)}
 						</div>
-
 						<div className="w-full">
 							<label className="label">ConfirmPassword</label>
 							<input
@@ -129,14 +118,12 @@ const Register = () => {
 									required: { value: true, message: 'Password is required' },
 								})}
 							/>
-
 							{errors.confirmPassword?.type === 'required' && (
 								<p role="alert" className="text-error">
 									{errors.confirmPassword.message}
 								</p>
 							)}
 						</div>
-
 						<div className="w-full">
 							<label className="label">Username</label>
 							<input
@@ -145,24 +132,20 @@ const Register = () => {
 									required: { value: true, message: 'Username is required' },
 								})}
 							/>
-
 							{errors.username?.type === 'required' && (
 								<p role="alert" className="text-error">
 									{errors.username.message}
 								</p>
 							)}
-
 							{errors.username?.type === 'taken' && (
 								<p role="alert" className="text-error">
 									{errors.username.message}
 								</p>
 							)}
 						</div>
-
 						<button type="submit" className="btn w-full">
 							Sign Up
 						</button>
-
 						<div className="flex w-full justify-center gap-x-4 text-sm font-semibold">
 							<span>Already have an account?</span>
 							<Link to={'/login'} className="underline hover:cursor-pointer">

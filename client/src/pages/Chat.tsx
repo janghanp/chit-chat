@@ -13,13 +13,11 @@ import useChat from '../hooks/useChat';
 
 const Chat = () => {
 	const { chatId } = useParams();
-
 	const queryClient = useQueryClient();
-
 	const { data: currentUser } = useUser();
-
 	const { isLoading, isError, data: currentChat, isSuccess } = useChat(chatId as string, currentUser!.id);
-
+	const [inputMessage, setInputMessage] = useState<string>('');
+	const [isOpenMemberList, setIsOpenMemberList] = useState<boolean>(true);
 	const { mutate } = useMutation({
 		mutationKey: ['createMessage', chatId],
 		mutationFn: ({
@@ -63,9 +61,6 @@ const Chat = () => {
 		},
 	});
 
-	const [inputMessage, setInputMessage] = useState<string>('');
-	const [isOpenMemberList, setIsOpenMemberList] = useState<boolean>(true);
-
 	useEffect(() => {
 		if (currentChat) {
 			socket.emit('join_chat', {
@@ -82,6 +77,7 @@ const Chat = () => {
 		}
 	}, [currentChat, chatId]);
 
+	//When a user joins the chat for the first time, add the chat on the chat room list.
 	useEffect(() => {
 		if (currentChat && isSuccess) {
 			if (currentChat.isNewMember) {

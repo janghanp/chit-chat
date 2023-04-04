@@ -11,11 +11,8 @@ import useUser from '../hooks/useUser';
 
 const ChatBody = () => {
 	const { chatId } = useParams();
-
 	const { ref, inView } = useInView();
-
 	const { data: currentUser } = useUser();
-
 	const { data, fetchNextPage, hasNextPage, status } = useInfiniteQuery<Message[]>({
 		queryKey: ['messages', chatId],
 		queryFn: async ({ pageParam }) => fetchMessages(chatId as string, pageParam),
