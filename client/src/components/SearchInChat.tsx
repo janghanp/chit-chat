@@ -56,9 +56,9 @@ const SearchInChat = () => {
 	}
 
 	return (
-		<div className="relative w-full max-w-xs text-right">
+		<div className="relative max-w-xs text-right">
 			<input
-				className="input-bordered input input-xs focus:w-full"
+				className="input-bordered input input-xs focus:w-64"
 				type="text"
 				placeholder="Search"
 				onChange={changeHandler}

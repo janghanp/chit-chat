@@ -1,12 +1,13 @@
 import { useState } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
 
 import { User } from '../types';
 import defaultAvatar from '/default.jpg';
 import useUser from '../hooks/useUser';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { createPrivateChat } from '../api/chat';
-import { useNavigate } from 'react-router-dom';
-import { addFriend } from '../api/user';
+import { createNotification } from '../api/notification';
+import { socket } from '../socket';
 
 interface Props {
 	member: User;
@@ -37,13 +38,13 @@ const Member = ({ member }: Props) => {
 			console.log(error);
 		},
 	});
-	const { mutate: addFriendMutate } = useMutation({
-		mutationFn: ({ senderId, receiverId }: { senderId: string; receiverId: string }) => {
-			return addFriend(senderId, receiverId);
+	const { mutate: createNotificationMutate } = useMutation({
+		mutationFn: ({ message, receiverId, senderId }: { message: string; receiverId: string; senderId: string }) => {
+			return createNotification(message, receiverId, senderId);
 		},
 		onSuccess: async (data) => {
-			console.log('user added!');
-			console.log(data);
+			console.log('notificaion created!');
+			socket.emit('send_notification', { ...data });
 		},
 		onError: (error: any) => {
 			console.log(error);
@@ -54,8 +55,13 @@ const Member = ({ member }: Props) => {
 		createPrivateChatMutate({ senderId: currentUser!.id, receiverId: member.id });
 	};
 
-	const addFriendHandler = async () => {
-		addFriendMutate({ senderId: currentUser!.id, receiverId: member.id });
+	const requestFriendHandler = async () => {
+		//manipulate message.
+		createNotificationMutate({
+			receiverId: member.id,
+			message: `${currentUser!.username} has sent you a friend request`,
+			senderId: currentUser!.id,
+		});
 	};
 
 	return (
@@ -83,11 +89,10 @@ const Member = ({ member }: Props) => {
 						<li onClick={createPrivateChatHandler}>
 							<a>private chat</a>
 						</li>
-						<li onClick={addFriendHandler}>
+						<li onClick={requestFriendHandler}>
 							<a>Add Friend</a>
 						</li>
 					</ul>
-
 					<div onClick={() => setIsOpen(false)} className="fixed inset-0"></div>
 				</>
 			)}

@@ -230,6 +230,11 @@ function App() {
 			});
 		};
 
+		const onReceiveNotification = (data: any) => {
+			console.log('you got new notification!');
+			console.log(data);
+		};
+
 		socket.on('online', onOnline);
 		socket.on('offline', onOffline);
 		socket.on('set_members_status', setMembersStatus);
@@ -237,6 +242,7 @@ function App() {
 		socket.on('receive_message', onReceiveMessage);
 		socket.on('enter_new_member', onEnterNewMember);
 		socket.on('leave_member', onLeaveMember);
+		socket.on('receive_notification', onReceiveNotification);
 
 		return () => {
 			socket.off('online', onOnline);
@@ -246,6 +252,7 @@ function App() {
 			socket.off('receive_message', onReceiveMessage);
 			socket.off('enter_new_member', onEnterNewMember);
 			socket.off('leave_member', onLeaveMember);
+			socket.off('receive_notification', onReceiveNotification);
 		};
 	}, []);
 

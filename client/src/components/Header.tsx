@@ -3,6 +3,7 @@ import { HiUserGroup } from 'react-icons/hi';
 
 import Dropdown from './Dropdown';
 import SearchInChat from './SearchInChat';
+import Inbox from './Inbox';
 
 interface Props {
 	isOwner: boolean;
@@ -26,12 +27,13 @@ const Header = ({ setIsOpenMemberList, currentChatName, isOwner, chatId }: Props
 				/>
 			</div>
 			<div className="flex flex-1 flex-row items-center justify-end gap-x-3 pr-3 sm:flex-auto">
-				<SearchInChat />
 				<div className="tooltip tooltip-bottom" data-tip="Members">
 					<button className="btn-ghost btn-sm btn px-1" onClick={() => setIsOpenMemberList((prev) => !prev)}>
 						<HiUserGroup className="text-2xl" />
 					</button>
 				</div>
+				<SearchInChat />
+				<Inbox />
 			</div>
 		</div>
 	);

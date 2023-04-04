@@ -15,6 +15,7 @@ import authRoute from './routes/authRoute';
 import userRoute from './routes/userRoute';
 import chatRoute from './routes/chatRoute';
 import messageRoute from './routes/messageRoute';
+import notificationRoute from './routes/notificationRoute';
 
 interface Chat {
 	id: string;
@@ -66,6 +67,7 @@ app.use('/auth', authRoute);
 app.use('/user', checkToken, userRoute);
 app.use('/chat', checkToken, chatRoute);
 app.use('/message', checkToken, messageRoute);
+app.use('/notification', checkToken, notificationRoute);
 
 interface UserWithSockets {
 	userId: string;
@@ -229,6 +231,20 @@ io.on('connect', (socket: Socket) => {
 		io.to(chatId).emit('destroy_chat', { chatId });
 
 		socket.leave(chatId);
+	});
+
+	socket.on('send_notification', (data: any) => {
+		const { receiverId } = data;
+
+		const target = usersWithSockets.filter((el) => {
+			return el.userId === receiverId;
+		});
+
+		if (target.length > 0) {
+			if (target[0].socketIds?.length > 0) {
+				socket.to(target[0].socketIds).emit('receive_notification', { ...data });
+			}
+		}
 	});
 
 	socket.on('disconnect', () => {
