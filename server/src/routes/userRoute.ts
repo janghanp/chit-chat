@@ -156,4 +156,42 @@ router.post('/avatar', uploader.single('file'), async (req: Request, res: Respon
 	}
 });
 
+router.patch('/friend', async (req: Request, res: Response) => {
+	const { senderId, receiverId } = req.body;
+
+	try {
+		await prisma.user.update({
+			where: {
+				id: senderId,
+			},
+			data: {
+				friends: {
+					connect: {
+						id: receiverId,
+					},
+				},
+			},
+		});
+
+		await prisma.user.update({
+			where: {
+				id: receiverId,
+			},
+			data: {
+				friends: {
+					connect: {
+						id: senderId,
+					},
+				},
+			},
+		});
+
+		return res.sendStatus(200);
+	} catch (error) {
+		console.log(error);
+
+		return res.status(500).json({ message: 'Something went wrong, please try again...' });
+	}
+});
+
 export default router;

@@ -156,7 +156,7 @@ io.on('connect', (socket: Socket) => {
 				},
 			});
 
-			// A receiver needs to the private chat room.
+			// A receiver needs to connect the private chat room.
 			await prisma.user.update({
 				where: {
 					id: receiverId,
@@ -172,9 +172,12 @@ io.on('connect', (socket: Socket) => {
 				return el.userId === receiverId;
 			});
 
-			if (target && target[0].socketIds?.length > 0) {
-				//Connect a receiver's sockets to the chat so that the person can get message.
-				socket.to(target[0].socketIds).socketsJoin(chatId);
+			// When a receiver has a socket connection.
+			if (target.length > 0) {
+				if (target[0].socketIds?.length > 0) {
+					//Connect a receiver's sockets to the chat so that the person can get message.
+					socket.to(target[0].socketIds).socketsJoin(chatId);
+				}
 			}
 
 			io.to(chatId).emit('receive_message', {

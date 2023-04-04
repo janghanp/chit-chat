@@ -5,7 +5,7 @@ import axios, { AxiosError } from 'axios';
 
 import { FormData } from '../types';
 import useUser from '../hooks/useUser';
-import { registerUser } from '../api/user';
+import { registerUser } from '../api/auth';
 
 const Register = () => {
 	const navigate = useNavigate();

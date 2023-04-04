@@ -22,8 +22,11 @@ model User {
   updatedAt          DateTime @updatedAt
 
   chats          Chat[]
-  chatsOwnedByMe Chat[]    @relation("OwnedChats")
+  chatsOwnedByMe Chat[]         @relation("OwnedChats")
   messages       Message[]
+  friends        User[]         @relation("Friendship")
+  friendOf       User[]         @relation("Friendship")
+  notifications  Notification[]
 }
 
 model Message {
@@ -51,6 +54,16 @@ model Chat {
   users    User[]
   owner    User?     @relation("OwnedChats", fields: [ownerId], references: [id])
   messages Message[]
+}
+
+model Notification {
+  id         String   @id @unique @default(cuid())
+  message    String
+  read       Boolean
+  receiverId String
+  createdAt  DateTime @default(now())
+
+  receiver User @relation(fields: [receiverId], references: [id])
 }
 
 enum Type {

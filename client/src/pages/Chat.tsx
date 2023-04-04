@@ -17,7 +17,7 @@ const Chat = () => {
 	const { data: currentUser } = useUser();
 	const { isLoading, isError, data: currentChat, isSuccess } = useChat(chatId as string, currentUser!.id);
 	const [inputMessage, setInputMessage] = useState<string>('');
-	const [isOpenMemberList, setIsOpenMemberList] = useState<boolean>(true);
+	const [isOpenMemberList, setIsOpenMemberList] = useState<boolean>(false);
 	const { mutate } = useMutation({
 		mutationKey: ['createMessage', chatId],
 		mutationFn: ({

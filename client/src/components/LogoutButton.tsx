@@ -4,7 +4,7 @@ import axios, { AxiosError } from 'axios';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { socket } from '../socket';
-import { logOutUser } from '../api/user';
+import { logOutUser } from '../api/auth';
 
 const LogoutButton = () => {
 	const queryClient = useQueryClient();

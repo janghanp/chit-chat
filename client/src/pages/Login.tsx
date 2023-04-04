@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import useUser from '../hooks/useUser';
-import { logInUser } from '../api/user';
+import { logInUser } from '../api/auth';
 import axios, { AxiosError } from 'axios';
 
 interface FormData {

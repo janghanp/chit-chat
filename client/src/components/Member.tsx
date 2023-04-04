@@ -6,6 +6,7 @@ import useUser from '../hooks/useUser';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { createPrivateChat } from '../api/chat';
 import { useNavigate } from 'react-router-dom';
+import { addFriend } from '../api/user';
 
 interface Props {
 	member: User;
@@ -16,7 +17,7 @@ const Member = ({ member }: Props) => {
 	const queryClient = useQueryClient();
 	const { data: currentUser } = useUser();
 	const [isOpen, setIsOpen] = useState<boolean>(false);
-	const { mutate } = useMutation({
+	const { mutate: createPrivateChatMutate } = useMutation({
 		mutationFn: ({ senderId, receiverId }: { senderId: string; receiverId: string }) => {
 			return createPrivateChat(senderId, receiverId);
 		},
@@ -36,9 +37,25 @@ const Member = ({ member }: Props) => {
 			console.log(error);
 		},
 	});
+	const { mutate: addFriendMutate } = useMutation({
+		mutationFn: ({ senderId, receiverId }: { senderId: string; receiverId: string }) => {
+			return addFriend(senderId, receiverId);
+		},
+		onSuccess: async (data) => {
+			console.log('user added!');
+			console.log(data);
+		},
+		onError: (error: any) => {
+			console.log(error);
+		},
+	});
 
 	const createPrivateChatHandler = async () => {
-		mutate({ senderId: currentUser!.id, receiverId: member.id });
+		createPrivateChatMutate({ senderId: currentUser!.id, receiverId: member.id });
+	};
+
+	const addFriendHandler = async () => {
+		addFriendMutate({ senderId: currentUser!.id, receiverId: member.id });
 	};
 
 	return (
@@ -65,6 +82,9 @@ const Member = ({ member }: Props) => {
 					<ul className="menu menu-compact absolute top-0 -left-[210px] z-40 w-52 rounded-lg border bg-base-100 p-2 shadow">
 						<li onClick={createPrivateChatHandler}>
 							<a>private chat</a>
+						</li>
+						<li onClick={addFriendHandler}>
+							<a>Add Friend</a>
 						</li>
 					</ul>
 
