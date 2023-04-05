@@ -23,6 +23,14 @@ router.post('/', async (req: Request, res: Response) => {
 					},
 				},
 			},
+			include: {
+				sender: {
+					select: {
+						avatar: true,
+						username: true,
+					}
+				}
+			}
 		});
 
 		return res.status(200).json(notification);
@@ -52,6 +60,24 @@ router.get('/', async (req: Request, res: Response) => {
 		});
 
 		return res.status(200).json(notifications);
+	} catch (error) {
+		console.log(error);
+
+		return res.sendStatus(500);
+	}
+});
+
+router.delete('/:notificationId', async (req: Request, res: Response) => {
+	const { notificationId } = req.params;
+
+	try {
+		await prisma.notification.delete({
+			where: {
+				id: notificationId,
+			},
+		});
+
+		return res.sendStatus(200);
 	} catch (error) {
 		console.log(error);
 

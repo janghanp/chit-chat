@@ -150,7 +150,6 @@ const ChatRoom = ({ chatRoom, setIsSidebarOpen }: Props) => {
 								</time>
 							</span>
 						</span>
-
 						<span className="text-sm font-normal">
 							{hasMessage && (
 								<>

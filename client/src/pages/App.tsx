@@ -231,8 +231,9 @@ function App() {
 		};
 
 		const onReceiveNotification = (data: any) => {
-			console.log('you got new notification!');
-			console.log(data);
+			queryClient.setQueriesData(['notification'], (old: any) => {
+				return [...old, data];
+			});
 		};
 
 		socket.on('online', onOnline);

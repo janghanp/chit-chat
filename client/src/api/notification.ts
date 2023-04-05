@@ -26,3 +26,9 @@ export const fetchNotifications = async (userId: string) => {
 
 	return data;
 };
+
+export const deleteNotification = async (notificationId: string) => {
+	const { data } = await axios.delete(`/notification/${notificationId}`, { withCredentials: true });
+
+	return data;
+};

@@ -1,22 +1,48 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { HiInbox } from 'react-icons/hi';
 import { SyncLoader } from 'react-spinners';
 import { formatDistance, subDays } from 'date-fns';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 import useUser from '../hooks/useUser';
-import { useQuery } from '@tanstack/react-query';
-import { fetchNotifications } from '../api/notification';
+import { deleteNotification, fetchNotifications } from '../api/notification';
 import defaultAvatar from '/default.jpg';
 import { Notification } from '../types';
 
 const Inbox = () => {
+	const queryClient = useQueryClient();
 	const { data: currentUser } = useUser();
 	const [isOpen, setIsOpen] = useState<boolean>(false);
+	const [hasNewNotification, setHasNewNotification] = useState<boolean>(false);
 	const { isLoading, isError, data } = useQuery<Notification[]>({
 		queryKey: ['notification'],
 		queryFn: async () => fetchNotifications(currentUser!.id),
-		enabled: isOpen,
 	});
+	const { mutate: deleteNotificationMutate } = useMutation({
+		mutationFn: async ({ notificationId }: { notificationId: string }) => deleteNotification(notificationId),
+		onSuccess: (data, variables, context) => {
+			const { notificationId } = variables;
+
+			queryClient.setQueryData(['notification'], (old: any) => {
+				return old.filter((notificaion: any) => notificaion.id !== notificationId);
+			});
+		},
+		onError: (error) => {
+			console.log(error);
+		},
+	});
+
+	useEffect(() => {
+		if (data && data.length > 0 && data.map((notification) => notification.read).includes(false)) {
+			setHasNewNotification(true);
+		}
+	}, [data]);
+
+	useEffect(() => {
+		if (isOpen) {
+			setHasNewNotification(false);
+		}
+	}, [isOpen]);
 
 	const acceptFriendRequest = () => {
 		//connect two users and delete the notification.
@@ -24,20 +50,22 @@ const Inbox = () => {
 		//change notifiaction cache.
 	};
 
-	const ignoreFriendRequest = () => {
-		//just delete the notification from database.
-		//change notification cache.
+	const ignoreFriendRequest = (notificationId: string) => {
+		deleteNotificationMutate({ notificationId });
 	};
-
-	if (data) {
-		console.log(data);
-	}
 
 	return (
 		<div className="relative">
 			<div className="tooltip tooltip-bottom z-30" data-tip="Inbox">
 				<button className="btn-ghost btn-sm btn px-1" onClick={() => setIsOpen(!isOpen)}>
-					<HiInbox className="text-2xl" />
+					<div className="indicator">
+						<span
+							className={`badge-error badge badge-xs indicator-bottom indicator-item left-[8px] top-[7px] ${
+								hasNewNotification ? 'block' : 'hidden'
+							}`}
+						></span>
+						<HiInbox className="text-2xl" />
+					</div>
 				</button>
 			</div>
 			{isOpen && (
@@ -53,6 +81,7 @@ const Inbox = () => {
 							) : (
 								<>
 									<div className="absolute -right-5 z-30 flex w-96 flex-col rounded-lg border bg-white shadow-lg sm:right-0 sm:w-[400px]">
+										<div className="border-b p-5 text-2xl font-bold">Inbox</div>
 										{data.map((notification) => {
 											return (
 												<div
@@ -80,7 +109,7 @@ const Inbox = () => {
 															</button>
 															<button
 																className="btn-outline btn-ghost btn-sm btn normal-case"
-																onClick={ignoreFriendRequest}
+																onClick={() => ignoreFriendRequest(notification.id)}
 															>
 																Ignore
 															</button>
