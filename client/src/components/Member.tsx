@@ -59,7 +59,7 @@ const Member = ({ member }: Props) => {
 		//manipulate message.
 		createNotificationMutate({
 			receiverId: member.id,
-			message: `${currentUser!.username} has sent you a friend request`,
+			message: `has sent you a friend request`,
 			senderId: currentUser!.id,
 		});
 	};

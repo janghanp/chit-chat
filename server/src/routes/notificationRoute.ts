@@ -45,6 +45,7 @@ router.get('/', async (req: Request, res: Response) => {
 				sender: {
 					select: {
 						avatar: true,
+						username: true,
 					},
 				},
 			},

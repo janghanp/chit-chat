@@ -28,6 +28,16 @@ export interface Message {
 	createdAt: string;
 }
 
+export interface Notification {
+	id: string;
+	message: string;
+	read: boolean;
+	receiverId: string;
+	senderId: string;
+	sender: { avatar: string; username: string };
+	createdAt: string;
+}
+
 export interface FormData {
 	email: string;
 	password: string;
