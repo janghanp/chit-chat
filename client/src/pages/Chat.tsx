@@ -77,16 +77,15 @@ const Chat = () => {
 		}
 	}, [currentChat, chatId]);
 
-	//When a user joins the chat for the first time, add the chat on the chat room list.
 	useEffect(() => {
 		if (currentChat && isSuccess) {
-			if (currentChat.isNewMember) {
-				queryClient.setQueryData(['chatRooms'], (old: any) => {
-					return produce(old, (draftState: any) => {
+			queryClient.setQueryData(['chatRooms'], (old: any) => {
+				return produce(old, (draftState: any) => {
+					if (!old.map((el: any) => el.id).includes(currentChat.chat.id)) {
 						draftState.push({ ...currentChat.chat, messages: currentChat.chat.messages });
-					});
+					}
 				});
-			}
+			});
 		}
 	}, [currentChat, isSuccess]);
 

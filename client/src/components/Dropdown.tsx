@@ -79,7 +79,7 @@ const Dropdown = ({ isDropDownOpen, setIsDropDownOpen, isOwner, chatId }: Props)
 	return (
 		<>
 			<div className="absolute right-5">
-				<label className="swap-rotate swap z-30">
+				<label className="swap swap-rotate z-30">
 					<input type="checkbox" />
 					<HiOutlineChevronDown className="swap-off z-20 h-5 w-5" onClick={() => setIsDropDownOpen((prev) => !prev)} />
 					<HiOutlineX className="swap-on z-20 h-5 w-5" onClick={() => setIsDropDownOpen((prev) => !prev)} />

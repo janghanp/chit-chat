@@ -9,6 +9,7 @@ import { createPortal } from 'react-dom';
 import { User } from '../types';
 import ExplorerButton from './ExplorerButton';
 import CreateChatButton from './CreateChatButton';
+import FriendsButton from './FriendsButton';
 
 interface Props {
 	currentUser: User;
@@ -30,7 +31,6 @@ const UserInfo = ({ currentUser }: Props) => {
 			<div className="border-t bg-base-300">
 				{currentUser && (
 					<div className="flex flex-row items-center justify-evenly py-3">
-						{/* Avatar */}
 						<div className="flex flex-row items-center gap-x-2">
 							<div className="avatar">
 								<div className="absolute -top-0.5 right-0 z-10 h-3 w-3 rounded-full border bg-green-500"></div>
@@ -40,6 +40,7 @@ const UserInfo = ({ currentUser }: Props) => {
 							</div>
 						</div>
 						<CreateChatButton currentUserId={currentUser!.id} />
+						<FriendsButton />
 						<ExplorerButton />
 						<div className="tooltip" data-tip="User Settings">
 							<button className="btn-ghost btn-sm btn px-1" onClick={() => setIsSettingsOpen(true)}>

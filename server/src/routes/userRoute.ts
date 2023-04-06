@@ -14,6 +14,37 @@ const uploader = multer({
 
 const router = Router();
 
+router.get('/friends', async (req: Request, res: Response) => {
+	const { id } = req.token;
+
+	try {
+		const userWithFriends = await prisma.user.findUnique({
+			where: {
+				id,
+			},
+			include: {
+				friends: {
+					select: {
+						id: true,
+						username: true,
+						avatar: true,
+					},
+				},
+			},
+		});
+
+		const friends = userWithFriends?.friends;
+
+		console.log(friends);
+
+		return res.status(200).json(friends);
+	} catch (error) {
+		console.log(error);
+
+		return res.status(500).json({ message: 'Something went wrong, please try again...' });
+	}
+});
+
 router.get('/:userId', async (req: Request, res: Response) => {
 	const { userId } = req.params;
 
@@ -204,6 +235,44 @@ router.patch('/notification', async (req: Request, res: Response) => {
 			},
 			data: {
 				hasNewNotification: false,
+			},
+		});
+
+		return res.sendStatus(200);
+	} catch (error) {
+		console.log(error);
+
+		return res.status(500).json({ message: 'Something went wrong, please try again...' });
+	}
+});
+
+router.delete('/friend', async (req: Request, res: Response) => {
+	const { senderId, receiverId } = req.body;
+
+	try {
+		await prisma.user.update({
+			where: {
+				id: senderId,
+			},
+			data: {
+				friends: {
+					disconnect: {
+						id: receiverId,
+					},
+				},
+			},
+		});
+
+		await prisma.user.update({
+			where: {
+				id: receiverId,
+			},
+			data: {
+				friends: {
+					disconnect: {
+						id: senderId,
+					},
+				},
 			},
 		});
 

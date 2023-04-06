@@ -101,7 +101,7 @@ const ChatRoom = ({ chatRoom, setIsSidebarOpen }: Props) => {
 				<div className="flex items-center justify-start gap-x-3">
 					<div className="indicator">
 						<span
-							className={`badge-primary badge badge-xs indicator-item right-1 top-1 ${
+							className={`badge badge-primary badge-xs indicator-item right-1 top-1 ${
 								isNewMessage ? 'block' : 'hidden'
 							}`}
 						></span>

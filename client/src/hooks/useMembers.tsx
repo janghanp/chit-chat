@@ -6,7 +6,7 @@ const useMembers = (chatId: string) => {
 	const { isLoading, isError, data } = useQuery({
 		queryKey: ['members', chatId],
 		queryFn: async () => fetchMembers(chatId as string),
-		enabled: chatId ? true : false
+		enabled: chatId ? true : false,
 	});
 
 	return { isLoading, isError, data };

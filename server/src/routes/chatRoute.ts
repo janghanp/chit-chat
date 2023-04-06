@@ -37,6 +37,17 @@ router.get('/', async (req: Request, res: Response) => {
 					},
 				],
 			},
+			include: {
+				messages: {
+					orderBy: {
+						createdAt: 'desc',
+					},
+					include: {
+						sender: true,
+					},
+					take: 1,
+				},
+			},
 		});
 
 		chatWithUsersAndMessages = chat;

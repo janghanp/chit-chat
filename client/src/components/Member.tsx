@@ -1,43 +1,24 @@
 import { useState } from 'react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useNavigate } from 'react-router-dom';
 
 import { User } from '../types';
 import defaultAvatar from '/default.jpg';
 import useUser from '../hooks/useUser';
-import { createPrivateChat } from '../api/chat';
 import useCreateNotification from '../hooks/useCreateNotification';
+import useCreatePrivateChat from '../hooks/useCreatePrivateChat';
+import useDeleteFriend from '../hooks/useDeleteFriend';
+import useFriends from '../hooks/useFriends';
 
 interface Props {
 	member: User;
 }
 
 const Member = ({ member }: Props) => {
-	const navigate = useNavigate();
-	const queryClient = useQueryClient();
 	const { data: currentUser } = useUser();
-	const [isOpen, setIsOpen] = useState<boolean>(false);
+	const { data: friends } = useFriends();
 	const { mutate: createNotificationMutate } = useCreateNotification();
-	const { mutate: createPrivateChatMutate } = useMutation({
-		mutationFn: ({ senderId, receiverId }: { senderId: string; receiverId: string }) => {
-			return createPrivateChat(senderId, receiverId);
-		},
-		onSuccess: async (data) => {
-			if (!data.isPrevious) {
-				queryClient.setQueryData(['chatRooms'], (old: any) => {
-					return [...old, data];
-				});
-
-				navigate(`/chat/${data.id}`);
-				return;
-			}
-
-			navigate(`/chat/${data.previousChat.id}`);
-		},
-		onError: (error: any) => {
-			console.log(error);
-		},
-	});
+	const { mutate: createPrivateChatMutate } = useCreatePrivateChat();
+	const { mutate: deleteFriendMutate } = useDeleteFriend(member);
+	const [isOpen, setIsOpen] = useState<boolean>(false);
 
 	const createPrivateChatHandler = async () => {
 		createPrivateChatMutate({ senderId: currentUser!.id, receiverId: member.id });
@@ -49,7 +30,11 @@ const Member = ({ member }: Props) => {
 			message: `has sent you a friend request`,
 			senderId: currentUser!.id,
 		});
+		setIsOpen(false);
+	};
 
+	const removeFriendHandler = () => {
+		deleteFriendMutate({ senderId: currentUser!.id, receiverId: member.id });
 		setIsOpen(false);
 	};
 
@@ -71,16 +56,21 @@ const Member = ({ member }: Props) => {
 				</div>
 				<span className="text-sm font-semibold">{member.username}</span>
 			</div>
-
 			{isOpen && (
 				<>
 					<ul className="menu menu-compact absolute top-0 -left-[210px] z-40 w-52 rounded-lg border bg-base-100 p-2 shadow">
 						<li onClick={createPrivateChatHandler}>
 							<a>private chat</a>
 						</li>
-						<li onClick={requestFriendHandler}>
-							<a>Add Friend</a>
-						</li>
+						{friends.map((friend: any) => friend.id).includes(member.id) ? (
+							<li onClick={removeFriendHandler}>
+								<a>Remove Friend</a>
+							</li>
+						) : (
+							<li onClick={requestFriendHandler}>
+								<a>Add Friend</a>
+							</li>
+						)}
 					</ul>
 					<div onClick={() => setIsOpen(false)} className="fixed inset-0"></div>
 				</>

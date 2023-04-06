@@ -66,6 +66,10 @@ const Inbox = () => {
 
 				return [...old, notification];
 			});
+
+			queryClient.setQueryData(['friends'], (old: any) => {
+				return [...old, { id: notification.senderId, avatar: notification.sender.avatar }];
+			});
 		},
 		onError: (error) => {
 			console.log(error);

@@ -14,6 +14,7 @@ import NoMatch from './NoMatch';
 import Explorer from './Explore';
 import { socket } from '../socket';
 import { User, Chat as ChatType } from '../types';
+import Friends from './Friends';
 
 function App() {
 	const queryClient = useQueryClient();
@@ -240,6 +241,8 @@ function App() {
 			});
 		};
 
+		//TODO: Add new_friend and delete_friend socket event so that the person who sent the friend request can add him/her when the sender accepted the request.
+
 		socket.on('online', onOnline);
 		socket.on('offline', onOffline);
 		socket.on('set_members_status', setMembersStatus);
@@ -269,6 +272,7 @@ function App() {
 						<Route index element={<Home />} />
 						<Route path="/explorer" element={<Explorer />} />
 						<Route path="/chat/:chatId" element={<Chat />} />
+						<Route path="/friends" element={<Friends />} />
 					</Route>
 				</Route>
 
