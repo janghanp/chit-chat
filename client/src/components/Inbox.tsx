@@ -8,12 +8,12 @@ import useUser from '../hooks/useUser';
 import { deleteNotification, fetchNotifications } from '../api/notification';
 import defaultAvatar from '/default.jpg';
 import { Notification } from '../types';
+import { checkNotification } from '../api/user';
 
 const Inbox = () => {
 	const queryClient = useQueryClient();
 	const { data: currentUser } = useUser();
 	const [isOpen, setIsOpen] = useState<boolean>(false);
-	const [hasNewNotification, setHasNewNotification] = useState<boolean>(false);
 	const { isLoading, isError, data } = useQuery<Notification[]>({
 		queryKey: ['notification'],
 		queryFn: async () => fetchNotifications(currentUser!.id),
@@ -31,18 +31,23 @@ const Inbox = () => {
 			console.log(error);
 		},
 	});
+	const { mutate: checkNotificationMutate } = useMutation({
+		mutationFn: async ({ userId }: { userId: string }) => checkNotification(userId),
+		onSuccess: (data, variables, context) => {
+			queryClient.setQueryData(['currentUser'], (old: any) => {
+				return { ...old, hasNewNotification: false };
+			});
+		},
+		onError: (error) => {
+			console.log('what is up?');
+		},
+	});
 
 	useEffect(() => {
-		if (data && data.length > 0 && data.map((notification) => notification.read).includes(false)) {
-			setHasNewNotification(true);
+		if (isOpen && currentUser?.hasNewNotification) {
+			checkNotificationMutate({ userId: currentUser.id });
 		}
-	}, [data]);
-
-	useEffect(() => {
-		if (isOpen) {
-			setHasNewNotification(false);
-		}
-	}, [isOpen]);
+	}, [isOpen, currentUser]);
 
 	const acceptFriendRequest = () => {
 		//connect two users and delete the notification.
@@ -60,8 +65,8 @@ const Inbox = () => {
 				<button className="btn-ghost btn-sm btn px-1" onClick={() => setIsOpen(!isOpen)}>
 					<div className="indicator">
 						<span
-							className={`badge-error badge badge-xs indicator-bottom indicator-item left-[8px] top-[7px] ${
-								hasNewNotification ? 'block' : 'hidden'
+							className={`indicator-bottom badge badge-error badge-xs indicator-item left-[8px] top-[7px] ${
+								currentUser?.hasNewNotification ? 'block' : 'hidden'
 							}`}
 						></span>
 						<HiInbox className="text-2xl" />
@@ -80,13 +85,13 @@ const Inbox = () => {
 								<div>Error...</div>
 							) : (
 								<>
-									<div className="absolute -right-5 z-30 flex w-96 flex-col rounded-lg border bg-white shadow-lg sm:right-0 sm:w-[400px]">
-										<div className="border-b p-5 text-2xl font-bold">Inbox</div>
+									<div className="absolute -right-5 z-30 flex w-96 flex-col rounded-xl border bg-white shadow-lg sm:right-0 sm:w-[400px]">
+										<div className="border-b bg-base-300 p-5 text-2xl font-bold">Inbox</div>
 										{data.map((notification) => {
 											return (
 												<div
 													key={notification.id}
-													className="flex items-start gap-x-2 p-2 transition duration-300 hover:bg-gray-200"
+													className="flex items-start gap-x-2 p-2 transition duration-300 hover:bg-gray-200/50"
 												>
 													<div className="avatar">
 														<div className="w-10 rounded-full border">

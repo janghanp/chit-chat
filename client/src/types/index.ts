@@ -5,6 +5,7 @@ export interface User {
 	avatar?: string;
 	public_id?: string;
 	isOnline?: boolean;
+	hasNewNotification: boolean;
 }
 
 export interface Chat {

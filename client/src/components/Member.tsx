@@ -43,7 +43,6 @@ const Member = ({ member }: Props) => {
 			return createNotification(message, receiverId, senderId);
 		},
 		onSuccess: async (data) => {
-			console.log('notificaion created!');
 			socket.emit('send_notification', { ...data });
 		},
 		onError: (error: any) => {
@@ -56,12 +55,13 @@ const Member = ({ member }: Props) => {
 	};
 
 	const requestFriendHandler = async () => {
-		//manipulate message.
 		createNotificationMutate({
 			receiverId: member.id,
 			message: `has sent you a friend request`,
 			senderId: currentUser!.id,
 		});
+
+		setIsOpen(false);
 	};
 
 	return (

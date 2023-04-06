@@ -12,6 +12,7 @@ async function main() {
 	console.time('🧹 Cleaned up the database...');
 	await prisma.message.deleteMany({ where: {} });
 	await prisma.chat.deleteMany({ where: {} });
+	await prisma.notification.deleteMany({ where: {} });
 	await prisma.user.deleteMany({ where: {} });
 	console.timeEnd('🧹 Cleaned up the database...');
 
@@ -49,7 +50,7 @@ async function main() {
 			name: 'chat2',
 			ownerId: users[1].id,
 			readBy: {
-				set: [users[1].id]
+				set: [users[1].id],
 			},
 			users: {
 				connect: {

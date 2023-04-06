@@ -28,9 +28,18 @@ router.post('/', async (req: Request, res: Response) => {
 					select: {
 						avatar: true,
 						username: true,
-					}
-				}
-			}
+					},
+				},
+			},
+		});
+
+		await prisma.user.update({
+			where: {
+				id: receiverId,
+			},
+			data: {
+				hasNewNotification: true,
+			},
 		});
 
 		return res.status(200).json(notification);

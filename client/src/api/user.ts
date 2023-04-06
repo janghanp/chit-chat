@@ -14,3 +14,9 @@ export const addFriend = async (senderId: string, receiverId: string) => {
 
 	return data;
 };
+
+export const checkNotification = async (userId: string) => {
+	const { data } = await axios.patch('/user/notification', { userId }, { withCredentials: true });
+
+	return data;
+};

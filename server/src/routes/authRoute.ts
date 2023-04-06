@@ -65,6 +65,7 @@ router.post('/register', async (req: Request, res: Response) => {
 			email: user.email,
 			avatar: user.avatar,
 			public_id: user.public_id,
+			hasNewNotification: false,
 		});
 	} catch (error) {
 		return res.json({ message: 'Something went wrong, please try again...' });
@@ -107,6 +108,7 @@ router.post('/login', async (req: Request, res: Response) => {
 			email: user.email,
 			avatar: user.avatar,
 			public_id: user.public_id,
+			hasNewNotification: false,
 		});
 	} catch (error) {
 		return res.status(400).json({ message: 'Something went wrong, please try again...' });
@@ -150,6 +152,7 @@ router.get('/refresh', async (req: Request, res: Response) => {
 					email: user.email,
 					avatar: user.avatar,
 					public_id: user.public_id,
+					hasNewNotification: user.hasNewNotification,
 				});
 			}
 		}

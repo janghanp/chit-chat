@@ -234,6 +234,10 @@ function App() {
 			queryClient.setQueriesData(['notification'], (old: any) => {
 				return [...old, data];
 			});
+
+			queryClient.setQueryData(['currentUser'], (old: any) => {
+				return { ...old, hasNewNotification: true };
+			});
 		};
 
 		socket.on('online', onOnline);

@@ -18,6 +18,7 @@ model User {
   avatar             String?
   public_id          String?
   leftPrivateChatIds String[]
+  hasNewNotification Boolean  @default(false)
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
 

@@ -194,4 +194,25 @@ router.patch('/friend', async (req: Request, res: Response) => {
 	}
 });
 
+router.patch('/notification', async (req: Request, res: Response) => {
+	const { userId } = req.body;
+
+	try {
+		await prisma.user.update({
+			where: {
+				id: userId,
+			},
+			data: {
+				hasNewNotification: false,
+			},
+		});
+
+		return res.sendStatus(200);
+	} catch (error) {
+		console.log(error);
+
+		return res.status(500).json({ message: 'Something went wrong, please try again...' });
+	}
+});
+
 export default router;
