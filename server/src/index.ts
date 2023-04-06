@@ -240,6 +240,8 @@ io.on('connect', (socket: Socket) => {
 			return el.userId === receiverId;
 		});
 
+		console.log(target);
+
 		if (target.length > 0) {
 			if (target[0].socketIds?.length > 0) {
 				socket.to(target[0].socketIds).emit('receive_notification', { ...data });

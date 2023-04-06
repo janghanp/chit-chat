@@ -6,8 +6,7 @@ import { User } from '../types';
 import defaultAvatar from '/default.jpg';
 import useUser from '../hooks/useUser';
 import { createPrivateChat } from '../api/chat';
-import { createNotification } from '../api/notification';
-import { socket } from '../socket';
+import useCreateNotification from '../hooks/useCreateNotification';
 
 interface Props {
 	member: User;
@@ -18,6 +17,7 @@ const Member = ({ member }: Props) => {
 	const queryClient = useQueryClient();
 	const { data: currentUser } = useUser();
 	const [isOpen, setIsOpen] = useState<boolean>(false);
+	const { mutate: createNotificationMutate } = useCreateNotification();
 	const { mutate: createPrivateChatMutate } = useMutation({
 		mutationFn: ({ senderId, receiverId }: { senderId: string; receiverId: string }) => {
 			return createPrivateChat(senderId, receiverId);
@@ -33,17 +33,6 @@ const Member = ({ member }: Props) => {
 			}
 
 			navigate(`/chat/${data.previousChat.id}`);
-		},
-		onError: (error: any) => {
-			console.log(error);
-		},
-	});
-	const { mutate: createNotificationMutate } = useMutation({
-		mutationFn: ({ message, receiverId, senderId }: { message: string; receiverId: string; senderId: string }) => {
-			return createNotification(message, receiverId, senderId);
-		},
-		onSuccess: async (data) => {
-			socket.emit('send_notification', { ...data });
 		},
 		onError: (error: any) => {
 			console.log(error);

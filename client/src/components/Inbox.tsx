@@ -9,6 +9,8 @@ import { deleteNotification, fetchNotifications } from '../api/notification';
 import defaultAvatar from '/default.jpg';
 import { Notification } from '../types';
 import { checkNotification } from '../api/user';
+import { addFriend } from '../api/user';
+import useCreateNotification from '../hooks/useCreateNotification';
 
 const Inbox = () => {
 	const queryClient = useQueryClient();
@@ -18,6 +20,7 @@ const Inbox = () => {
 		queryKey: ['notification'],
 		queryFn: async () => fetchNotifications(currentUser!.id),
 	});
+	const { mutate: createNotificationMutate } = useCreateNotification();
 	const { mutate: deleteNotificationMutate } = useMutation({
 		mutationFn: async ({ notificationId }: { notificationId: string }) => deleteNotification(notificationId),
 		onSuccess: (data, variables, context) => {
@@ -39,7 +42,33 @@ const Inbox = () => {
 			});
 		},
 		onError: (error) => {
-			console.log('what is up?');
+			console.log(error);
+		},
+	});
+	const { mutate: addFriendMutate } = useMutation({
+		mutationFn: async ({
+			receiverId,
+			senderId,
+			notification,
+		}: {
+			receiverId: string;
+			senderId: string;
+			notification: Notification;
+		}) => addFriend(senderId, receiverId),
+		onSuccess: (data, variables, context) => {
+			const { notification } = variables;
+
+			queryClient.setQueryData(['notification'], (old: any) => {
+				notification.message = `You accpeted ${notification.sender.username}' s friend request`;
+				notification.createdAt = new Date().toISOString();
+				notification.read = true;
+				notification.temp = true;
+
+				return [...old, notification];
+			});
+		},
+		onError: (error) => {
+			console.log(error);
 		},
 	});
 
@@ -49,10 +78,15 @@ const Inbox = () => {
 		}
 	}, [isOpen, currentUser]);
 
-	const acceptFriendRequest = () => {
-		//connect two users and delete the notification.
-		//create another notification to the user saying that you have accepted the request and mark as read. (in this case sender and receiver is going to be the same.)
-		//change notifiaction cache.
+	const acceptFriendRequest = (notification: Notification) => {
+		deleteNotificationMutate({ notificationId: notification.id });
+		addFriendMutate({ receiverId: currentUser!.id, senderId: notification.senderId, notification });
+
+		createNotificationMutate({
+			senderId: currentUser!.id,
+			receiverId: notification.senderId,
+			message: 'has accepted your friend request',
+		});
 	};
 
 	const ignoreFriendRequest = (notificationId: string) => {
@@ -98,9 +132,11 @@ const Inbox = () => {
 															<img src={notification.sender.avatar || defaultAvatar} alt={'?'} />
 														</div>
 													</div>
-													<div className="flex flex-col items-start">
+													<div className={`flex flex-col items-start ${notification.read && 'text-gray-400'}`}>
 														<div>
-															<span className="mr-2 text-sm font-bold">{notification.sender.username}</span>
+															{!notification.temp && (
+																<span className="mr-2 text-sm font-bold">{notification.sender.username}</span>
+															)}
 															<span className="text-sm">{notification.message}</span>
 														</div>
 														<span className="my-1 text-xs font-bold">
@@ -108,18 +144,28 @@ const Inbox = () => {
 																addSuffix: true,
 															})}
 														</span>
-														<div className="flex gap-x-2">
-															<button className="btn-success btn-sm btn normal-case" onClick={acceptFriendRequest}>
-																Accept
-															</button>
-															<button
-																className="btn-outline btn-ghost btn-sm btn normal-case"
-																onClick={() => ignoreFriendRequest(notification.id)}
-															>
-																Ignore
-															</button>
-														</div>
+														{notification.message.includes('sent') && (
+															<div className="flex gap-x-2">
+																<button
+																	className="btn-success btn-sm btn normal-case"
+																	onClick={() => acceptFriendRequest(notification)}
+																>
+																	Accept
+																</button>
+																<button
+																	className="btn-outline btn-ghost btn-sm btn normal-case"
+																	onClick={() => ignoreFriendRequest(notification.id)}
+																>
+																	Ignore
+																</button>
+															</div>
+														)}
 													</div>
+													{!notification.read && (
+														<div className="flex h-full flex-1 justify-center pt-5">
+															<span className="badge badge-success badge-xs indicator-item"></span>
+														</div>
+													)}
 												</div>
 											);
 										})}

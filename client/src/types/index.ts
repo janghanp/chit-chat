@@ -37,6 +37,7 @@ export interface Notification {
 	senderId: string;
 	sender: { avatar: string; username: string };
 	createdAt: string;
+	temp?: boolean;
 }
 
 export interface FormData {

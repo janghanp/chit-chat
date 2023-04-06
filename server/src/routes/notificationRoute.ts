@@ -9,6 +9,28 @@ router.post('/', async (req: Request, res: Response) => {
 	const { message, receiverId, senderId }: { receiverId: string; message: string; senderId: string } = req.body;
 
 	try {
+		const existingNotification = await prisma.notification.findFirst({
+			where: {
+				AND: [
+					{
+						senderId,
+					},
+					{
+						receiverId,
+					},
+					{
+						message: {
+							contains: 'sent',
+						},
+					},
+				],
+			},
+		});
+
+		if (existingNotification) {
+			return res.sendStatus(204);
+		}
+
 		const notification = await prisma.notification.create({
 			data: {
 				message,
@@ -80,13 +102,21 @@ router.delete('/:notificationId', async (req: Request, res: Response) => {
 	const { notificationId } = req.params;
 
 	try {
-		await prisma.notification.delete({
+		const notification = await prisma.notification.delete({
 			where: {
 				id: notificationId,
 			},
+			include: {
+				sender: {
+					select: {
+						avatar: true,
+						username: true,
+					},
+				},
+			},
 		});
 
-		return res.sendStatus(200);
+		return res.status(200).json(notification);
 	} catch (error) {
 		console.log(error);
 
