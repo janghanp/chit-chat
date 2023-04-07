@@ -58,7 +58,7 @@ const Member = ({ member }: Props) => {
 			</div>
 			{isOpen && (
 				<>
-					<ul className="menu menu-compact absolute top-0 -left-[210px] z-40 w-52 rounded-lg border bg-base-100 p-2 shadow">
+					<ul className="menu menu-compact absolute left-5 top-8 z-40 w-52 rounded-lg border bg-base-100 p-2 shadow sm:top-0 sm:-left-[210px]">
 						<li onClick={createPrivateChatHandler}>
 							<span>private chat</span>
 						</li>

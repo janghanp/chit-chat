@@ -133,7 +133,7 @@ const ChatRoom = ({ chatRoom, setIsSidebarOpen }: Props) => {
 							</>
 						)}
 					</div>
-					<div className="flex w-full flex-col">
+					<div className="flex w-full max-w-[244px] flex-col  overflow-hidden">
 						<span className="flex w-full items-center justify-between font-semibold">
 							<span>{chatRoom.name || receiverUsername}</span>
 							<span>
@@ -152,13 +152,11 @@ const ChatRoom = ({ chatRoom, setIsSidebarOpen }: Props) => {
 								</time>
 							</span>
 						</span>
-						<span className="text-sm font-normal">
-							{hasMessage && (
-								<>
-									{chatRoom.messages![0].sender.username}: {chatRoom.messages![0].text}
-								</>
-							)}
-						</span>
+						{hasMessage && (
+							<span className="overflow-hidden text-ellipsis text-sm font-normal">
+								{chatRoom.messages![0].sender.username}: {chatRoom.messages![0].text}
+							</span>
+						)}
 					</div>
 				</div>
 			</th>

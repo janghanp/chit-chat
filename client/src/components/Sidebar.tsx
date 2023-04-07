@@ -40,7 +40,7 @@ const Sidebar = () => {
 								/>
 							</div>
 						)}
-						<div className="flex h-full flex-col justify-between">
+						<div className="flex h-full w-full flex-col justify-between">
 							<ChatRoomList setIsSidebarOpen={setIsSidebarOpen} />
 							<div>
 								<UserInfo currentUser={currentUser!} />
