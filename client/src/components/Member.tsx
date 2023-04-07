@@ -60,15 +60,15 @@ const Member = ({ member }: Props) => {
 				<>
 					<ul className="menu menu-compact absolute top-0 -left-[210px] z-40 w-52 rounded-lg border bg-base-100 p-2 shadow">
 						<li onClick={createPrivateChatHandler}>
-							<a>private chat</a>
+							<span>private chat</span>
 						</li>
 						{friends && friends.map((friend: any) => friend.id).includes(member.id) ? (
 							<li onClick={removeFriendHandler}>
-								<a>Remove Friend</a>
+								<span>Remove Friend</span>
 							</li>
 						) : (
 							<li onClick={requestFriendHandler}>
-								<a>Add Friend</a>
+								<span>Add Friend</span>
 							</li>
 						)}
 					</ul>

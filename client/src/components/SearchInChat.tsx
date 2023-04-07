@@ -72,14 +72,14 @@ const SearchInChat = () => {
 						{filteredMembers?.map((member) => {
 							return (
 								<li key={member.id} className="w-full">
-									<a className="w-full">
+									<span className="w-full">
 										<div className="avatar">
 											<div className="w-7 rounded-full border-base-content">
 												<img src={member.avatar || defaultAvatar} width={20} height={20} alt="avatar" />
 											</div>
 										</div>
 										<Compo value={member.username} highlight={query} />
-									</a>
+									</span>
 								</li>
 							);
 						})}
@@ -89,11 +89,11 @@ const SearchInChat = () => {
 						{filteredMessages?.map((message) => {
 							return (
 								<li key={message.id} className="w-full">
-									<a className="w-full">
+									<span className="w-full">
 										<span className="w-full break-words">
 											<Compo value={message.text} highlight={query} />
 										</span>
-									</a>
+									</span>
 								</li>
 							);
 						})}

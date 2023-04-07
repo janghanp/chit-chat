@@ -48,7 +48,7 @@ const Friend = ({ friend }: Props) => {
 						<>
 							<ul className="menu menu-compact absolute top-10 right-0 z-40 w-52 rounded-lg border bg-base-100 p-2 shadow">
 								<li onClick={removeFriendHandler}>
-									<a>Remove Friend</a>
+									<span>Remove Friend</span>
 								</li>
 							</ul>
 							<div onClick={() => setIsOpen(false)} className="fixed inset-0"></div>
