@@ -30,7 +30,7 @@ const ChatBody = () => {
 		if (inView && hasNextPage) {
 			fetchNextPage();
 		}
-	}, [inView]);
+	}, [inView, hasNextPage, fetchNextPage]);
 
 	return (
 		<div

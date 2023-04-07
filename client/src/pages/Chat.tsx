@@ -80,7 +80,7 @@ const Chat = () => {
 				});
 			}
 		}
-	}, [currentChat, chatId]);
+	}, [currentChat, chatId, currentUser, queryClient]);
 
 	useEffect(() => {
 		if (currentChat && isSuccess) {
@@ -94,7 +94,7 @@ const Chat = () => {
 				}
 			});
 		}
-	}, [currentChat, isSuccess]);
+	}, [currentChat, isSuccess, queryClient]);
 
 	const createMessageHandler = async () => {
 		if (!inputMessage) {

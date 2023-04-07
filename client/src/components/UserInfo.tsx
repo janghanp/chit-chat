@@ -24,7 +24,7 @@ const UserInfo = ({ currentUser }: Props) => {
 		setIsSettingsOpen(false);
 
 		navigate('/');
-	}, []);
+	}, [navigate]);
 
 	return (
 		<>

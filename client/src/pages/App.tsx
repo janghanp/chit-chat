@@ -289,7 +289,7 @@ function App() {
 			socket.off('accept_friend', onAcceptFriend);
 			socket.off('remove_friend', onRemoveFriend);
 		};
-	}, []);
+	}, [queryClient]);
 
 	return (
 		<Routes>

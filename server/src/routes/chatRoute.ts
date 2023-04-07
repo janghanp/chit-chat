@@ -200,7 +200,7 @@ router.post('/', uploader.single('file'), async (req: Request, res: Response) =>
 			return res.status(400).json({ message: 'The chatroom name already exists.' });
 		}
 
-		let newChat: any;
+		let newChat;
 
 		if (req.file) {
 			const upload = await cloudinary.v2.uploader.upload(req.file.path, { folder: '/chit-chat/icon' });

@@ -36,7 +36,7 @@ const SearchInChat = () => {
 				setFilteredMessages(messages.flat().reverse());
 			}
 		}
-	}, [query]);
+	}, [query, queryClient, chatId]);
 
 	const Compo = ({ highlight, value }: { highlight: string; value: string }) => {
 		return <p>{getHighlightedText(value, highlight)}</p>;

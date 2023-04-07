@@ -47,14 +47,14 @@ const ChatRoom = ({ chatRoom, setIsSidebarOpen }: Props) => {
 				fetchReceiver();
 			}
 		}
-	}, [currentUser]);
+	}, [currentUser, chatRoom.id, chatRoom.type]);
 
 	// Set new message indicator.
 	useEffect(() => {
 		if (!chatRoom.readBy.includes(currentUser!.id) && chatId !== chatRoom.id) {
 			setIsNewMessage(true);
 		}
-	}, [chatRoom]);
+	}, [chatRoom, currentUser, chatId]);
 
 	// Mark as read.
 	useEffect(() => {
@@ -79,7 +79,7 @@ const ChatRoom = ({ chatRoom, setIsSidebarOpen }: Props) => {
 				axios.patch('/chat/read', { chatId, userId: currentUser!.id }, { withCredentials: true });
 			};
 		}
-	}, [chatId]);
+	}, [chatId, queryClient, currentUser, chatRoom.id]);
 
 	const clickHandler = async () => {
 		setIsSidebarOpen(false);
@@ -103,7 +103,7 @@ const ChatRoom = ({ chatRoom, setIsSidebarOpen }: Props) => {
 				<div className="flex items-center justify-start gap-x-3">
 					<div className="indicator">
 						<span
-							className={`badge badge-primary badge-xs indicator-item right-1 top-1 ${
+							className={`badge-primary badge badge-xs indicator-item right-1 top-1 ${
 								isNewMessage ? 'block' : 'hidden'
 							}`}
 						></span>

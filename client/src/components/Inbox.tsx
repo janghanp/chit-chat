@@ -54,7 +54,7 @@ const Inbox = () => {
 		if (isOpen && currentUser?.hasNewNotification) {
 			checkNotificationMutate({ userId: currentUser.id });
 		}
-	}, [isOpen, currentUser]);
+	}, [isOpen, currentUser, checkNotificationMutate]);
 
 	const readAllNotificationsHandler = () => {
 		if (data?.map((notification) => notification.read).includes(false)) {
@@ -78,7 +78,7 @@ const Inbox = () => {
 				<button className="btn-ghost btn-sm btn px-1" onClick={() => setIsOpen(!isOpen)}>
 					<div className="indicator">
 						<span
-							className={`indicator-bottom badge badge-error badge-xs indicator-item left-[8px] top-[7px] ${
+							className={`badge-error badge badge-xs indicator-bottom indicator-item left-[8px] top-[7px] ${
 								currentUser?.hasNewNotification ? 'block' : 'hidden'
 							}`}
 						></span>
