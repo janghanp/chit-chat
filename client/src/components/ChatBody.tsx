@@ -6,14 +6,13 @@ import { useInView } from 'react-intersection-observer';
 
 import defaultImageUrl from '/default.jpg';
 import { fetchMessages } from '../api/message';
-import { Message } from '../types';
 import useUser from '../hooks/useUser';
 
 const ChatBody = () => {
 	const { chatId } = useParams();
 	const { ref, inView } = useInView();
 	const { data: currentUser } = useUser();
-	const { data, fetchNextPage, hasNextPage, status } = useInfiniteQuery<Message[]>({
+	const { data, fetchNextPage, hasNextPage, status } = useInfiniteQuery({
 		queryKey: ['messages', chatId],
 		queryFn: async ({ pageParam }) => fetchMessages(chatId as string, pageParam),
 		getNextPageParam: (lastPage, pages) => {

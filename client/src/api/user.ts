@@ -1,7 +1,9 @@
 import axios from 'axios';
 
+import { Friend } from '../types';
+
 export const addFriend = async (senderId: string, receiverId: string) => {
-	const { data } = await axios.patch(
+	const { data } = await axios.patch<'OK'>(
 		'/user/friend',
 		{
 			senderId,
@@ -14,19 +16,19 @@ export const addFriend = async (senderId: string, receiverId: string) => {
 };
 
 export const checkNotification = async (userId: string) => {
-	const { data } = await axios.patch('/user/notification', { userId }, { withCredentials: true });
+	const { data } = await axios.patch<'OK'>('/user/notification', { userId }, { withCredentials: true });
 
 	return data;
 };
 
 export const fetchFriends = async () => {
-	const { data } = await axios.get('/user/friends', { withCredentials: true });
+	const { data } = await axios.get<Friend[]>('/user/friends', { withCredentials: true });
 
 	return data;
 };
 
 export const deleteFriend = async (senderId: string, receiverId: string) => {
-	const { data } = await axios.delete('/user/friend', {
+	const { data } = await axios.delete<'OK'>('/user/friend', {
 		data: {
 			senderId,
 			receiverId,

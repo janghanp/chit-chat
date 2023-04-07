@@ -172,7 +172,7 @@ router.delete('/logout', (req: Request, res: Response) => {
 		res.clearCookie('token');
 	}
 
-	res.end();
+	return res.sendStatus(200);
 });
 
 export default router;

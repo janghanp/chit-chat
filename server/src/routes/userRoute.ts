@@ -35,8 +35,6 @@ router.get('/friends', async (req: Request, res: Response) => {
 
 		const friends = userWithFriends?.friends;
 
-		console.log(friends);
-
 		return res.status(200).json(friends);
 	} catch (error) {
 		console.log(error);

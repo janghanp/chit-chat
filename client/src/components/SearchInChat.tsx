@@ -1,4 +1,4 @@
-import { useQueryClient } from '@tanstack/react-query';
+import { InfiniteData, useQueryClient } from '@tanstack/react-query';
 import { Fragment, useEffect, useState } from 'react';
 import { HiOutlineSearch } from 'react-icons/hi';
 import { useParams } from 'react-router-dom';
@@ -20,11 +20,8 @@ const SearchInChat = () => {
 
 	useEffect(() => {
 		if (query) {
-			const messagesData: { pages: Message[][]; pageParams: string[] } | undefined = queryClient.getQueryData([
-				'messages',
-				chatId,
-			]);
-			const membersData: User[] | undefined = queryClient.getQueryData(['members', chatId]);
+			const messagesData = queryClient.getQueryData<InfiniteData<Message[]>>(['messages', chatId]);
+			const membersData = queryClient.getQueryData<User[]>(['members', chatId]);
 
 			if (membersData && messagesData) {
 				const members = membersData.filter((member) => {

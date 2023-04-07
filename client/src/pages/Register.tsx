@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import axios, { AxiosError } from 'axios';
 
-import { FormData } from '../types';
+import { FormData, User } from '../types';
 import useUser from '../hooks/useUser';
 import { registerUser } from '../api/auth';
 
@@ -11,11 +11,11 @@ const Register = () => {
 	const navigate = useNavigate();
 	const queryClient = useQueryClient();
 	const { data: currentUser } = useUser();
-	const { mutate } = useMutation({
+	const { mutate: registerMutate } = useMutation({
 		mutationFn: ({ email, password, username }: { email: string; password: string; username: string }) =>
 			registerUser(email, password, username),
 		async onSuccess() {
-			await queryClient.invalidateQueries(['currentUser']);
+			await queryClient.invalidateQueries<User>(['currentUser']);
 			navigate('/explorer');
 		},
 		onError(error: AxiosError | Error) {
@@ -47,7 +47,7 @@ const Register = () => {
 			return;
 		}
 
-		mutate({ email, password, username });
+		registerMutate({ email, password, username });
 	});
 
 	if (currentUser) {

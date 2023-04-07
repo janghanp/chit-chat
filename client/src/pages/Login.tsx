@@ -1,10 +1,11 @@
 import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import axios, { AxiosError } from 'axios';
 
 import useUser from '../hooks/useUser';
 import { logInUser } from '../api/auth';
-import axios, { AxiosError } from 'axios';
+import { User } from '../types';
 
 interface FormData {
 	email: string;
@@ -15,10 +16,10 @@ const Login = () => {
 	const navigate = useNavigate();
 	const queryClient = useQueryClient();
 	const { data: currentUser } = useUser();
-	const { mutate } = useMutation({
+	const { mutate: logInMutate } = useMutation({
 		mutationFn: ({ email, password }: { email: string; password: string }) => logInUser(email, password),
 		async onSuccess() {
-			await queryClient.invalidateQueries(['currentUser']);
+			await queryClient.invalidateQueries<User>(['currentUser']);
 			navigate('/explorer');
 		},
 		onError(error: AxiosError | Error) {
@@ -38,7 +39,7 @@ const Login = () => {
 	const onSubmit = handleSubmit(async (data) => {
 		const { email, password } = data;
 
-		mutate({ email, password });
+		logInMutate({ email, password });
 	});
 
 	if (currentUser) {

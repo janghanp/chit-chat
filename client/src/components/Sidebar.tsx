@@ -10,11 +10,8 @@ import useChat from '../hooks/useChat';
 
 const Sidebar = () => {
 	const { chatId } = useParams();
-
 	const { data: currentUser } = useUser();
-
 	const { data: currentChat } = useChat(chatId as string, currentUser!.id);
-
 	const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
 	const [isDropDownOpen, setIsDropDownOpen] = useState<boolean>(false);
 

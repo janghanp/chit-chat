@@ -60,6 +60,12 @@ export interface AuthSuccessResponse {
 	chats: Chat[];
 }
 
+export interface Friend {
+	id: string;
+	username: string;
+	avatar?: string;
+}
+
 export interface AuthErrorResponse {
 	message: string;
 }

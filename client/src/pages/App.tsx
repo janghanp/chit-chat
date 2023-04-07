@@ -1,6 +1,6 @@
 import { Routes, Route } from 'react-router-dom';
 import { useEffect } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
+import { InfiniteData, useQueryClient } from '@tanstack/react-query';
 import produce from 'immer';
 
 import RequireAuth from '../components/RequiredAuth';
@@ -13,7 +13,7 @@ import Chat from './Chat';
 import NoMatch from './NoMatch';
 import Explorer from './Explore';
 import { socket } from '../socket';
-import { User, Chat as ChatType } from '../types';
+import { User, Chat as ChatType, Message, Notification } from '../types';
 import Friends from './Friends';
 
 function App() {
@@ -23,13 +23,13 @@ function App() {
 		const onOnline = (data: { userId: string }) => {
 			const { userId } = data;
 
-			const state = queryClient.getQueriesData(['members']);
+			const state = queryClient.getQueriesData<User[]>(['members']);
 
 			if (state) {
-				queryClient.setQueriesData(['members'], (old: any) => {
+				queryClient.setQueriesData<User[]>(['members'], (old) => {
 					if (old) {
-						return produce(old, (draftState: any) => {
-							draftState.forEach((member: any) => {
+						return produce(old, (draftState) => {
+							draftState.forEach((member) => {
 								if (member.id === userId) {
 									member.isOnline = true;
 								}
@@ -43,13 +43,13 @@ function App() {
 		const onOffline = (data: { userId: string }) => {
 			const { userId } = data;
 
-			const state = queryClient.getQueriesData(['members']);
+			const state = queryClient.getQueriesData<User[]>(['members']);
 
 			if (state) {
-				queryClient.setQueriesData(['members'], (old: any) => {
+				queryClient.setQueriesData<User[]>(['members'], (old) => {
 					if (old) {
-						return produce(old, (draftState: any) => {
-							draftState.forEach((member: any) => {
+						return produce(old, (draftState) => {
+							draftState.forEach((member) => {
 								if (member.id === userId) {
 									member.isOnline = false;
 								}
@@ -63,13 +63,13 @@ function App() {
 		const setMembersStatus = (data: { userIds: string[] }) => {
 			const { userIds } = data;
 
-			const state = queryClient.getQueriesData(['members']);
+			const state = queryClient.getQueriesData<User[]>(['members']);
 
 			if (state) {
-				queryClient.setQueriesData(['members'], (old: any) => {
+				queryClient.setQueriesData<User[]>(['members'], (old) => {
 					if (old) {
-						return produce(old, (draftState: any) => {
-							draftState.forEach((member: User) => {
+						return produce(old, (draftState) => {
+							draftState.forEach((member) => {
 								if (userIds.includes(member.id)) {
 									member.isOnline = true;
 								} else {
@@ -85,11 +85,13 @@ function App() {
 		const onDestroyChat = (data: { chatId: string }) => {
 			const { chatId } = data;
 
-			queryClient.setQueryData(['chatRooms'], (old: any) => {
-				return produce(old, (draftState: any) => {
-					const newChatRooms = draftState.filter((chatRoom: any) => chatRoom.id !== chatId);
-					draftState = newChatRooms;
-				});
+			queryClient.setQueryData<ChatType[]>(['chatRooms'], (old) => {
+				if (old) {
+					return produce(old, (draftState) => {
+						const newChatRooms = draftState.filter((chatRoom) => chatRoom.id !== chatId);
+						draftState = newChatRooms;
+					});
+				}
 			});
 
 			window.location.reload();
@@ -107,21 +109,25 @@ function App() {
 
 			const currentChatId = window.location.href.split('/').pop();
 
-			queryClient.setQueryData(['chatRooms'], (old: any) => {
-				return produce(old, (draftState: ChatType[]) => {
-					draftState.forEach((chat: ChatType) => {
-						if (chat.id === chatId) {
-							chat.messages[0] = { id: messageId, text, sender, createdAt };
-						}
+			queryClient.setQueryData<ChatType[]>(['chatRooms'], (old) => {
+				if (old) {
+					return produce(old, (draftState) => {
+						draftState.forEach((chat) => {
+							if (chat.id === chatId) {
+								chat.messages = [{ id: messageId, text, sender, createdAt, senderId: sender.id, chatId }];
+							}
+						});
 					});
-				});
+				}
 			});
 
 			if (currentChatId === chatId) {
-				queryClient.setQueryData(['messages', currentChatId], (old: any) => {
-					return produce(old, (draftState: any) => {
-						draftState.pages[0].unshift({ id: messageId, text, sender, createdAt, chatId, senderId: sender.id });
-					});
+				queryClient.setQueryData<InfiniteData<Message[]>>(['messages', currentChatId], (old) => {
+					if (old) {
+						return produce(old, (draftState) => {
+							draftState.pages[0].unshift({ id: messageId, text, sender, createdAt, chatId, senderId: sender.id });
+						});
+					}
 				});
 			} else {
 				const state = queryClient.getQueryState<ChatType[]>(['chatRooms']);
@@ -129,7 +135,7 @@ function App() {
 				let isOnChatRoomList: boolean = false;
 
 				if (state && state.data) {
-					const chatRoomIds = state.data.map((chat: ChatType) => {
+					const chatRoomIds = state.data.map((chat) => {
 						return chat.id;
 					});
 
@@ -139,32 +145,34 @@ function App() {
 
 				// When there is no the chat that needs to be updated on the chatroom list.
 				if (!isOnChatRoomList) {
-					queryClient.setQueryData(['chatRooms'], (old: any) => {
-						let newChat!: ChatType;
+					queryClient.setQueryData<ChatType[]>(['chatRooms'], (old) => {
+						if (old) {
+							let newChat!: ChatType;
 
-						if (isPrivate) {
-							newChat = {
-								id: chatId,
-								createdAt,
-								messages: [],
-								readBy: [],
-								type: 'PRIVATE',
-							};
+							if (isPrivate) {
+								newChat = {
+									id: chatId,
+									createdAt,
+									messages: [],
+									readBy: [],
+									type: 'PRIVATE',
+								};
+							}
+
+							if (!isPrivate) {
+								newChat = {
+									id: chatId,
+									createdAt,
+									messages: [],
+									readBy: [],
+									type: 'GROUP',
+								};
+							}
+
+							newChat.messages!.push({ id: messageId, text, sender, createdAt, chatId, senderId: sender.id });
+
+							return [...old, newChat];
 						}
-
-						if (!isPrivate) {
-							newChat = {
-								id: chatId,
-								createdAt,
-								messages: [],
-								readBy: [],
-								type: 'GROUP',
-							};
-						}
-
-						newChat.messages!.push({ id: messageId, text, sender, createdAt, chatId, senderId: sender.id });
-
-						return [...old, newChat];
 					});
 				}
 
@@ -176,24 +184,28 @@ function App() {
 
 					// Show new message indicator
 					if (sender.id !== currentUser!.id) {
-						queryClient.setQueryData(['chatRooms'], (old: any) => {
-							return produce(old, (draftState: ChatType[]) => {
-								draftState.forEach((chat: ChatType) => {
-									if (chat.id === chatId) {
-										chat.readBy = chat.readBy.filter((userId) => userId !== currentUser!.id);
-									}
+						queryClient.setQueryData<ChatType[]>(['chatRooms'], (old) => {
+							if (old) {
+								return produce(old, (draftState) => {
+									draftState.forEach((chat) => {
+										if (chat.id === chatId) {
+											chat.readBy = chat.readBy.filter((userId) => userId !== currentUser!.id);
+										}
+									});
 								});
-							});
+							}
 						});
 					}
 
 					// When the chat has been fetched then update the messages of the chat, otherwise it doesn't have to be updated.
 					// It is going to fetch new messages.
 					if (state) {
-						queryClient.setQueryData(['messages', chatId], (old: any) => {
-							return produce(old, (draftState: any) => {
-								draftState.pages[0].unshift({ id: messageId, text, sender, createdAt, chatId, senderId: sender.id });
-							});
+						queryClient.setQueryData<InfiniteData<Message[]>>(['messages', chatId], (old) => {
+							if (old) {
+								return produce(old, (draftState) => {
+									draftState.pages[0].unshift({ id: messageId, text, sender, createdAt, chatId, senderId: sender.id });
+								});
+							}
 						});
 					}
 				}
@@ -205,9 +217,9 @@ function App() {
 
 			newUser.isOnline = true;
 
-			queryClient.setQueryData(['members', chatId], (old: any) => {
+			queryClient.setQueryData<User[]>(['members', chatId], (old) => {
 				if (old) {
-					return produce(old, (draftState: any) => {
+					return produce(old, (draftState) => {
 						draftState.push(newUser);
 					});
 				}
@@ -221,10 +233,10 @@ function App() {
 				return;
 			}
 
-			queryClient.setQueryData(['members', chatId], (old: any) => {
+			queryClient.setQueryData<User[]>(['members', chatId], (old) => {
 				if (old) {
-					return produce(old, (draftState: any) => {
-						const targetIndex = draftState.findIndex((member: any) => member.id === userId);
+					return produce(old, (draftState) => {
+						const targetIndex = draftState.findIndex((member) => member.id === userId);
 						draftState.splice(targetIndex, 1);
 					});
 				}
@@ -232,12 +244,16 @@ function App() {
 		};
 
 		const onReceiveNotification = (data: any) => {
-			queryClient.setQueriesData(['notification'], (old: any) => {
-				return [...old, data];
+			queryClient.setQueriesData<Notification[]>(['notifications'], (old) => {
+				if (old) {
+					return [...old, data];
+				}
 			});
 
-			queryClient.setQueryData(['currentUser'], (old: any) => {
-				return { ...old, hasNewNotification: true };
+			queryClient.setQueryData<User>(['currentUser'], (old) => {
+				if (old) {
+					return { ...old, hasNewNotification: true };
+				}
 			});
 		};
 

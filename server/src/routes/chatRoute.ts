@@ -290,8 +290,8 @@ router.patch('/leave', async (req: Request, res: Response) => {
 	}
 });
 
-router.delete('/:chatId', async (req: Request, res: Response) => {
-	const { chatId } = req.params;
+router.delete('/', async (req: Request, res: Response) => {
+	const { chatId } = req.body;
 
 	try {
 		const chat = await prisma.chat.delete({
@@ -339,7 +339,6 @@ router.get('/members', async (req: Request, res: Response) => {
 
 router.patch('/', uploader.single('file'), async (req: Request, res: Response) => {
 	const { roomName, chatId }: { roomName: string; chatId: string } = req.body;
-	console.log(roomName, chatId);
 
 	try {
 		const chat = await prisma.chat.findFirst({
@@ -356,8 +355,6 @@ router.patch('/', uploader.single('file'), async (req: Request, res: Response) =
 				],
 			},
 		});
-
-		console.log(chat);
 
 		if (chat) {
 			return res.status(400).json({ message: 'The chatroom is being used by someone' });

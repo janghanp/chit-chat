@@ -8,6 +8,7 @@ import { socket } from '../socket';
 import { useNavigate } from 'react-router';
 import useUser from '../hooks/useUser';
 import ChatSettings from './ChatSettings';
+import { Chat } from '../types';
 
 interface Props {
 	isDropDownOpen: boolean;
@@ -21,16 +22,17 @@ const Dropdown = ({ isDropDownOpen, setIsDropDownOpen, isOwner, chatId }: Props)
 	const navigate = useNavigate();
 	const { data: currentUser } = useUser();
 	const [isOpen, setIsOpen] = useState<boolean>(false);
-	const { mutate: updateMutate } = useMutation({
+	const { mutate: leaveChatMutate } = useMutation({
 		mutationKey: ['leaveChat', chatId],
-		mutationFn: () => {
-			return leaveChat(chatId!, currentUser!.id);
+		mutationFn: ({ chatId, userId }: { chatId: string; userId: string }) => {
+			return leaveChat(chatId, userId);
 		},
 		onSuccess: () => {
-			queryClient.setQueryData(['chatRooms'], (old: any) => {
-				return old.filter((el: any) => el.id !== chatId);
+			queryClient.setQueryData<Chat[]>(['chatRooms'], (old) => {
+				if (old) {
+					return old.filter((el: any) => el.id !== chatId);
+				}
 			});
-
 			queryClient.removeQueries({ queryKey: ['chat', chatId], exact: true });
 			queryClient.removeQueries({ queryKey: ['members', chatId], exact: true });
 			queryClient.removeQueries({ queryKey: ['messages', chatId], exact: true });
@@ -41,16 +43,16 @@ const Dropdown = ({ isDropDownOpen, setIsDropDownOpen, isOwner, chatId }: Props)
 		},
 		onError() {},
 	});
-	const { mutate: deleteMutate } = useMutation({
+	const { mutate: deleteChatMutate } = useMutation({
 		mutationKey: ['deleteChat', chatId],
-		mutationFn: () => {
-			return deleteChat(chatId!);
+		mutationFn: ({ chatId }: { chatId: string }) => {
+			return deleteChat(chatId);
 		},
 		onSuccess: () => {
-			queryClient.setQueriesData(['chatRooms', currentUser!.id], (old: any) => {
-				const newRooms = old.chats.filter((el: any) => el.id !== chatId);
-
-				return { ...old, chats: newRooms };
+			queryClient.setQueriesData<Chat[]>(['chatRooms', currentUser!.id], (old) => {
+				if (old) {
+					return old.filter((el: any) => el.id !== chatId);
+				}
 			});
 
 			socket.emit('delete_chat', { chatId });
@@ -64,7 +66,7 @@ const Dropdown = ({ isDropDownOpen, setIsDropDownOpen, isOwner, chatId }: Props)
 		const result = window.confirm('Are you sure you want to leave the chat?');
 
 		if (result) {
-			updateMutate();
+			leaveChatMutate({ userId: currentUser!.id, chatId });
 		}
 	};
 
@@ -72,14 +74,14 @@ const Dropdown = ({ isDropDownOpen, setIsDropDownOpen, isOwner, chatId }: Props)
 		const result = window.confirm('Are you sure you want to delete the chat?');
 
 		if (result) {
-			deleteMutate();
+			deleteChatMutate({ chatId });
 		}
 	};
 
 	return (
 		<>
 			<div className="absolute right-5">
-				<label className="swap swap-rotate z-30">
+				<label className="swap-rotate swap z-30">
 					<input type="checkbox" />
 					<HiOutlineChevronDown className="swap-off z-20 h-5 w-5" onClick={() => setIsDropDownOpen((prev) => !prev)} />
 					<HiOutlineX className="swap-on z-20 h-5 w-5" onClick={() => setIsDropDownOpen((prev) => !prev)} />

@@ -125,8 +125,6 @@ router.delete('/:notificationId', async (req: Request, res: Response) => {
 });
 
 router.patch('/readAll', async (req: Request, res: Response) => {
-	console.log('hello?');
-
 	const { id } = req.token;
 
 	try {

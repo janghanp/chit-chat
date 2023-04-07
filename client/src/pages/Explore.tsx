@@ -24,7 +24,7 @@ const Explorer = () => {
 		if (debouncedValue.text) {
 			const fetchChatsByQuery = async () => {
 				try {
-					const { data } = await axios.get('/chat/search', {
+					const { data } = await axios.get<ChatWithMembers[]>('/chat/search', {
 						withCredentials: true,
 						params: {
 							query: debouncedValue.text,
@@ -45,7 +45,7 @@ const Explorer = () => {
 
 	const joinRoomHandler = async (roomName: string) => {
 		try {
-			const { data } = await axios.get('/chat/name', {
+			const { data } = await axios.get<Chat>('/chat/name', {
 				params: { chatName: roomName },
 				withCredentials: true,
 			});

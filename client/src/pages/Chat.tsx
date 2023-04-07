@@ -10,6 +10,7 @@ import { socket } from '../socket';
 import { createMessage } from '../api/message';
 import useUser from '../hooks/useUser';
 import useChat from '../hooks/useChat';
+import { Chat as ChatType } from '../types';
 
 const Chat = () => {
 	const { chatId } = useParams();
@@ -18,7 +19,7 @@ const Chat = () => {
 	const { isLoading, isError, data: currentChat, isSuccess } = useChat(chatId as string, currentUser!.id);
 	const [inputMessage, setInputMessage] = useState<string>('');
 	const [isOpenMemberList, setIsOpenMemberList] = useState<boolean>(false);
-	const { mutate } = useMutation({
+	const { mutate: createMessageMutate } = useMutation({
 		mutationKey: ['createMessage', chatId],
 		mutationFn: ({
 			chatId,
@@ -35,22 +36,22 @@ const Chat = () => {
 			// Group chat message
 			if (currentChat!.chat.type === 'GROUP') {
 				socket.emit('send_message', {
-					messageId: data.message.id,
+					messageId: data.id,
 					text: inputMessage,
 					sender: currentUser,
 					chatId,
-					createdAt: data.message.createdAt,
+					createdAt: data.createdAt,
 				});
 			}
 
 			// Private chat message
 			if (currentChat!.chat.type === 'PRIVATE') {
 				socket.emit('private_message', {
-					messageId: data.message.id,
+					messageId: data.id,
 					text: inputMessage,
 					sender: currentUser,
 					chatId,
-					createdAt: data.message.createdAt,
+					createdAt: data.createdAt,
 				});
 			}
 
@@ -70,8 +71,10 @@ const Chat = () => {
 			});
 
 			if (currentChat.isNewMember) {
-				queryClient.setQueryData(['chat', chatId], (old: any) => {
-					return { ...old, isNewMember: false };
+				queryClient.setQueryData<ChatType>(['chat', chatId], (old) => {
+					if (old) {
+						return { ...old, isNewMember: false };
+					}
 				});
 			}
 		}
@@ -79,22 +82,24 @@ const Chat = () => {
 
 	useEffect(() => {
 		if (currentChat && isSuccess) {
-			queryClient.setQueryData(['chatRooms'], (old: any) => {
-				return produce(old, (draftState: any) => {
-					if (!old.map((el: any) => el.id).includes(currentChat.chat.id)) {
-						draftState.push({ ...currentChat.chat, messages: currentChat.chat.messages });
-					}
-				});
+			queryClient.setQueryData<ChatType[]>(['chatRooms'], (old) => {
+				if (old) {
+					return produce(old, (draftState) => {
+						if (!old.map((el: any) => el.id).includes(currentChat.chat.id)) {
+							draftState.push({ ...currentChat.chat, messages: currentChat.chat.messages });
+						}
+					});
+				}
 			});
 		}
 	}, [currentChat, isSuccess]);
 
-	const clickHandler = async () => {
+	const createMessageHandler = async () => {
 		if (!inputMessage) {
 			return;
 		}
 
-		mutate({ chatId: chatId as string, inputMessage, currentUserId: currentUser!.id });
+		createMessageMutate({ chatId: chatId as string, inputMessage, currentUserId: currentUser!.id });
 	};
 
 	if (isLoading) {
@@ -126,7 +131,7 @@ const Chat = () => {
 						value={inputMessage}
 						onChange={(e) => setInputMessage(e.target.value)}
 					/>
-					<button className="btn" disabled={!inputMessage} onClick={clickHandler}>
+					<button className="btn" disabled={!inputMessage} onClick={createMessageHandler}>
 						Send
 					</button>
 				</div>

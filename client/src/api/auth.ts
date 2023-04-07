@@ -6,8 +6,8 @@ export const isUser = (item: any): item is User => {
 	return 'id' in item;
 };
 
-export const fetchUser = async (): Promise<User | null> => {
-	const { data } = await axios.get<User | { status: 'ok' }>('/auth/refresh', {
+export const fetchUser = async () => {
+	const { data } = await axios.get<User | 'OK'>('/auth/refresh', {
 		withCredentials: true,
 	});
 
@@ -18,7 +18,7 @@ export const fetchUser = async (): Promise<User | null> => {
 	return data;
 };
 
-export const logInUser = async (email: string, password: string): Promise<User> => {
+export const logInUser = async (email: string, password: string) => {
 	const { data } = await axios.post<User>(
 		'/auth/login',
 		{
@@ -31,7 +31,7 @@ export const logInUser = async (email: string, password: string): Promise<User> 
 	return data;
 };
 
-export const registerUser = async (email: string, password: string, username: string): Promise<User> => {
+export const registerUser = async (email: string, password: string, username: string) => {
 	const { data } = await axios.post<User>(
 		'/auth/register',
 		{
@@ -46,7 +46,7 @@ export const registerUser = async (email: string, password: string, username: st
 };
 
 export const logOutUser = async () => {
-	await axios.delete('/auth/logout', {
+	await axios.delete<'OK'>('/auth/logout', {
 		withCredentials: true,
 	});
 };

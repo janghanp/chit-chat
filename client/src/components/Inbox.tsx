@@ -7,7 +7,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import useUser from '../hooks/useUser';
 import { deleteNotification, fetchNotifications, readAllNotifications } from '../api/notification';
 import defaultAvatar from '/default.jpg';
-import { Notification } from '../types';
+import { Friend, Notification, User } from '../types';
 import { checkNotification } from '../api/user';
 import { addFriend } from '../api/user';
 import useCreateNotification from '../hooks/useCreateNotification';
@@ -15,8 +15,8 @@ import useCreateNotification from '../hooks/useCreateNotification';
 const Inbox = () => {
 	const queryClient = useQueryClient();
 	const { data: currentUser } = useUser();
-	const { isLoading, isError, data } = useQuery<Notification[]>({
-		queryKey: ['notification'],
+	const { isLoading, isError, data } = useQuery({
+		queryKey: ['notifications'],
 		queryFn: async () => fetchNotifications(currentUser!.id),
 	});
 	const { mutate: createNotificationMutate } = useCreateNotification();
@@ -25,8 +25,10 @@ const Inbox = () => {
 		onSuccess: (data, variables, context) => {
 			const { notificationId } = variables;
 
-			queryClient.setQueryData(['notification'], (old: any) => {
-				return old.filter((notificaion: any) => notificaion.id !== notificationId);
+			queryClient.setQueryData<Notification[]>(['notifications'], (old) => {
+				if (old) {
+					return old.filter((notificaion: any) => notificaion.id !== notificationId);
+				}
 			});
 		},
 		onError: (error) => {
@@ -36,8 +38,10 @@ const Inbox = () => {
 	const { mutate: checkNotificationMutate } = useMutation({
 		mutationFn: async ({ userId }: { userId: string }) => checkNotification(userId),
 		onSuccess: (data, variables, context) => {
-			queryClient.setQueryData(['currentUser'], (old: any) => {
-				return { ...old, hasNewNotification: false };
+			queryClient.setQueryData<User>(['currentUser'], (old) => {
+				if (old) {
+					return { ...old, hasNewNotification: false };
+				}
 			});
 		},
 		onError: (error) => {
@@ -57,17 +61,24 @@ const Inbox = () => {
 		onSuccess: (data, variables, context) => {
 			const { notification } = variables;
 
-			queryClient.setQueryData(['notification'], (old: any) => {
-				notification.message = `You accpeted ${notification.sender.username}' s friend request`;
-				notification.createdAt = new Date().toISOString();
-				notification.read = true;
-				notification.temp = true;
+			queryClient.setQueryData<Notification[]>(['notifications'], (old) => {
+				if (old) {
+					notification.message = `You accpeted ${notification.sender.username}' s friend request`;
+					notification.createdAt = new Date().toISOString();
+					notification.read = true;
+					notification.temp = true;
 
-				return [...old, notification];
+					return [...old, notification];
+				}
 			});
 
-			queryClient.setQueryData(['friends'], (old: any) => {
-				return [...old, { id: notification.senderId, avatar: notification.sender.avatar }];
+			queryClient.setQueryData<Friend[]>(['friends'], (old) => {
+				if (old) {
+					return [
+						...old,
+						{ id: notification.senderId, avatar: notification.sender.avatar, username: notification.sender.username },
+					];
+				}
 			});
 		},
 		onError: (error) => {
@@ -77,13 +88,15 @@ const Inbox = () => {
 	const { mutate: readAllNotificaionMutate } = useMutation({
 		mutationFn: async () => readAllNotifications(),
 		onSuccess: (data) => {
-			queryClient.setQueryData(['notification'], (old: any) => {
-				const newNotifications = old.map((notification: any) => {
-					notification.read = true;
-					return notification;
-				});
+			queryClient.setQueryData<Notification[]>(['notifications'], (old) => {
+				if (old) {
+					const newNotifications = old.map((notification) => {
+						notification.read = true;
+						return notification;
+					});
 
-				return newNotifications;
+					return newNotifications;
+				}
 			});
 		},
 		onError: (error) => {

@@ -7,7 +7,7 @@ interface ChatWithIsNewMember {
 	isNewMember: boolean;
 }
 
-export const fetchChat = async (chatId: string, userId: string): Promise<ChatWithIsNewMember> => {
+export const fetchChat = async (chatId: string, userId: string) => {
 	const { data } = await axios.get<ChatWithIsNewMember>('/chat', {
 		params: {
 			chatId,
@@ -19,7 +19,7 @@ export const fetchChat = async (chatId: string, userId: string): Promise<ChatWit
 	return data;
 };
 
-export const fetchChatRooms = async (userId: string): Promise<Chat[]> => {
+export const fetchChatRooms = async (userId: string) => {
 	const { data } = await axios.get<Chat[]>('/chat/rooms', {
 		params: {
 			userId,
@@ -30,31 +30,31 @@ export const fetchChatRooms = async (userId: string): Promise<Chat[]> => {
 	return data;
 };
 
-export const createChat = async (formData: FormData): Promise<Chat> => {
+export const createChat = async (formData: FormData) => {
 	const { data } = await axios.post<Chat>('/chat', formData, { withCredentials: true });
 
 	return data;
 };
 
 export const createPrivateChat = async (senderId: string, receiverId: string) => {
-	const { data } = await axios.post('/chat/private', { senderId, receiverId }, { withCredentials: true });
+	const { data } = await axios.post<Chat>('/chat/private', { senderId, receiverId }, { withCredentials: true });
 
 	return data;
 };
 
-export const leaveChat = async (chatId: string, userId: string): Promise<Chat> => {
+export const leaveChat = async (chatId: string, userId: string) => {
 	const { data } = await axios.patch<Chat>('/chat/leave', { chatId, userId }, { withCredentials: true });
 
 	return data;
 };
 
-export const deleteChat = async (chatId: string): Promise<number> => {
-	const { data } = await axios.delete<number>(`/chat/${chatId}`, { withCredentials: true });
+export const deleteChat = async (chatId: string) => {
+	const { data } = await axios.delete<'OK'>(`/chat`, { data: { chatId }, withCredentials: true });
 
 	return data;
 };
 
-export const fetchMembers = async (chatId: string): Promise<User[]> => {
+export const fetchMembers = async (chatId: string) => {
 	const { data } = await axios.get<User[]>('/chat/members', {
 		params: {
 			chatId,
@@ -65,8 +65,8 @@ export const fetchMembers = async (chatId: string): Promise<User[]> => {
 	return data;
 };
 
-export const updateChat = async (formData: FormData): Promise<Chat> => {
-	const { data } = await axios.patch<Chat>('/chat', formData, { withCredentials: true });
+export const updateChat = async (formData: FormData) => {
+	const { data } = await axios.patch<'OK'>('/chat', formData, { withCredentials: true });
 
 	return data;
 };

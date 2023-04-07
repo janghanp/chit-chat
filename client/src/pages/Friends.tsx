@@ -19,13 +19,14 @@ const Friends = () => {
 			<div className="my-10 text-xl font-bold text-base-content">Friends list</div>
 			<div className="h-screen w-full max-w-3xl p-5">
 				<div className="w-full">
-					{data.map((friend: any) => {
-						return (
-							<Fragment key={friend.id}>
-								<Friend friend={friend} />
-							</Fragment>
-						);
-					})}
+					{data &&
+						data.map((friend: any) => {
+							return (
+								<Fragment key={friend.id}>
+									<Friend friend={friend} />
+								</Fragment>
+							);
+						})}
 				</div>
 			</div>
 		</div>

@@ -62,7 +62,7 @@ const Member = ({ member }: Props) => {
 						<li onClick={createPrivateChatHandler}>
 							<a>private chat</a>
 						</li>
-						{friends.map((friend: any) => friend.id).includes(member.id) ? (
+						{friends && friends.map((friend: any) => friend.id).includes(member.id) ? (
 							<li onClick={removeFriendHandler}>
 								<a>Remove Friend</a>
 							</li>
