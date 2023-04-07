@@ -21,6 +21,7 @@ const ChatRoom = ({ chatRoom, setIsSidebarOpen }: Props) => {
 	const { data: currentUser } = useUser();
 	const [isNewMessage, setIsNewMessage] = useState<boolean>(false);
 	const [receiverAvatar, setReceiverAvatar] = useState<string | undefined>('');
+	const [receiverUsername, setReceiverUsername] = useState<string | undefined>('');
 	const receiverRef = useRef<boolean>(false);
 
 	// When it is a private chat, set the receiver avatar as a chat icon.
@@ -37,6 +38,7 @@ const ChatRoom = ({ chatRoom, setIsSidebarOpen }: Props) => {
 
 				if (data) {
 					setReceiverAvatar(data.avatar);
+					setReceiverUsername(data.username);
 					receiverRef.current = true;
 				}
 			};
@@ -133,7 +135,7 @@ const ChatRoom = ({ chatRoom, setIsSidebarOpen }: Props) => {
 					</div>
 					<div className="flex w-full flex-col">
 						<span className="flex w-full items-center justify-between font-semibold">
-							<span>{chatRoom.name}</span>
+							<span>{chatRoom.name || receiverUsername}</span>
 							<span>
 								<time className="ml-2 text-xs opacity-50">
 									{!hasMessage ? (

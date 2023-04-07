@@ -32,3 +32,9 @@ export const deleteNotification = async (notificationId: string) => {
 
 	return data;
 };
+
+export const readAllNotifications = async () => {
+	const { data } = await axios.patch(`/notification/readAll`, {}, { withCredentials: true });
+
+	return data;
+};

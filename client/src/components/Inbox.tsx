@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
-import { HiInbox } from 'react-icons/hi';
+import { HiInbox, HiCheck } from 'react-icons/hi';
 import { SyncLoader } from 'react-spinners';
 import { formatDistance, subDays } from 'date-fns';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 import useUser from '../hooks/useUser';
-import { deleteNotification, fetchNotifications } from '../api/notification';
+import { deleteNotification, fetchNotifications, readAllNotifications } from '../api/notification';
 import defaultAvatar from '/default.jpg';
 import { Notification } from '../types';
 import { checkNotification } from '../api/user';
@@ -15,7 +15,6 @@ import useCreateNotification from '../hooks/useCreateNotification';
 const Inbox = () => {
 	const queryClient = useQueryClient();
 	const { data: currentUser } = useUser();
-	const [isOpen, setIsOpen] = useState<boolean>(false);
 	const { isLoading, isError, data } = useQuery<Notification[]>({
 		queryKey: ['notification'],
 		queryFn: async () => fetchNotifications(currentUser!.id),
@@ -75,6 +74,24 @@ const Inbox = () => {
 			console.log(error);
 		},
 	});
+	const { mutate: readAllNotificaionMutate } = useMutation({
+		mutationFn: async () => readAllNotifications(),
+		onSuccess: (data) => {
+			queryClient.setQueryData(['notification'], (old: any) => {
+				const newNotifications = old.map((notification: any) => {
+					notification.read = true;
+					return notification;
+				});
+
+				return newNotifications;
+			});
+		},
+		onError: (error) => {
+			console.log(error);
+		},
+	});
+	const [isOpen, setIsOpen] = useState<boolean>(false);
+	const [filter, setFilter] = useState<'all' | 'unread'>('all');
 
 	useEffect(() => {
 		if (isOpen && currentUser?.hasNewNotification) {
@@ -96,6 +113,22 @@ const Inbox = () => {
 	const ignoreFriendRequest = (notificationId: string) => {
 		deleteNotificationMutate({ notificationId });
 	};
+
+	const readAllNotificationsHandler = () => {
+		if (data?.map((notification) => notification.read).includes(false)) {
+			readAllNotificaionMutate();
+		}
+	};
+
+	let notificaionts: Notification[] = [];
+
+	if (data && filter === 'all') {
+		notificaionts = data;
+	}
+
+	if (data && filter === 'unread') {
+		notificaionts = data.filter((notification) => !notification.read);
+	}
 
 	return (
 		<div className="relative">
@@ -124,8 +157,38 @@ const Inbox = () => {
 							) : (
 								<>
 									<div className="absolute -right-5 z-30 flex w-96 flex-col rounded-xl border bg-white shadow-lg sm:right-0 sm:w-[400px]">
-										<div className="border-b bg-base-300 p-5 text-2xl font-bold">Inbox</div>
-										{data.map((notification) => {
+										<div className="border-b bg-base-300 p-5">
+											<span className="text-2xl font-bold">Inbox</span>
+											<div className="mt-5 flex justify-between">
+												<div>
+													<button
+														className={`btn-outline btn-sm btn bg-base-100 normal-case ${
+															filter === 'all' ? 'bg-base-content text-white' : ''
+														} mr-3`}
+														onClick={() => setFilter('all')}
+													>
+														All
+													</button>
+													<button
+														className={`btn-outline btn-sm btn bg-base-100 normal-case ${
+															filter === 'unread' ? 'bg-base-content text-white' : ''
+														}`}
+														onClick={() => setFilter('unread')}
+													>
+														Unread
+													</button>
+												</div>
+												<div className="tooltip" data-tip="Mark All as Read">
+													<button
+														className="btn-outline btn-sm btn-circle btn bg-white"
+														onClick={readAllNotificationsHandler}
+													>
+														<HiCheck />
+													</button>
+												</div>
+											</div>
+										</div>
+										{notificaionts.map((notification) => {
 											return (
 												<div
 													key={notification.id}

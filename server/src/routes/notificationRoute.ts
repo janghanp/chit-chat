@@ -124,4 +124,27 @@ router.delete('/:notificationId', async (req: Request, res: Response) => {
 	}
 });
 
+router.patch('/readAll', async (req: Request, res: Response) => {
+	console.log('hello?');
+
+	const { id } = req.token;
+
+	try {
+		await prisma.notification.updateMany({
+			where: {
+				receiverId: id,
+			},
+			data: {
+				read: true,
+			},
+		});
+
+		return res.sendStatus(200);
+	} catch (error) {
+		console.log(error);
+
+		return res.sendStatus(500);
+	}
+});
+
 export default router;
