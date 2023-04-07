@@ -13,7 +13,7 @@ import Chat from './Chat';
 import NoMatch from './NoMatch';
 import Explorer from './Explore';
 import { socket } from '../socket';
-import { User, Chat as ChatType, Message, Notification } from '../types';
+import { User, Chat as ChatType, Message, Notification, Friend } from '../types';
 import Friends from './Friends';
 
 function App() {
@@ -257,6 +257,26 @@ function App() {
 			});
 		};
 
+		const onAcceptFriend = (data: Friend) => {
+			queryClient.setQueryData<Friend[]>(['friends'], (old) => {
+				if (old) {
+					return [...old, data];
+				}
+			});
+		};
+
+		const onRemoveFriend = (data: { senderId: string }) => {
+			console.log('someone deleted me on his/her friend list...');
+
+			const { senderId } = data;
+
+			queryClient.setQueryData<Friend[]>(['friends'], (old) => {
+				if (old) {
+					return old.filter((friend) => friend.id !== senderId);
+				}
+			});
+		};
+
 		socket.on('online', onOnline);
 		socket.on('offline', onOffline);
 		socket.on('set_members_status', setMembersStatus);
@@ -265,6 +285,8 @@ function App() {
 		socket.on('enter_new_member', onEnterNewMember);
 		socket.on('leave_member', onLeaveMember);
 		socket.on('receive_notification', onReceiveNotification);
+		socket.on('accept_friend', onAcceptFriend);
+		socket.on('remove_friend', onRemoveFriend);
 
 		return () => {
 			socket.off('online', onOnline);
@@ -275,6 +297,8 @@ function App() {
 			socket.off('enter_new_member', onEnterNewMember);
 			socket.off('leave_member', onLeaveMember);
 			socket.off('receive_notification', onReceiveNotification);
+			socket.off('accept_friend', onAcceptFriend);
+			socket.off('remove_friend', onRemoveFriend);
 		};
 	}, []);
 

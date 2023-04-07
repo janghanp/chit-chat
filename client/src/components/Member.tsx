@@ -5,7 +5,7 @@ import defaultAvatar from '/default.jpg';
 import useUser from '../hooks/useUser';
 import useCreateNotification from '../hooks/useCreateNotification';
 import useCreatePrivateChat from '../hooks/useCreatePrivateChat';
-import useDeleteFriend from '../hooks/useDeleteFriend';
+import useRemoveFriend from '../hooks/useRemoveFriend';
 import useFriends from '../hooks/useFriends';
 
 interface Props {
@@ -17,7 +17,7 @@ const Member = ({ member }: Props) => {
 	const { data: friends } = useFriends();
 	const { mutate: createNotificationMutate } = useCreateNotification();
 	const { mutate: createPrivateChatMutate } = useCreatePrivateChat();
-	const { mutate: deleteFriendMutate } = useDeleteFriend(member);
+	const { mutate: removeFriendMutate } = useRemoveFriend(member);
 	const [isOpen, setIsOpen] = useState<boolean>(false);
 
 	const createPrivateChatHandler = async () => {
@@ -34,7 +34,7 @@ const Member = ({ member }: Props) => {
 	};
 
 	const removeFriendHandler = () => {
-		deleteFriendMutate({ senderId: currentUser!.id, receiverId: member.id });
+		removeFriendMutate({ senderId: currentUser!.id, receiverId: member.id });
 		setIsOpen(false);
 	};
 

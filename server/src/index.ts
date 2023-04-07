@@ -240,11 +240,37 @@ io.on('connect', (socket: Socket) => {
 			return el.userId === receiverId;
 		});
 
-		console.log(target);
-
 		if (target.length > 0) {
 			if (target[0].socketIds?.length > 0) {
 				socket.to(target[0].socketIds).emit('receive_notification', { ...data });
+			}
+		}
+	});
+
+	socket.on('accept_friend', (data: { id: string; avatar: string; username: string; receiverId: string }) => {
+		const { id, avatar, username, receiverId } = data;
+
+		const target = usersWithSockets.filter((el) => {
+			return el.userId === receiverId;
+		});
+
+		if (target.length > 0) {
+			if (target[0].socketIds?.length > 0) {
+				socket.to(target[0].socketIds).emit('accept_friend', { id, avatar, username });
+			}
+		}
+	});
+
+	socket.on('remove_friend', (data: { receiverId: string; senderId: string }) => {
+		const { receiverId, senderId } = data;
+
+		const target = usersWithSockets.filter((el) => {
+			return el.userId === receiverId;
+		});
+
+		if (target.length > 0) {
+			if (target[0].socketIds?.length > 0) {
+				socket.to(target[0].socketIds).emit('remove_friend', { senderId });
 			}
 		}
 	});

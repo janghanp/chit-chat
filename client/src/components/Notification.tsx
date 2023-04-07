@@ -8,6 +8,7 @@ import { addFriend } from '../api/user';
 import useCreateNotification from '../hooks/useCreateNotification';
 import { deleteNotification, readNotification } from '../api/notification';
 import useUser from '../hooks/useUser';
+import { socket } from '../socket';
 
 interface Props {
 	notification: NotificationType;
@@ -92,7 +93,10 @@ const Notification = ({ notification }: Props) => {
 		},
 	});
 
-	const acceptFriendRequest = () => {
+	const acceptFriendRequest = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+		//To prevent read the notification since it is going to deleted right away.
+		e.stopPropagation();
+
 		deleteNotificationMutate({ notificationId: notification.id });
 		addFriendMutate({ receiverId: currentUser!.id, senderId: notification.senderId, notification });
 
@@ -101,6 +105,13 @@ const Notification = ({ notification }: Props) => {
 			receiverId: notification.senderId,
 			message: 'has accepted your friend request',
 		});
+
+		socket.emit('accept_friend', {
+			id: currentUser!.id,
+			avatar: currentUser!.avatar,
+			username: currentUser!.username,
+			receiverId: notification.senderId,
+		});
 	};
 
 	const ignoreFriendRequest = () => {
@@ -108,7 +119,9 @@ const Notification = ({ notification }: Props) => {
 	};
 
 	const readNotificationHandler = () => {
-		readNotificationMutate({ notificationId: notification.id });
+		if (!notification.read) {
+			readNotificationMutate({ notificationId: notification.id });
+		}
 	};
 
 	return (

@@ -11,12 +11,14 @@ import { createMessage } from '../api/message';
 import useUser from '../hooks/useUser';
 import useChat from '../hooks/useChat';
 import { Chat as ChatType } from '../types';
+import useFriends from '../hooks/useFriends';
 
 const Chat = () => {
 	const { chatId } = useParams();
 	const queryClient = useQueryClient();
 	const { data: currentUser } = useUser();
 	const { isLoading, isError, data: currentChat, isSuccess } = useChat(chatId as string, currentUser!.id);
+	useFriends();
 	const [inputMessage, setInputMessage] = useState<string>('');
 	const [isOpenMemberList, setIsOpenMemberList] = useState<boolean>(false);
 	const { mutate: createMessageMutate } = useMutation({
