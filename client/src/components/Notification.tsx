@@ -15,6 +15,8 @@ interface Props {
 }
 
 const Notification = ({ notification }: Props) => {
+	console.log('Notificaion.tsx render');
+
 	const queryClient = useQueryClient();
 	const { data: currentUser } = useUser();
 	const { mutate: createNotificationMutate } = useCreateNotification();
@@ -94,7 +96,6 @@ const Notification = ({ notification }: Props) => {
 	});
 
 	const acceptFriendRequest = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-		//To prevent read the notification since it is going to deleted right away.
 		e.stopPropagation();
 
 		deleteNotificationMutate({ notificationId: notification.id });

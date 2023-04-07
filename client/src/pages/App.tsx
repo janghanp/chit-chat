@@ -255,8 +255,6 @@ function App() {
 		};
 
 		const onRemoveFriend = (data: { senderId: string }) => {
-			console.log('someone deleted me on his/her friend list...');
-
 			const { senderId } = data;
 
 			queryClient.setQueryData<Friend[]>(['friends'], (old) => {

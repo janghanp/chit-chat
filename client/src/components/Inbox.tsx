@@ -2,6 +2,7 @@ import { Fragment, useEffect, useState } from 'react';
 import { HiInbox, HiCheck } from 'react-icons/hi';
 import { SyncLoader } from 'react-spinners';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import produce from 'immer';
 
 import useUser from '../hooks/useUser';
 import { fetchNotifications, readAllNotifications } from '../api/notification';
@@ -34,12 +35,11 @@ const Inbox = () => {
 		onSuccess: (data) => {
 			queryClient.setQueryData<NotificationType[]>(['notifications'], (old) => {
 				if (old) {
-					const newNotifications = old.map((notification) => {
-						notification.read = true;
-						return notification;
+					return produce(old, (draftState) => {
+						draftState.forEach((notification) => {
+							notification.read = true;
+						});
 					});
-
-					return newNotifications;
 				}
 			});
 		},
@@ -78,7 +78,7 @@ const Inbox = () => {
 				<button className="btn-ghost btn-sm btn px-1" onClick={() => setIsOpen(!isOpen)}>
 					<div className="indicator">
 						<span
-							className={`badge-error badge badge-xs indicator-bottom indicator-item left-[8px] top-[7px] ${
+							className={`badge badge-error badge-xs indicator-bottom indicator-item left-[8px] top-[7px] ${
 								currentUser?.hasNewNotification ? 'block' : 'hidden'
 							}`}
 						></span>
