@@ -233,7 +233,7 @@ io.on('connect', (socket: Socket) => {
 		socket.leave(chatId);
 	});
 
-	socket.on('send_notification', (data: any) => {
+	socket.on('send_notification', (data) => {
 		const { receiverId } = data;
 
 		const target = usersWithSockets.filter((el) => {

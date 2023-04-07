@@ -35,7 +35,7 @@ export interface Notification {
 	read: boolean;
 	receiverId: string;
 	senderId: string;
-	sender: { avatar: string; username: string };
+	sender: { avatar?: string; username: string; id: string };
 	createdAt: string;
 	temp?: boolean;
 }

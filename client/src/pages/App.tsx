@@ -85,16 +85,16 @@ function App() {
 		const onDestroyChat = (data: { chatId: string }) => {
 			const { chatId } = data;
 
-			queryClient.setQueryData<ChatType[]>(['chatRooms'], (old) => {
-				if (old) {
-					return produce(old, (draftState) => {
-						const newChatRooms = draftState.filter((chatRoom) => chatRoom.id !== chatId);
-						draftState = newChatRooms;
-					});
-				}
-			});
+			// queryClient.setQueryData<ChatType[]>(['chatRooms'], (old) => {
+			// 	if (old) {
+			// 		return produce(old, (draftState) => {
+			// 			const newChatRooms = draftState.filter((chatRoom) => chatRoom.id !== chatId);
+			// 			draftState = newChatRooms;
+			// 		});
+			// 	}
+			// });
 
-			window.location.reload();
+			window.location.href = '/';
 		};
 
 		const onReceiveMessage = (data: {

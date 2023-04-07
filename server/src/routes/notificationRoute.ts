@@ -72,7 +72,7 @@ router.post('/', async (req: Request, res: Response) => {
 	}
 });
 
-router.get('/', async (req: Request, res: Response) => {
+router.get('/all', async (req: Request, res: Response) => {
 	const { userId } = req.query;
 
 	try {
@@ -83,6 +83,7 @@ router.get('/', async (req: Request, res: Response) => {
 			include: {
 				sender: {
 					select: {
+						id: true,
 						avatar: true,
 						username: true,
 					},
@@ -98,8 +99,8 @@ router.get('/', async (req: Request, res: Response) => {
 	}
 });
 
-router.delete('/:notificationId', async (req: Request, res: Response) => {
-	const { notificationId } = req.params;
+router.delete('/', async (req: Request, res: Response) => {
+	const { notificationId } = req.body;
 
 	try {
 		const notification = await prisma.notification.delete({
@@ -131,6 +132,27 @@ router.patch('/readAll', async (req: Request, res: Response) => {
 		await prisma.notification.updateMany({
 			where: {
 				receiverId: id,
+			},
+			data: {
+				read: true,
+			},
+		});
+
+		return res.sendStatus(200);
+	} catch (error) {
+		console.log(error);
+
+		return res.sendStatus(500);
+	}
+});
+
+router.patch('/read', async (req: Request, res: Response) => {
+	const { notificationId } = req.body;
+
+	try {
+		await prisma.notification.update({
+			where: {
+				id: notificationId,
 			},
 			data: {
 				read: true,

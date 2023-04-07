@@ -1,16 +1,13 @@
-import { useEffect, useState } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import { HiInbox, HiCheck } from 'react-icons/hi';
 import { SyncLoader } from 'react-spinners';
-import { formatDistance, subDays } from 'date-fns';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 import useUser from '../hooks/useUser';
-import { deleteNotification, fetchNotifications, readAllNotifications } from '../api/notification';
-import defaultAvatar from '/default.jpg';
-import { Friend, Notification, User } from '../types';
+import { fetchNotifications, readAllNotifications } from '../api/notification';
+import { Notification as NotificationType, User } from '../types';
 import { checkNotification } from '../api/user';
-import { addFriend } from '../api/user';
-import useCreateNotification from '../hooks/useCreateNotification';
+import Notification from './Notification';
 
 const Inbox = () => {
 	const queryClient = useQueryClient();
@@ -18,22 +15,6 @@ const Inbox = () => {
 	const { isLoading, isError, data } = useQuery({
 		queryKey: ['notifications'],
 		queryFn: async () => fetchNotifications(currentUser!.id),
-	});
-	const { mutate: createNotificationMutate } = useCreateNotification();
-	const { mutate: deleteNotificationMutate } = useMutation({
-		mutationFn: async ({ notificationId }: { notificationId: string }) => deleteNotification(notificationId),
-		onSuccess: (data, variables, context) => {
-			const { notificationId } = variables;
-
-			queryClient.setQueryData<Notification[]>(['notifications'], (old) => {
-				if (old) {
-					return old.filter((notificaion: any) => notificaion.id !== notificationId);
-				}
-			});
-		},
-		onError: (error) => {
-			console.log(error);
-		},
 	});
 	const { mutate: checkNotificationMutate } = useMutation({
 		mutationFn: async ({ userId }: { userId: string }) => checkNotification(userId),
@@ -48,47 +29,10 @@ const Inbox = () => {
 			console.log(error);
 		},
 	});
-	const { mutate: addFriendMutate } = useMutation({
-		mutationFn: async ({
-			receiverId,
-			senderId,
-			notification,
-		}: {
-			receiverId: string;
-			senderId: string;
-			notification: Notification;
-		}) => addFriend(senderId, receiverId),
-		onSuccess: (data, variables, context) => {
-			const { notification } = variables;
-
-			queryClient.setQueryData<Notification[]>(['notifications'], (old) => {
-				if (old) {
-					notification.message = `You accpeted ${notification.sender.username}' s friend request`;
-					notification.createdAt = new Date().toISOString();
-					notification.read = true;
-					notification.temp = true;
-
-					return [...old, notification];
-				}
-			});
-
-			queryClient.setQueryData<Friend[]>(['friends'], (old) => {
-				if (old) {
-					return [
-						...old,
-						{ id: notification.senderId, avatar: notification.sender.avatar, username: notification.sender.username },
-					];
-				}
-			});
-		},
-		onError: (error) => {
-			console.log(error);
-		},
-	});
 	const { mutate: readAllNotificaionMutate } = useMutation({
 		mutationFn: async () => readAllNotifications(),
 		onSuccess: (data) => {
-			queryClient.setQueryData<Notification[]>(['notifications'], (old) => {
+			queryClient.setQueryData<NotificationType[]>(['notifications'], (old) => {
 				if (old) {
 					const newNotifications = old.map((notification) => {
 						notification.read = true;
@@ -112,28 +56,13 @@ const Inbox = () => {
 		}
 	}, [isOpen, currentUser]);
 
-	const acceptFriendRequest = (notification: Notification) => {
-		deleteNotificationMutate({ notificationId: notification.id });
-		addFriendMutate({ receiverId: currentUser!.id, senderId: notification.senderId, notification });
-
-		createNotificationMutate({
-			senderId: currentUser!.id,
-			receiverId: notification.senderId,
-			message: 'has accepted your friend request',
-		});
-	};
-
-	const ignoreFriendRequest = (notificationId: string) => {
-		deleteNotificationMutate({ notificationId });
-	};
-
 	const readAllNotificationsHandler = () => {
 		if (data?.map((notification) => notification.read).includes(false)) {
 			readAllNotificaionMutate();
 		}
 	};
 
-	let notificaionts: Notification[] = [];
+	let notificaionts: NotificationType[] = [];
 
 	if (data && filter === 'all') {
 		notificaionts = data;
@@ -203,50 +132,9 @@ const Inbox = () => {
 										</div>
 										{notificaionts.map((notification) => {
 											return (
-												<div
-													key={notification.id}
-													className="flex items-start gap-x-2 p-2 transition duration-300 hover:bg-gray-200/50"
-												>
-													<div className="avatar">
-														<div className="w-10 rounded-full border">
-															<img src={notification.sender.avatar || defaultAvatar} alt={'?'} />
-														</div>
-													</div>
-													<div className={`flex flex-col items-start ${notification.read && 'text-gray-400'}`}>
-														<div>
-															{!notification.temp && (
-																<span className="mr-2 text-sm font-bold">{notification.sender.username}</span>
-															)}
-															<span className="text-sm">{notification.message}</span>
-														</div>
-														<span className="my-1 text-xs font-bold">
-															{formatDistance(subDays(new Date(notification.createdAt), 0), new Date(), {
-																addSuffix: true,
-															})}
-														</span>
-														{notification.message.includes('sent') && (
-															<div className="flex gap-x-2">
-																<button
-																	className="btn-success btn-sm btn normal-case"
-																	onClick={() => acceptFriendRequest(notification)}
-																>
-																	Accept
-																</button>
-																<button
-																	className="btn-outline btn-ghost btn-sm btn normal-case"
-																	onClick={() => ignoreFriendRequest(notification.id)}
-																>
-																	Ignore
-																</button>
-															</div>
-														)}
-													</div>
-													{!notification.read && (
-														<div className="flex h-full flex-1 justify-center pt-5">
-															<span className="badge badge-success badge-xs indicator-item"></span>
-														</div>
-													)}
-												</div>
+												<Fragment key={notification.id}>
+													<Notification notification={notification} />
+												</Fragment>
 											);
 										})}
 									</div>
