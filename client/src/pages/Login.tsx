@@ -55,6 +55,7 @@ const Login = () => {
 						<div className="w-full">
 							<label className="label">Email</label>
 							<input
+								data-cy="email-input"
 								className={`input-bordered input w-full ${errors.email && 'border-error'}`}
 								{...register('email', {
 									required: { value: true, message: 'Email is required' },
@@ -66,17 +67,17 @@ const Login = () => {
 								aria-invalid={errors.email ? 'true' : 'false'}
 							/>
 							{errors.email?.type === 'required' && (
-								<p role="alert" className="text-error">
+								<p role="alert" className="text-error" data-cy="email-error">
 									{errors.email.message}
 								</p>
 							)}
 							{errors.email?.type === 'pattern' && (
-								<p role="alert" className="text-error">
+								<p role="alert" className="text-error" data-cy="email-error">
 									{errors.email.message}
 								</p>
 							)}
 							{errors.email?.type === 'incorrect' && (
-								<p role="alert" className="text-error">
+								<p role="alert" className="text-error" data-cy="email-error">
 									{errors.email.message}
 								</p>
 							)}
@@ -84,6 +85,7 @@ const Login = () => {
 						<div className="w-full">
 							<label className="label">Password</label>
 							<input
+								data-cy="password-input"
 								className={`input-bordered input w-full ${errors.password && 'border-error'}`}
 								type="password"
 								{...register('password', {
@@ -91,17 +93,17 @@ const Login = () => {
 								})}
 							/>
 							{errors.password?.type === 'required' && (
-								<p role="alert" className="text-error">
+								<p role="alert" className="text-error" data-cy="password-error">
 									{errors.password.message}
 								</p>
 							)}
 							{errors.password?.type === 'incorrect' && (
-								<p role="alert" className="text-error">
+								<p role="alert" className="text-error" data-cy="password-error">
 									{errors.password.message}
 								</p>
 							)}
 						</div>
-						<button className="btn w-full" type="submit">
+						<button className="btn w-full" type="submit" data-cy="submit-button">
 							Log In
 						</button>
 					</form>

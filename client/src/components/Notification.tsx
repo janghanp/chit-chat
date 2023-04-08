@@ -15,8 +15,6 @@ interface Props {
 }
 
 const Notification = ({ notification }: Props) => {
-	console.log('Notificaion.tsx render');
-
 	const queryClient = useQueryClient();
 	const { data: currentUser } = useUser();
 	const { mutate: createNotificationMutate } = useCreateNotification();
