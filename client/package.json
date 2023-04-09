@@ -34,6 +34,7 @@
 		"socket.io-client": "^4.5.4"
 	},
 	"devDependencies": {
+		"@faker-js/faker": "^7.6.0",
 		"@types/react": "^18.0.26",
 		"@types/react-dom": "^18.0.9",
 		"@vitejs/plugin-react-swc": "^3.0.0",

@@ -30,11 +30,13 @@ describe('Login', () => {
 	});
 
 	it('allows users to login', () => {
-		cy.dataCy('email-input').type('test1@test.com');
-		cy.dataCy('password-input').type('123123');
+		cy.fixture('users.json').then((users) => {
+			cy.dataCy('email-input').type(users[0].email);
+			cy.dataCy('password-input').type(users[0].username);
 
-		cy.dataCy('submit-button').click();
+			cy.dataCy('submit-button').click();
 
-		cy.location('pathname').should('eq', '/explorer');
+			cy.location('pathname').should('eq', '/explorer');
+		});
 	});
 });
