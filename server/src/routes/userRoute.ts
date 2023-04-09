@@ -2,8 +2,9 @@ import { Request, Response, Router } from 'express';
 import cloudinary from 'cloudinary';
 import multer from 'multer';
 import bcrypt from 'bcryptjs';
-
 import { Prisma, PrismaClient } from '@prisma/client';
+
+import { exclude } from '../utils/exclude';
 
 const prisma = new PrismaClient();
 
@@ -13,6 +14,48 @@ const uploader = multer({
 });
 
 const router = Router();
+
+router.get('/username', async (req: Request, res: Response) => {
+	const { username } = req.query;
+	const { id } = req.token;
+
+	try {
+		const sender = await prisma.user.findUnique({
+			where: {
+				id,
+			},
+			include: {
+				friends: {
+					where: {
+						username: username as string,
+					},
+				},
+			},
+		});
+
+		if (sender && sender.friends.length > 0) {
+			return res.sendStatus(202);
+		}
+
+		const receiver = await prisma.user.findFirst({
+			where: {
+				username: username as string,
+			},
+		});
+
+		if (!receiver) {
+			return res.sendStatus(204);
+		}
+
+		exclude(receiver, ['password']);
+
+		return res.status(200).json(receiver);
+	} catch (error) {
+		console.log(error);
+
+		return res.status(500).json({ message: 'Something went wrong, please try again...' });
+	}
+});
 
 router.get('/friends', async (req: Request, res: Response) => {
 	const { id } = req.token;
@@ -43,24 +86,6 @@ router.get('/friends', async (req: Request, res: Response) => {
 	}
 });
 
-router.get('/:userId', async (req: Request, res: Response) => {
-	const { userId } = req.params;
-
-	try {
-		const user = await prisma.user.findUnique({
-			where: {
-				id: userId,
-			},
-		});
-
-		return res.status(200).json(user);
-	} catch (error) {
-		console.log(error);
-
-		return res.status(500).json({ message: 'Something went wrong, please try again...' });
-	}
-});
-
 router.get('/chats', async (req: Request, res: Response) => {
 	const { email } = req.token;
 
@@ -77,6 +102,24 @@ router.get('/chats', async (req: Request, res: Response) => {
 		if (!user) {
 			return res.status(400).json({ message: 'No user found' });
 		}
+
+		return res.status(200).json(user);
+	} catch (error) {
+		console.log(error);
+
+		return res.status(500).json({ message: 'Something went wrong, please try again...' });
+	}
+});
+
+router.get('/:userId', async (req: Request, res: Response) => {
+	const { userId } = req.params;
+
+	try {
+		const user = await prisma.user.findUnique({
+			where: {
+				id: userId,
+			},
+		});
 
 		return res.status(200).json(user);
 	} catch (error) {

@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-import { Friend } from '../types';
+import { Friend, User } from '../types';
 
 export const addFriend = async (senderId: string, receiverId: string) => {
 	const { data } = await axios.patch<'OK'>(
@@ -37,4 +37,15 @@ export const deleteFriend = async (senderId: string, receiverId: string) => {
 	});
 
 	return data;
+};
+
+export const fetchUserByUsername = async (username: string) => {
+	const { data, status } = await axios.get<User>('/user/username', {
+		params: {
+			username,
+		},
+		withCredentials: true,
+	});
+
+	return { data, status };
 };

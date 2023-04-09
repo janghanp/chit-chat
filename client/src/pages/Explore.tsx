@@ -72,11 +72,11 @@ const Explorer = () => {
 
 	return (
 		<div className="flex h-screen w-full flex-col items-center justify-start p-5 sm:pl-[345px]">
-			<div className="my-10 text-xl font-bold text-base-content">Find your community on chit-chat</div>
+			<div className="mt-10 text-xl font-bold text-base-content">Find your community on chit-chat</div>
 			<input
 				onChange={changeHandler}
 				type="text"
-				className="input-bordered input my-3 w-full max-w-lg"
+				className="input-bordered input my-3 w-full max-w-2xl shadow-md"
 				placeholder="Explore chats"
 			/>
 			{filteredChats && filteredChats.length > 0 && !isLoading && (
