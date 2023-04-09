@@ -10,7 +10,7 @@ const FriendsButton = () => {
 
 	return (
 		<div className="tooltip tooltip-top" data-tip="Friends">
-			<button className="btn-ghost btn-sm btn px-1.5" onClick={handleClick}>
+			<button className="btn-ghost btn-sm btn px-1.5" onClick={handleClick} data-cy="friend-button">
 				<HiOutlineUsers className="text-xl" />
 			</button>
 		</div>

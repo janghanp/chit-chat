@@ -25,7 +25,7 @@ const Friend = ({ friend }: Props) => {
 	};
 
 	return (
-		<div className="relative flex items-center justify-between rounded-lg border p-3 transition duration-300 hover:bg-gray-200/50">
+		<div className="relative flex items-center justify-between rounded-lg border p-3 transition duration-300 hover:bg-gray-200/50" data-cy="friend">
 			<div className="flex items-center">
 				<div className="avatar">
 					<div className="w-10 rounded-full border">

@@ -98,7 +98,11 @@ const ChatRoom = ({ chatRoom, setIsSidebarOpen }: Props) => {
 	}
 
 	return (
-		<tr className={`hover:cursor-pointer ${chatId === chatRoom.id ? 'active' : ''} w-full`} onClick={clickHandler}>
+		<tr
+			className={`hover:cursor-pointer ${chatId === chatRoom.id ? 'active' : ''} w-full`}
+			onClick={clickHandler}
+			data-cy="chatRoom"
+		>
 			<th className="w-full rounded-none p-3">
 				<div className="flex items-center justify-start gap-x-3">
 					<div className="indicator">

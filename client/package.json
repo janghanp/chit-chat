@@ -10,7 +10,9 @@
 		"build": "tsc && vite build",
 		"preview": "vite preview",
 		"prettier": "prettier --write .",
-		"eslint": "eslint ."
+		"eslint": "eslint .",
+		"e2e": "cypress open --e2e --browser chrome",
+		"e2e:db:seed": "cd ../server && npx prisma db seed"
 	},
 	"dependencies": {
 		"@tanstack/react-query": "^4.28.0",

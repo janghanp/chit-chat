@@ -63,6 +63,7 @@ const Register = () => {
 						<div className="w-full">
 							<label className="label">Email</label>
 							<input
+								data-cy="email-input"
 								className={`input-bordered input w-full ${errors.email && 'border-error'}`}
 								{...register('email', {
 									required: { value: true, message: 'Email is required' },
@@ -74,17 +75,17 @@ const Register = () => {
 								aria-invalid={errors.email ? 'true' : 'false'}
 							/>
 							{errors.email?.type === 'required' && (
-								<p role="alert" className="text-error">
+								<p role="alert" className="text-error" data-cy="email-error">
 									{errors.email.message}
 								</p>
 							)}
 							{errors.email?.type === 'pattern' && (
-								<p role="alert" className="text-error">
+								<p role="alert" className="text-error" data-cy="email-error">
 									{errors.email.message}
 								</p>
 							)}
 							{errors.email?.type === 'taken' && (
-								<p role="alert" className="text-error">
+								<p role="alert" className="text-error" data-cy="email-error">
 									{errors.email.message}
 								</p>
 							)}
@@ -92,6 +93,7 @@ const Register = () => {
 						<div className="w-full">
 							<label className="label">Password</label>
 							<input
+								data-cy="password-input"
 								className={`input-bordered input w-full ${errors.password && 'border-error'}`}
 								type="password"
 								{...register('password', {
@@ -99,12 +101,12 @@ const Register = () => {
 								})}
 							/>
 							{errors.password?.type === 'required' && (
-								<p role="alert" className="text-error">
+								<p role="alert" className="text-error" data-cy="password-error">
 									{errors.password.message}
 								</p>
 							)}
 							{errors.password?.type === 'match' && (
-								<p role="alert" className="text-error">
+								<p role="alert" className="text-error" data-cy="password-error">
 									{errors.password.message}
 								</p>
 							)}
@@ -112,6 +114,7 @@ const Register = () => {
 						<div className="w-full">
 							<label className="label">ConfirmPassword</label>
 							<input
+								data-cy="confirmPassword-input"
 								className={`input-bordered input w-full ${errors.password && 'border-error'}`}
 								type="password"
 								{...register('confirmPassword', {
@@ -119,7 +122,7 @@ const Register = () => {
 								})}
 							/>
 							{errors.confirmPassword?.type === 'required' && (
-								<p role="alert" className="text-error">
+								<p role="alert" className="text-error" data-cy="confirmPassword-error">
 									{errors.confirmPassword.message}
 								</p>
 							)}
@@ -127,23 +130,24 @@ const Register = () => {
 						<div className="w-full">
 							<label className="label">Username</label>
 							<input
+								data-cy="username-input"
 								className={`input-bordered input w-full ${errors.username && 'border-error'}`}
 								{...register('username', {
 									required: { value: true, message: 'Username is required' },
 								})}
 							/>
 							{errors.username?.type === 'required' && (
-								<p role="alert" className="text-error">
+								<p role="alert" className="text-error" data-cy="username-error">
 									{errors.username.message}
 								</p>
 							)}
 							{errors.username?.type === 'taken' && (
-								<p role="alert" className="text-error">
+								<p role="alert" className="text-error" data-cy="username-error">
 									{errors.username.message}
 								</p>
 							)}
 						</div>
-						<button type="submit" className="btn w-full">
+						<button type="submit" className="btn w-full" data-cy="submit-button">
 							Sign Up
 						</button>
 						<div className="flex w-full justify-center gap-x-4 text-sm font-semibold">

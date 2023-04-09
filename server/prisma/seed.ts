@@ -5,7 +5,7 @@ const salt = bcrypt.genSaltSync(10);
 
 const prisma = new PrismaClient();
 
-async function main() {
+export async function main() {
 	console.log('🌱 Seeding...');
 	console.time(`🌱 Database has been seeded`);
 

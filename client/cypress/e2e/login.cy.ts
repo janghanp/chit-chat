@@ -1,10 +1,10 @@
 describe('Login', () => {
 	beforeEach(() => {
-		cy.visit('http://localhost:5173');
+		cy.visit('/');
 	});
 
 	it('does not allow users to login with unregistered account', () => {
-		cy.dataCy('email-input').type('test20@test.com');
+		cy.dataCy('email-input').type('test30@test.com');
 		cy.dataCy('password-input').type('123123');
 
 		cy.dataCy('submit-button').click();
@@ -35,8 +35,6 @@ describe('Login', () => {
 
 		cy.dataCy('submit-button').click();
 
-		cy.location().should((loc) => {
-			expect(loc.pathname).to.eq('/explorer');
-		});
+		cy.location('pathname').should('eq', '/explorer');
 	});
 });
