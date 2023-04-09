@@ -1,4 +1,5 @@
-import { PrismaClient, User } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
+import { faker } from '@faker-js/faker';
 import bcrypt from 'bcryptjs';
 
 const salt = bcrypt.genSaltSync(10);
@@ -16,30 +17,48 @@ export async function main() {
 	await prisma.user.deleteMany({ where: {} });
 	console.timeEnd('🧹 Cleaned up the database...');
 
-	const users: User[] = [];
+	const users: { email: string; password: string; username: string; id?: string }[] = [];
 
-	for (let i = 1; i < 10; i++) {
-		const user = await prisma.user.create({
-			data: {
-				email: `test${i}@test.com`,
-				password: bcrypt.hashSync('123123', salt),
-				username: `test${i}`,
-			},
-		});
+	for (let i = 0; i < 5; i++) {
+		const username = faker.name.firstName();
+
+		const user = {
+			email: faker.internet.email(),
+			password: bcrypt.hashSync(username, salt),
+			username,
+		};
 
 		users.push(user);
 	}
 
+	await prisma.user.createMany({ data: users });
+
+	const user1 = await prisma.user.findFirst({
+		where: {
+			username: users[0].username,
+		},
+	});
+
+	const user2 = await prisma.user.findFirst({
+		where: {
+			username: users[1].username,
+		},
+	});
+
+	if (!user1 || !user2) {
+		return;
+	}
+
 	const chat = await prisma.chat.create({
 		data: {
-			name: 'chat1',
-			ownerId: users[0].id,
+			name: faker.lorem.word(),
+			ownerId: user1.id,
 			readBy: {
-				set: [users[0].id],
+				set: [user1.id as string],
 			},
 			users: {
 				connect: {
-					id: users[0].id,
+					id: user1.id,
 				},
 			},
 		},
@@ -47,41 +66,55 @@ export async function main() {
 
 	await prisma.chat.create({
 		data: {
-			name: 'chat2',
-			ownerId: users[1].id,
+			name: faker.lorem.word(),
+			ownerId: user2.id,
 			readBy: {
-				set: [users[1].id],
+				set: [user2.id as string],
 			},
 			users: {
 				connect: {
-					id: users[1].id,
+					id: user2.id,
 				},
 			},
 		},
 	});
 
-	for (let i = 1; i < 50; i++) {
-		const message = await prisma.message.create({
-			data: {
-				chatId: chat.id,
-				text: `${i}`,
-				senderId: users[0].id,
-			},
-		});
+	const messages: { chatId: string; text: string; senderId: string; id?: string }[] = [];
 
-		await prisma.chat.update({
-			where: {
-				id: chat.id,
-			},
-			data: {
-				messages: {
-					connect: {
-						id: message.id,
-					},
+	for (let i = 0; i < 50; i++) {
+		const message = {
+			chatId: chat.id,
+			text: faker.lorem.text(),
+			senderId: user1.id as string,
+		};
+
+		messages.push(message);
+	}
+
+	await prisma.message.createMany({ data: messages });
+
+	const message = await prisma.message.findFirst({
+		where: {
+			text: messages[0].text,
+		},
+	});
+
+	if (!message) {
+		return;
+	}
+
+	await prisma.chat.update({
+		where: {
+			id: chat.id,
+		},
+		data: {
+			messages: {
+				connect: {
+					id: message.id,
 				},
 			},
-		});
-	}
+		},
+	});
 
 	console.timeEnd(`🌱 Database has been seeded`);
 }

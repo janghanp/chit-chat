@@ -14,6 +14,7 @@
 		"eslint": "eslint ."
 	},
 	"devDependencies": {
+		"@faker-js/faker": "^7.6.0",
 		"@swc/cli": "^0.1.59",
 		"@swc/core": "^1.3.25",
 		"@tsconfig/node18": "^1.0.1",
