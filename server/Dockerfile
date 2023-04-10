@@ -1,20 +1,21 @@
 # base node image
-FROM node:16-bullseye-slim as base
+FROM node:16-bullseye-slim
+ENV NODE_ENV=production
 
-# Create app directory
-WORKDIR /usr/src/app
+# Install openssl for Prisma
+RUN apt-get update && apt-get install -y fuse3 openssl sqlite3 ca-certificates
+# ADD prisma .
+# RUN npx prisma generate
 
-# Install app dependencies
-# A wildcard is used to ensure both package.json AND package-lock.json are copied
-# where available (npm@5+)
-COPY package*.json ./
+WORKDIR /app
 
-RUN npm install
-# If you are building your code for production
-# RUN npm ci --omit=dev
+COPY ["package.json", "yarn-lock.json*", "./"]
 
-# Bundle app source
+
+RUN yarn install -- production
+
 COPY . .
 
-EXPOSE 8080
-CMD [ "yarn", "dev" ]
+CMD ["yarn", "dev"]
+
+

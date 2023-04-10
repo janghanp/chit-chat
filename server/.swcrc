@@ -1,4 +1,9 @@
 {
+	"$schema": "http://json.schemastore.org/swcrc",
+	"module": {
+		"type": "commonjs"
+	},
+	"minify": true,
 	"jsc": {
 		"parser": {
 			"syntax": "typescript",
