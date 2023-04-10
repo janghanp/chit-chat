@@ -1,11 +1,6 @@
 import axios from 'axios';
 
-import { Chat, User } from '../types';
-
-interface ChatWithIsNewMember {
-	chat: Chat;
-	isNewMember: boolean;
-}
+import { Chat, ChatWithIsNewMember, User, PreviousChat } from '../types';
 
 export const fetchChat = async (chatId: string, userId: string) => {
 	const { data } = await axios.get<ChatWithIsNewMember>('/chat', {
@@ -37,7 +32,11 @@ export const createChat = async (formData: FormData) => {
 };
 
 export const createPrivateChat = async (senderId: string, receiverId: string) => {
-	const { data } = await axios.post<Chat>('/chat/private', { senderId, receiverId }, { withCredentials: true });
+	const { data } = await axios.post<Chat | PreviousChat>(
+		'/chat/private',
+		{ senderId, receiverId },
+		{ withCredentials: true }
+	);
 
 	return data;
 };

@@ -3,10 +3,6 @@ import { faker } from '@faker-js/faker';
 describe('register', () => {
 	before(() => {
 		cy.exec('yarn e2e:db:seed');
-
-		cy.fixture('users.json').then((users) => {
-			Cypress.users = users;
-		});
 	});
 
 	beforeEach(() => {
@@ -65,7 +61,9 @@ describe('register', () => {
 	});
 
 	it('does not allow users to register with a taken email', () => {
-		cy.dataCy('email-input').type(Cypress.users[0].email);
+		cy.fixture('users.json').then((users) => {
+			cy.dataCy('email-input').type(users[0].email);
+		});
 		cy.dataCy('password-input').type('123123');
 		cy.dataCy('confirmPassword-input').type('123123');
 		cy.dataCy('username-input').type('test20');
@@ -79,7 +77,10 @@ describe('register', () => {
 		cy.dataCy('email-input').type('test20@test.com');
 		cy.dataCy('password-input').type('123123');
 		cy.dataCy('confirmPassword-input').type('123123');
-		cy.dataCy('username-input').type(Cypress.users[0].username);
+
+		cy.fixture('users.json').then((users) => {
+			cy.dataCy('username-input').type(users[0].username);
+		});
 
 		cy.dataCy('submit-button').click();
 

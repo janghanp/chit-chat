@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 
 import { createPrivateChat } from '../api/chat';
+import { isPreviousChat } from '../types';
 
 const useCreatePrivateChat = () => {
 	const navigate = useNavigate();
@@ -12,16 +13,17 @@ const useCreatePrivateChat = () => {
 			return createPrivateChat(senderId, receiverId);
 		},
 		onSuccess: async (data) => {
-			if (!data.isPrevious) {
-				queryClient.setQueryData(['chatRooms'], (old: any) => {
-					return [...old, data];
-				});
-
-				navigate(`/chat/${data.id}`);
+			if (isPreviousChat(data)) {
+				navigate(`/chat/${data.previousChat.id}`);
 				return;
 			}
 
-			navigate(`/chat/${data.previousChat.id}`);
+			queryClient.setQueryData(['chatRooms'], (old: any) => {
+				return [...old, data];
+			});
+
+			navigate(`/chat/${data.id}`);
+			return;
 		},
 		onError: (error: any) => {
 			console.log(error);

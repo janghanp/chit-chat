@@ -1,10 +1,6 @@
 import axios from 'axios';
 
-import { User } from '../types';
-
-export const isUser = (item: any): item is User => {
-	return 'id' in item;
-};
+import { User, isUser } from '../types';
 
 export const fetchUser = async () => {
 	const { data } = await axios.get<User | 'OK'>('/auth/refresh', {

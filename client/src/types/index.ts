@@ -8,6 +8,11 @@ export interface User {
 	hasNewNotification: boolean;
 }
 
+export interface ChatWithIsNewMember {
+	chat: Chat;
+	isNewMember: boolean;
+}
+
 export interface Chat {
 	id: string;
 	name?: string;
@@ -18,6 +23,11 @@ export interface Chat {
 	createdAt: string;
 	readBy: string[];
 	messages?: Message[];
+}
+
+export interface PreviousChat {
+	previousChat: Chat;
+	isPrevious: boolean;
 }
 
 export interface Message {
@@ -73,3 +83,11 @@ export interface AuthErrorResponse {
 export interface AxiosResponseWithUsername {
 	username: string;
 }
+
+export const isUser = (item: any): item is User => {
+	return 'id' in item;
+};
+
+export const isPreviousChat = (item: any): item is PreviousChat => {
+	return 'isPrevious' in item;
+};
