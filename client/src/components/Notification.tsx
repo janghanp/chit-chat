@@ -157,7 +157,7 @@ const Notification = ({ notification }: Props) => {
 			</div>
 			{!notification.read && (
 				<div className="flex h-full flex-1 justify-center pt-5">
-					<span className="badge badge-success badge-xs indicator-item"></span>
+					<span className="badge-success badge badge-xs indicator-item"></span>
 				</div>
 			)}
 		</div>

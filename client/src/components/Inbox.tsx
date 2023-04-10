@@ -78,7 +78,7 @@ const Inbox = () => {
 				<button className="btn-ghost btn-sm btn px-1" onClick={() => setIsOpen(!isOpen)}>
 					<div className="indicator">
 						<span
-							className={`badge badge-error badge-xs indicator-bottom indicator-item left-[8px] top-[7px] ${
+							className={`badge-error badge badge-xs indicator-bottom indicator-item left-[8px] top-[7px] ${
 								currentUser?.hasNewNotification ? 'block' : 'hidden'
 							}`}
 						></span>
