@@ -17,6 +17,11 @@ services:
     build:
       context: server
       dockerfile: Dockerfile
+      args:
+        - DOCKER_BUILDKIT=1
+      target: development
+    environment:
+      - NODE_ENV=development
     volumes:
       - /app/node_modules
       - ./server:/app
@@ -32,6 +37,11 @@ services:
     build:
       context: client
       dockerfile: Dockerfile
+      args:
+        - DOCKER_BUILDKIT=1
+      target: development
+    environment:
+      - NODE_ENV=development
     volumes:
       - /app/node_modules
       - ./client:/app
