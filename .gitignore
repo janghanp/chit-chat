@@ -1,5 +1,5 @@
 server/node_modules
-server/build
+server/dist
 server/.env
 
 # Logs
@@ -11,7 +11,7 @@ client/yarn-error.log*
 client/pnpm-debug.log*
 client/lerna-debug.log*
 client/node_modules
-client/build
+client/dist
 client/*.local
 client/cypress/fixtures/users.json
 
