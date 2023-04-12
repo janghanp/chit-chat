@@ -16,6 +16,7 @@ import userRoute from './routes/userRoute';
 import chatRoute from './routes/chatRoute';
 import messageRoute from './routes/messageRoute';
 import notificationRoute from './routes/notificationRoute';
+import seedRoute from './routes/seedRoute';
 
 interface Chat {
 	id: string;
@@ -46,7 +47,7 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
 	cors: {
-		origin: ['http://localhost:5173', 'https://admin.socket.io', 'http://192.168.20.14:5173/'],
+		origin: 'http://localhost:5173',
 		methods: ['GET', 'POST'],
 		credentials: true,
 	},
@@ -58,8 +59,12 @@ instrument(io, {
 });
 
 app.use(morgan('dev'));
-app.use(cors({ origin: 'http://localhost:5173', credentials: true }));
-// app.use(cors({ origin: 'http://192.168.20.14:5173/', credentials: true }));
+app.use(
+	cors({
+		origin: 'http://localhost:5173',
+		credentials: true,
+	})
+);
 app.use(express.json());
 app.use(cookieParser());
 
@@ -68,6 +73,8 @@ app.use('/user', checkToken, userRoute);
 app.use('/chat', checkToken, chatRoute);
 app.use('/message', checkToken, messageRoute);
 app.use('/notification', checkToken, notificationRoute);
+// For cypress e2e test.
+app.use('/seed', seedRoute);
 
 interface UserWithSockets {
 	userId: string;
@@ -315,7 +322,6 @@ io.on('connect', (socket: Socket) => {
 });
 
 const port = process.env.PORT || 8080;
-// const hostname = '119.18.1.139';
 
 server.listen(port, () => {
 	console.log(`Listening on port ${port}`);

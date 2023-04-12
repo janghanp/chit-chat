@@ -84,16 +84,15 @@ const CreateChatButton = ({ currentUserId }: Props) => {
 	};
 
 	return (
-		<div className="">
+		<div data-cy="create-chat-button">
 			<div className="tooltip tooltip-top" data-tip="Create a chat">
 				<label htmlFor="modal-2" className="btn-ghost btn-sm btn px-1.5">
 					<HiPlus className="text-xl" />
 				</label>
 			</div>
 			{createPortal(
-				<div>
+				<div data-cy="create-chat-modal">
 					<input type="checkbox" id="modal-2" className="modal-toggle" onChange={clearStates} />
-
 					<label htmlFor="modal-2" className="modal">
 						<label htmlFor="" className="modal-box relative">
 							<label htmlFor="modal-2" className="btn-sm btn-circle btn absolute right-5 top-5">
@@ -101,7 +100,6 @@ const CreateChatButton = ({ currentUserId }: Props) => {
 							</label>
 							<h3 className="text-center text-2xl font-bold">Create a chat</h3>
 							<p className="py-4">Your chat is where you and your friends hang out. Make yours and start talking.</p>
-
 							<div className="form-control my-5 w-full">
 								{/* Chat icon */}
 								<div className="my-3 w-full text-center">
@@ -118,9 +116,7 @@ const CreateChatButton = ({ currentUserId }: Props) => {
 										</div>
 									</div>
 								</div>
-
 								{imageError && <span className="text-error">{imageError}</span>}
-
 								<input
 									type="file"
 									disabled={isLoading}
@@ -129,11 +125,11 @@ const CreateChatButton = ({ currentUserId }: Props) => {
 									className="hidden"
 									onChange={changeFileHandler}
 								/>
-
 								<label className="label">
 									<span className="label-text text-sm font-bold uppercase">chatroom name</span>
 								</label>
 								<input
+									data-cy="create-chat-input"
 									type="text"
 									placeholder="Type here"
 									className={`input-bordered input w-full ${error && 'border-error'}`}
@@ -143,11 +139,14 @@ const CreateChatButton = ({ currentUserId }: Props) => {
 									}}
 									value={roomName}
 								/>
-								{error && <span className="mt-2 text-sm text-error">{error}</span>}
+								{error && <span className="mt-2 text-sm text-error" data-cy="create-chat-error">{error}</span>}
 							</div>
-
 							<div className="w-full text-right">
-								<button className={`btn ${isLoading && 'pointer-events-none'}`} onClick={submitHandler}>
+								<button
+									className={`btn ${isLoading && 'pointer-events-none'}`}
+									onClick={submitHandler}
+									data-cy="create-chat-submit"
+								>
 									{isLoading ? <SyncLoader color="#A3C6FF" size={10} margin={4} /> : <span>create</span>}
 								</button>
 							</div>

@@ -13,7 +13,7 @@ client/lerna-debug.log*
 client/node_modules
 client/dist
 client/*.local
-client/cypress/fixtures/users.json
+client/cypress/fixtures/*
 
 # Editor directories and files
 .vscode/*

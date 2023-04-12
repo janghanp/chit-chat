@@ -2,7 +2,7 @@ import { faker } from '@faker-js/faker';
 
 describe('register', () => {
 	before(() => {
-		cy.exec('yarn e2e:db:seed');
+		cy.seed();
 	});
 
 	beforeEach(() => {

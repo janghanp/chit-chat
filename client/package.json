@@ -3,7 +3,6 @@
 	"private": true,
 	"version": "0.0.0",
 	"type": "module",
-	"proxy": "http://localhost:8080",
 	"scripts": {
 		"dev": "vite",
 		"host": "vite --host",
@@ -11,8 +10,7 @@
 		"preview": "vite preview",
 		"prettier": "prettier --write .",
 		"eslint": "eslint .",
-		"e2e": "cypress open --e2e --browser chrome",
-		"e2e:db:seed": "cd ../server && npx prisma db seed"
+		"e2e": "cypress open --e2e --browser electron"
 	},
 	"dependencies": {
 		"@tanstack/react-query": "^4.28.0",

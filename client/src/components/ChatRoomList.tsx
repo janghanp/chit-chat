@@ -32,7 +32,7 @@ const ChatRoomList = ({ setIsSidebarOpen }: Props) => {
 	}
 
 	return (
-		<table className="table w-full">
+		<table className="table w-full" data-cy="chat-room-list">
 			<tbody>
 				{chatRooms &&
 					chatRooms.map((chatRoom) => {
