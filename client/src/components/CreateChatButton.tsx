@@ -139,7 +139,11 @@ const CreateChatButton = ({ currentUserId }: Props) => {
 									}}
 									value={roomName}
 								/>
-								{error && <span className="mt-2 text-sm text-error" data-cy="create-chat-error">{error}</span>}
+								{error && (
+									<span className="mt-2 text-sm text-error" data-cy="create-chat-error">
+										{error}
+									</span>
+								)}
 							</div>
 							<div className="w-full text-right">
 								<button

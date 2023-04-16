@@ -128,12 +128,13 @@ const Chat = () => {
 			<div className="absolute bottom-0 left-[2px] w-full bg-base-100 p-3">
 				<div className="flex gap-x-2">
 					<input
+						data-cy="message-input"
 						className="input-bordered input w-full"
 						type="text"
 						value={inputMessage}
 						onChange={(e) => setInputMessage(e.target.value)}
 					/>
-					<button className="btn" disabled={!inputMessage} onClick={createMessageHandler}>
+					<button className="btn" disabled={!inputMessage} onClick={createMessageHandler} data-cy="message-submit">
 						Send
 					</button>
 				</div>

@@ -4,15 +4,13 @@ describe('Login', () => {
 	});
 
 	beforeEach(() => {
-		cy.visit('/');
+		cy.visit('/login');
 	});
 
 	it('does not allow users to login with unregistered account', () => {
 		cy.dataCy('email-input').type('test30@test.com');
 		cy.dataCy('password-input').type('123123');
-
 		cy.dataCy('submit-button').click();
-
 		cy.dataCy('email-error').contains('Incorrect email address or password');
 		cy.dataCy('password-error').contains('Incorrect email address or password');
 	});

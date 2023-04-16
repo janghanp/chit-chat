@@ -90,7 +90,10 @@ const Dropdown = ({ isDropDownOpen, setIsDropDownOpen, isOwner, chatId }: Props)
 					)}
 				</label>
 				{isDropDownOpen && (
-					<ul className="menu rounded-box menu-compact absolute right-0 z-30 w-52 border bg-base-100 p-2 shadow-md">
+					<ul
+						data-cy="dropdown-menu"
+						className="menu rounded-box menu-compact absolute right-0 z-30 w-52 border bg-base-100 p-2 shadow-md"
+					>
 						{isOwner && (
 							<li
 								onClick={() => {

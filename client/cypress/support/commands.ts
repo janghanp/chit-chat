@@ -4,14 +4,18 @@ Cypress.Commands.add('dataCy', (value) => {
 	return cy.get(`[data-cy=${value}]`);
 });
 
-Cypress.Commands.add('login', (email, password) => {
-	cy.session([email, password], () => {
-		cy.visit('/login');
-		cy.dataCy('email-input').type(email);
-		cy.dataCy('password-input').type(password);
-		cy.dataCy('submit-button').click();
-		cy.url().should('contain', '/explorer');
+Cypress.Commands.add('login', () => {
+	cy.fixture('users.json').then((users) => {
+		cy.request({
+			method: 'POST',
+			url: 'http://localhost:8080/auth/login',
+			body: {
+				email: users[0].email,
+				password: users[0].username,
+			},
+		});
 	});
+	//Set jwt from the server.
 });
 
 Cypress.Commands.add('seed', () => {
