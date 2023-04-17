@@ -1,17 +1,17 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import produce from 'immer';
 
 import MemberList from '../components/MemberList';
 import ChatBody from '../components/ChatBody';
 import Header from '../components/Header';
+import MessageInputBox from '../components/MessageInputBox';
 import { socket } from '../socket';
-import { createMessage } from '../api/message';
 import useUser from '../hooks/useUser';
 import useChat from '../hooks/useChat';
-import { Chat as ChatType } from '../types';
 import useFriends from '../hooks/useFriends';
+import { Chat as ChatType } from '../types';
 
 const Chat = () => {
 	const { chatId } = useParams();
@@ -19,50 +19,7 @@ const Chat = () => {
 	const { data: currentUser } = useUser();
 	const { isLoading, isError, data: currentChat, isSuccess } = useChat(chatId as string, currentUser!.id);
 	useFriends();
-	const [inputMessage, setInputMessage] = useState<string>('');
 	const [isOpenMemberList, setIsOpenMemberList] = useState<boolean>(false);
-	const { mutate: createMessageMutate } = useMutation({
-		mutationKey: ['createMessage', chatId],
-		mutationFn: ({
-			chatId,
-			inputMessage,
-			currentUserId,
-		}: {
-			chatId: string;
-			inputMessage: string;
-			currentUserId: string;
-		}) => {
-			return createMessage(chatId, inputMessage, currentUserId);
-		},
-		onSuccess: (data) => {
-			// Group chat message
-			if (currentChat!.chat.type === 'GROUP') {
-				socket.emit('send_message', {
-					messageId: data.id,
-					text: inputMessage,
-					sender: currentUser,
-					chatId,
-					createdAt: data.createdAt,
-				});
-			}
-
-			// Private chat message
-			if (currentChat!.chat.type === 'PRIVATE') {
-				socket.emit('private_message', {
-					messageId: data.id,
-					text: inputMessage,
-					sender: currentUser,
-					chatId,
-					createdAt: data.createdAt,
-				});
-			}
-
-			setInputMessage('');
-		},
-		onError: (error: any) => {
-			console.log(error);
-		},
-	});
 
 	useEffect(() => {
 		if (currentChat) {
@@ -96,14 +53,6 @@ const Chat = () => {
 		}
 	}, [currentChat, isSuccess, queryClient]);
 
-	const createMessageHandler = async () => {
-		if (!inputMessage) {
-			return;
-		}
-
-		createMessageMutate({ chatId: chatId as string, inputMessage, currentUserId: currentUser!.id });
-	};
-
 	if (isLoading) {
 		return <div>Loading...</div>;
 	}
@@ -125,20 +74,7 @@ const Chat = () => {
 				setIsOpenMemberList={setIsOpenMemberList}
 			/>
 			<ChatBody />
-			<div className="absolute bottom-0 left-[2px] w-full bg-base-100 p-3">
-				<div className="flex gap-x-2">
-					<input
-						data-cy="message-input"
-						className="input-bordered input w-full"
-						type="text"
-						value={inputMessage}
-						onChange={(e) => setInputMessage(e.target.value)}
-					/>
-					<button className="btn" disabled={!inputMessage} onClick={createMessageHandler} data-cy="message-submit">
-						Send
-					</button>
-				</div>
-			</div>
+			<MessageInputBox currentChat={currentChat} currentUser={currentUser!} />
 			<MemberList
 				isOpenMemberList={isOpenMemberList}
 				chatId={chatId as string}
