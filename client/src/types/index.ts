@@ -75,7 +75,7 @@ export interface Friend {
 	id: string;
 	username: string;
 	avatar?: string;
-	isOnline: boolean;
+	isOnline?: boolean;
 }
 
 export interface AuthErrorResponse {

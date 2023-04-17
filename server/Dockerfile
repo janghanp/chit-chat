@@ -16,7 +16,7 @@ COPY prisma .
 RUN npx prisma generate
 COPY . .
 EXPOSE 8080
-CMD [ "yarn", "dev", "&", "npx", "prisma", "studio" ]
+CMD [ "yarn", "dev" ]
 
 # Setup production node_modules
 FROM base as production-deps

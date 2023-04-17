@@ -7,15 +7,14 @@ services:
       dockerfile: Dockerfile
       args:
         - DOCKER_BUILDKIT=1
-      target: development
+      target: production
     environment:
-      - NODE_ENV=development
+      - NODE_ENV=production
     volumes:
       - /app/node_modules
       - ./server:/app
     ports:
       - "8080:8080"
-      - "5555:5555"
     env_file:
       - server/.env
 
@@ -25,9 +24,9 @@ services:
       dockerfile: Dockerfile
       args:
         - DOCKER_BUILDKIT=1
-      target: development
+      target: production
     environment:
-      - NODE_ENV=development
+      - NODE_ENV=production
     volumes:
       - /app/node_modules
       - ./client:/app
@@ -35,6 +34,3 @@ services:
       - "5173:5173"
     depends_on:
       - server
-
-volumes:
-  postgres-data:
