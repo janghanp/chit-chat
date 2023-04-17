@@ -1,9 +1,10 @@
-import { FormEvent, useEffect, useRef, useState } from 'react';
+import { FormEvent, useRef, useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 
 import { createMessage } from '../api/message';
 import { socket } from '../socket';
 import { ChatWithIsNewMember, User } from '../types';
+import Emoji from './Emoji';
 
 interface Props {
 	currentUser: User;
@@ -12,6 +13,7 @@ interface Props {
 
 const MessageInputBox = ({ currentChat, currentUser }: Props) => {
 	const [inputMessage, setInputMessage] = useState<string>('');
+	const inputRef = useRef<HTMLInputElement>(null);
 	const formRef = useRef<HTMLFormElement>(null);
 	const { mutate: createMessageMutate } = useMutation({
 		mutationKey: ['createMessage', currentChat.chat.id],
@@ -68,15 +70,17 @@ const MessageInputBox = ({ currentChat, currentUser }: Props) => {
 
 	return (
 		<div className="absolute bottom-0 left-[2px] w-full bg-base-100 p-3">
-			<form ref={formRef} onSubmit={submitHandler} className="flex gap-x-2">
+			<form ref={formRef} onSubmit={submitHandler} className="relative flex gap-x-2">
 				<input
 					data-cy="message-input"
+					ref={inputRef}
 					className="input-bordered input w-full"
 					type="text"
 					value={inputMessage}
 					onChange={(e) => setInputMessage(e.target.value)}
 				/>
-				<button className="btn" disabled={!inputMessage} data-cy="message-submit">
+				<Emoji setInputMessage={setInputMessage} inputRef={inputRef} />
+				<button type="submit" className="btn" disabled={!inputMessage} data-cy="message-submit">
 					Send
 				</button>
 			</form>
