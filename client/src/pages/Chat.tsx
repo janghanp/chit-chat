@@ -54,7 +54,7 @@ const Chat = () => {
 	}, [currentChat, isSuccess, queryClient]);
 
 	if (isLoading) {
-		return <div>Loading...</div>;
+		return <div></div>;
 	}
 
 	if (isError) {

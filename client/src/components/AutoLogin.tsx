@@ -6,14 +6,18 @@ const AutoLogin = () => {
 	const { isLoading, isError } = useUser();
 
 	if (isLoading) {
-		return <div>Loading...</div>;
+		return <div></div>;
 	}
 
 	if (isError) {
 		return <div>Error...</div>;
 	}
 
-	return <>{isLoading ? <div>loading...</div> : <Outlet />}</>;
+	return (
+		<>
+			<Outlet />
+		</>
+	);
 };
 
 export default AutoLogin;

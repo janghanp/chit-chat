@@ -39,7 +39,7 @@ const ChatBody = () => {
 			className="absolute bottom-20	top-0 flex w-full flex-col-reverse gap-y-3 overflow-y-auto px-5 py-5"
 		>
 			{status === 'loading' ? (
-				<div>Loading...</div>
+				<div></div>
 			) : (
 				<Fragment>
 					{status === 'error' ? (
@@ -67,7 +67,9 @@ const ChatBody = () => {
 															{format(new Date(message.createdAt), 'PP p')}
 														</time>
 													</div>
-													<div className="chat-bubble break-words">{message.text}</div>
+													<div className={`chat-bubble break-words ${message.id === 'temp' && 'text-gray-500'} `}>
+														{message.text}
+													</div>
 												</div>
 											);
 										})}

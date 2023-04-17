@@ -25,7 +25,7 @@ const MemberList = ({ chatOwnerId, chatId, isOpenMemberList }: Props) => {
 	}
 
 	if (isLoading) {
-		return <div>Loading...</div>;
+		return <div></div>;
 	}
 
 	if (isError) {

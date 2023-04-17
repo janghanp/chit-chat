@@ -1,10 +1,11 @@
 import { FormEvent, useRef, useState } from 'react';
-import { useMutation } from '@tanstack/react-query';
+import { InfiniteData, useMutation, useQueryClient } from '@tanstack/react-query';
+import Emoji from './Emoji';
+import produce from 'immer';
 
 import { createMessage } from '../api/message';
 import { socket } from '../socket';
-import { ChatWithIsNewMember, User } from '../types';
-import Emoji from './Emoji';
+import { ChatWithIsNewMember, Message, User } from '../types';
 
 interface Props {
 	currentUser: User;
@@ -12,6 +13,7 @@ interface Props {
 }
 
 const MessageInputBox = ({ currentChat, currentUser }: Props) => {
+	const queryClient = useQueryClient();
 	const [inputMessage, setInputMessage] = useState<string>('');
 	const inputRef = useRef<HTMLInputElement>(null);
 	const formRef = useRef<HTMLFormElement>(null);
@@ -28,12 +30,34 @@ const MessageInputBox = ({ currentChat, currentUser }: Props) => {
 		}) => {
 			return createMessage(chatId, inputMessage, currentUserId);
 		},
-		onSuccess: (data) => {
+		onMutate: (data: { chatId: string; inputMessage: string; currentUserId: string }) => {
+			const { chatId, inputMessage } = data;
+			// Optimistice update for messages.
+			const previousMessages = queryClient.getQueryData<InfiniteData<Message[]>>(['messages', chatId]);
+
+			queryClient.setQueryData<InfiniteData<Message[]>>(['messages', chatId], (old) => {
+				if (old) {
+					return produce(old, (draftState) => {
+						draftState.pages[0].unshift({
+							id: 'temp',
+							text: inputMessage,
+							sender: currentUser,
+							createdAt: new Date().toString(),
+							chatId,
+							senderId: currentUser.id,
+						});
+					});
+				}
+			});
+
+			return { previousMessages };
+		},
+		onSuccess: (data, variables) => {
 			// Group chat message
 			if (currentChat!.chat.type === 'GROUP') {
 				socket.emit('send_message', {
 					messageId: data.id,
-					text: inputMessage,
+					text: variables.inputMessage,
 					sender: currentUser,
 					chatId: currentChat.chat.id,
 					createdAt: data.createdAt,
@@ -44,7 +68,7 @@ const MessageInputBox = ({ currentChat, currentUser }: Props) => {
 			if (currentChat!.chat.type === 'PRIVATE') {
 				socket.emit('private_message', {
 					messageId: data.id,
-					text: inputMessage,
+					text: variables.inputMessage,
 					sender: currentUser,
 					chatId: currentChat.chat.id,
 					createdAt: data.createdAt,
@@ -53,8 +77,13 @@ const MessageInputBox = ({ currentChat, currentUser }: Props) => {
 
 			setInputMessage('');
 		},
-		onError: (error: any) => {
+		onError(error, variables, context) {
 			console.log(error);
+
+			// Revert optimistic update.
+			if (context) {
+				queryClient.setQueryData(['messages', variables.chatId], context.previousMessages);
+			}
 		},
 	});
 
@@ -66,6 +95,7 @@ const MessageInputBox = ({ currentChat, currentUser }: Props) => {
 		}
 
 		createMessageMutate({ chatId: currentChat.chat.id, inputMessage, currentUserId: currentUser!.id });
+		setInputMessage('');
 	};
 
 	return (

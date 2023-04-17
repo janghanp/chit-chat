@@ -4,6 +4,7 @@ import useUser from '../hooks/useUser';
 import { socket } from '../socket';
 
 import ChatRoom from './ChatRoom';
+import ChatRoomSkeleton from './ChatRoomSkeleton';
 
 interface Props {
 	setIsSidebarOpen: Dispatch<SetStateAction<boolean>>;
@@ -24,7 +25,15 @@ const ChatRoomList = ({ setIsSidebarOpen }: Props) => {
 	}, [chatRooms, currentUser]);
 
 	if (isLoading) {
-		return <div>Loading...</div>;
+		var arr = Array.apply(null, Array(5))
+
+		return (
+			<div>
+				{arr.map((_, index) => {
+					return <ChatRoomSkeleton key={index} index={index} />;
+				})}
+			</div>
+		);
 	}
 
 	if (isError) {
