@@ -13,6 +13,7 @@ const AddFriendInput = () => {
 			return fetchUserByUsername(username);
 		},
 		onSuccess: async ({ data, status }) => {
+			//if a receiver exists, create a notification for the receiver.
 			if (data && status === 200) {
 				createNotificationMutate({
 					receiverId: data.id,
@@ -52,6 +53,11 @@ const AddFriendInput = () => {
 		setMessage('');
 
 		if (!username) {
+			return;
+		}
+
+		if (username === currentUser?.username) {
+			setError(`You can't send a friend request to yourself...`);
 			return;
 		}
 
