@@ -1,11 +1,18 @@
-import { Fragment } from 'react';
+import { Fragment, useEffect } from 'react';
 
 import Friend from '../components/Friend';
 import useFriends from '../hooks/useFriends';
 import AddFriendInput from '../components/AddFriendInput';
+import { socket } from '../socket';
 
 const Friends = () => {
 	const { isLoading, isError, data } = useFriends();
+
+	useEffect(() => {
+		if (data) {
+			socket.emit('fetch_members');
+		}
+	}, [data]);
 
 	if (isLoading) {
 		return <div>Loading...</div>;

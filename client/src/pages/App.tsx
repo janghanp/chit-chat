@@ -37,6 +37,18 @@ function App() {
 						});
 					}
 				});
+
+				queryClient.setQueryData<User[]>(['friends'], (old) => {
+					if (old) {
+						return produce(old, (draftState) => {
+							draftState.forEach((member) => {
+								if (member.id === userId) {
+									member.isOnline = true;
+								}
+							});
+						});
+					}
+				});
 			}
 		};
 
@@ -57,6 +69,18 @@ function App() {
 						});
 					}
 				});
+
+				queryClient.setQueryData<User[]>(['friends'], (old) => {
+					if (old) {
+						return produce(old, (draftState) => {
+							draftState.forEach((member) => {
+								if (member.id === userId) {
+									member.isOnline = false;
+								}
+							});
+						});
+					}
+				});
 			}
 		};
 
@@ -67,6 +91,20 @@ function App() {
 
 			if (state) {
 				queryClient.setQueriesData<User[]>(['members'], (old) => {
+					if (old) {
+						return produce(old, (draftState) => {
+							draftState.forEach((member) => {
+								if (userIds.includes(member.id)) {
+									member.isOnline = true;
+								} else {
+									member.isOnline = false;
+								}
+							});
+						});
+					}
+				});
+
+				queryClient.setQueryData<User[]>(['friends'], (old) => {
 					if (old) {
 						return produce(old, (draftState) => {
 							draftState.forEach((member) => {

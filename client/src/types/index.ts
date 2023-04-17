@@ -23,6 +23,7 @@ export interface Chat {
 	createdAt: string;
 	readBy: string[];
 	messages?: Message[];
+	privateMsgSenderId?: string;
 }
 
 export interface PreviousChat {
@@ -74,6 +75,7 @@ export interface Friend {
 	id: string;
 	username: string;
 	avatar?: string;
+	isOnline: boolean;
 }
 
 export interface AuthErrorResponse {

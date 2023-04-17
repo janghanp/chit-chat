@@ -31,6 +31,11 @@ const Friend = ({ friend }: Props) => {
 		>
 			<div className="flex items-center">
 				<div className="avatar">
+					<div
+						className={`absolute -top-0.5 right-0 z-10 h-3 w-3 rounded-full border ${
+							friend.isOnline ? 'bg-green-500' : 'bg-gray-400'
+						} `}
+					></div>
 					<div className="w-10 rounded-full border">
 						<img src={friend.avatar || defaultAvatar} alt={'avatar'} />
 					</div>

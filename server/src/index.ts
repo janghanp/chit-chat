@@ -133,6 +133,14 @@ io.on('connect', (socket: Socket) => {
 		socket.emit('set_members_status', { userIds: usersWithSockets.map((el) => el.userId) });
 	});
 
+	socket.on('check_online', (data: { receiverId: string }) => {
+		const { receiverId } = data;
+
+		const isOnline = usersWithSockets.some((el) => el.userId === receiverId);
+
+		socket.emit('is_online', { isOnline });
+	});
+
 	socket.on(
 		'private_message',
 		async (data: { chatId: string; messageId: string; text: string; sender: CurrentUser; createdAt: string }) => {

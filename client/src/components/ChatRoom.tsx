@@ -8,6 +8,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { Chat, User } from '../types';
 import useUser from '../hooks/useUser';
 import defaultAvatar from '/default.jpg';
+import { socket } from '../socket';
 
 interface Props {
 	chatRoom: Chat;
@@ -20,8 +21,10 @@ const ChatRoom = ({ chatRoom, setIsSidebarOpen }: Props) => {
 	const queryClient = useQueryClient();
 	const { data: currentUser } = useUser();
 	const [isNewMessage, setIsNewMessage] = useState<boolean>(false);
-	const [receiverAvatar, setReceiverAvatar] = useState<string | undefined>('');
-	const [receiverUsername, setReceiverUsername] = useState<string | undefined>('');
+	const [receiverId, setReceiverId] = useState<string>('');
+	const [receiverAvatar, setReceiverAvatar] = useState<string>('');
+	const [receiverUsername, setReceiverUsername] = useState<string>('');
+	const [isReceiverOnline, setIsReceiverOnline] = useState<boolean>(false);
 	const receiverRef = useRef<boolean>(false);
 
 	// When it is a private chat, set the receiver avatar as a chat icon.
@@ -37,8 +40,9 @@ const ChatRoom = ({ chatRoom, setIsSidebarOpen }: Props) => {
 				});
 
 				if (data) {
-					setReceiverAvatar(data.avatar);
-					setReceiverUsername(data.username);
+					setReceiverId(data.id!);
+					setReceiverAvatar(data.avatar!);
+					setReceiverUsername(data.username!);
 					receiverRef.current = true;
 				}
 			};
@@ -48,6 +52,48 @@ const ChatRoom = ({ chatRoom, setIsSidebarOpen }: Props) => {
 			}
 		}
 	}, [currentUser, chatRoom.id, chatRoom.type]);
+
+	useEffect(() => {
+		if (chatRoom.type === 'PRIVATE') {
+			const onOnline = (data: { userId: string }) => {
+				const { userId } = data;
+
+				if (userId === receiverId) {
+					setIsReceiverOnline(true);
+				}
+			};
+
+			const onOffline = (data: { userId: string }) => {
+				const { userId } = data;
+
+				if (userId === receiverId) {
+					setIsReceiverOnline(false);
+				}
+			};
+
+			const onIsOnline = (data: { isOnline: boolean }) => {
+				const { isOnline } = data;
+
+				if (isOnline) {
+					setIsReceiverOnline(true);
+				} else {
+					setIsReceiverOnline(false);
+				}
+			};
+
+			socket.emit('check_online', { receiverId });
+
+			socket.on('online', onOnline);
+			socket.on('offline', onOffline);
+			socket.on('is_online', onIsOnline);
+
+			return () => {
+				socket.off('online', onOnline);
+				socket.off('offline', onOffline);
+				socket.off('is_online', onIsOnline);
+			};
+		}
+	}, [receiverId, chatRoom]);
 
 	// Set new message indicator.
 	useEffect(() => {
@@ -126,11 +172,14 @@ const ChatRoom = ({ chatRoom, setIsSidebarOpen }: Props) => {
 										</div>
 									</div>
 								) : (
-									<div>
-										<div className="avatar">
-											<div className="w-10 rounded-full border">
-												<img src={receiverAvatar || defaultAvatar} alt="receiver" />
-											</div>
+									<div className="avatar">
+										<div
+											className={`absolute bottom-0 right-0 z-10 h-3 w-3 rounded-full border ${
+												isReceiverOnline ? 'bg-green-500' : 'bg-gray-400'
+											} `}
+										></div>
+										<div className="w-10 rounded-full border">
+											<img src={receiverAvatar || defaultAvatar} alt="receiver" />
 										</div>
 									</div>
 								)}
