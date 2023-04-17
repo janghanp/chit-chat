@@ -1,5 +1,5 @@
 import { Fragment, useEffect } from 'react';
-import { RotateLoader, SyncLoader } from 'react-spinners';
+import { SyncLoader } from 'react-spinners';
 
 import Friend from '../components/Friend';
 import useFriends from '../hooks/useFriends';
@@ -23,7 +23,7 @@ const Friends = () => {
 		<div className="flex h-screen w-full flex-col items-center justify-start p-5 sm:pl-[345px]">
 			{isLoading ? (
 				<div className="my-auto">
-					<SyncLoader margin={10} color="#394E6A" size={10}/>
+					<SyncLoader margin={10} color="#394E6A" size={10} />
 				</div>
 			) : (
 				<>
