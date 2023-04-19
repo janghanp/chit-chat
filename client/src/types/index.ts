@@ -23,7 +23,8 @@ export interface Chat {
 	createdAt: string;
 	readBy: string[];
 	messages?: Message[];
-	privateMsgSenderId?: string;
+	privateMsgReceiverId?: string;
+	isReceiverOnline?: boolean;
 }
 
 export interface PreviousChat {

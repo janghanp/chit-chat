@@ -50,6 +50,18 @@ function App() {
 					}
 				});
 			}
+
+			queryClient.setQueryData<ChatType[]>(['chatRooms'], (old) => {
+				if (old) {
+					return produce(old, (draftState) => {
+						draftState.forEach((chat) => {
+							if (chat.type === 'PRIVATE' && chat.privateMsgReceiverId === userId) {
+								chat.isReceiverOnline = true;
+							}
+						});
+					});
+				}
+			});
 		};
 
 		const onOffline = (data: { userId: string }) => {
@@ -82,6 +94,18 @@ function App() {
 					}
 				});
 			}
+
+			queryClient.setQueryData<ChatType[]>(['chatRooms'], (old) => {
+				if (old) {
+					return produce(old, (draftState) => {
+						draftState.forEach((chat) => {
+							if (chat.type === 'PRIVATE' && chat.privateMsgReceiverId === userId) {
+								chat.isReceiverOnline = false;
+							}
+						});
+					});
+				}
+			});
 		};
 
 		const setMembersStatus = (data: { userIds: string[] }) => {
@@ -317,6 +341,22 @@ function App() {
 			});
 		};
 
+		const onIsOnline = (data: { isOnline: boolean; chatId: string }) => {
+			const { isOnline, chatId } = data;
+
+			queryClient.setQueryData<ChatType[]>(['chatRooms'], (old) => {
+				if (old) {
+					return produce(old, (draftState) => {
+						draftState.forEach((chat) => {
+							if (chat.type === 'PRIVATE' && chat.id === chatId && isOnline) {
+								chat.isReceiverOnline = true;
+							}
+						});
+					});
+				}
+			});
+		};
+
 		socket.on('online', onOnline);
 		socket.on('offline', onOffline);
 		socket.on('set_members_status', setMembersStatus);
@@ -327,6 +367,7 @@ function App() {
 		socket.on('receive_notification', onReceiveNotification);
 		socket.on('accept_friend', onAcceptFriend);
 		socket.on('remove_friend', onRemoveFriend);
+		socket.on('is_online', onIsOnline);
 
 		return () => {
 			socket.off('online', onOnline);
@@ -339,6 +380,7 @@ function App() {
 			socket.off('receive_notification', onReceiveNotification);
 			socket.off('accept_friend', onAcceptFriend);
 			socket.off('remove_friend', onRemoveFriend);
+			socket.off('is_online', onIsOnline);
 		};
 	}, [queryClient]);
 

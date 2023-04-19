@@ -47,7 +47,7 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
 	cors: {
-		origin: ['http://localhost', 'http://192.168.20.2:5173'],
+		origin: ['http://localhost:5173', 'http://localhost', 'http://170.187.241.144'],
 		methods: ['GET', 'POST'],
 		credentials: true,
 	},
@@ -61,7 +61,7 @@ instrument(io, {
 app.use(morgan('dev'));
 app.use(
 	cors({
-		origin: ['http://localhost', 'http://192.168.20.2:5173'],
+		origin: ['http://localhost:5173', 'http://localhost', 'http://170.187.241.144'],
 		credentials: true,
 	})
 );
@@ -132,12 +132,12 @@ io.on('connect', (socket: Socket) => {
 		socket.emit('set_members_status', { userIds: usersWithSockets.map((el) => el.userId) });
 	});
 
-	socket.on('check_online', (data: { receiverId: string }) => {
-		const { receiverId } = data;
+	socket.on('check_online', (data: { receiverId: string, chatId: string }) => {
+		const { receiverId, chatId } = data;
 
 		const isOnline = usersWithSockets.some((el) => el.userId === receiverId);
 
-		socket.emit('is_online', { isOnline });
+		socket.emit('is_online', { isOnline, chatId });
 	});
 
 	socket.on(
