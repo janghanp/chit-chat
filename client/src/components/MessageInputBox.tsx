@@ -74,8 +74,6 @@ const MessageInputBox = ({ currentChat, currentUser }: Props) => {
 					createdAt: data.createdAt,
 				});
 			}
-
-			setInputMessage('');
 		},
 		onError(error, variables, context) {
 			console.log(error);
