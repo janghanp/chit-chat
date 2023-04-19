@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { Dispatch, useState, SetStateAction } from 'react';
 
 import { User } from '../types';
 import defaultAvatar from '/default.jpg';
@@ -10,9 +10,10 @@ import useFriends from '../hooks/useFriends';
 
 interface Props {
 	member: User;
+	setIsOpenMemberList: Dispatch<SetStateAction<boolean>>;
 }
 
-const Member = ({ member }: Props) => {
+const Member = ({ member, setIsOpenMemberList }: Props) => {
 	const { data: currentUser } = useUser();
 	const { data: friends } = useFriends();
 	const { mutate: createNotificationMutate } = useCreateNotification();
@@ -22,6 +23,7 @@ const Member = ({ member }: Props) => {
 
 	const createPrivateChatHandler = async () => {
 		createPrivateChatMutate({ senderId: currentUser!.id, receiverId: member.id });
+		setIsOpenMemberList(false);
 	};
 
 	const requestFriendHandler = async () => {

@@ -1,4 +1,4 @@
-import { Fragment, useEffect } from 'react';
+import { Dispatch, Fragment, SetStateAction, useEffect } from 'react';
 
 import { socket } from '../socket';
 import { User } from '../types';
@@ -9,9 +9,10 @@ interface Props {
 	chatOwnerId: string | undefined;
 	chatId: string;
 	isOpenMemberList: boolean;
+	setIsOpenMemberList: Dispatch<SetStateAction<boolean>>;
 }
 
-const MemberList = ({ chatOwnerId, chatId, isOpenMemberList }: Props) => {
+const MemberList = ({ chatOwnerId, chatId, isOpenMemberList, setIsOpenMemberList }: Props) => {
 	const { isLoading, isError, data } = useMembers(chatId);
 
 	useEffect(() => {
@@ -60,7 +61,7 @@ const MemberList = ({ chatOwnerId, chatId, isOpenMemberList }: Props) => {
 				<div>
 					<div className="mb-5 text-xs font-extrabold">HOST</div>
 					<div id="host" className="flex flex-col gap-y-3">
-						<Member member={host} />
+						<Member member={host} setIsOpenMemberList={setIsOpenMemberList} />
 					</div>
 					<div className="divider my-1"></div>
 				</div>
@@ -72,7 +73,7 @@ const MemberList = ({ chatOwnerId, chatId, isOpenMemberList }: Props) => {
 						onlineMembers.map((member) => {
 							return (
 								<Fragment key={member.id}>
-									<Member member={member} />
+									<Member member={member} setIsOpenMemberList={setIsOpenMemberList} />
 								</Fragment>
 							);
 						})}
@@ -86,7 +87,7 @@ const MemberList = ({ chatOwnerId, chatId, isOpenMemberList }: Props) => {
 						offlineMembers.map((member) => {
 							return (
 								<Fragment key={member.id}>
-									<Member member={member} />
+									<Member member={member} setIsOpenMemberList={setIsOpenMemberList} />
 								</Fragment>
 							);
 						})}

@@ -51,7 +51,7 @@ const Emoji = ({ setInputMessage, inputRef }: Props) => {
 
 	return (
 		<>
-			<div className="absolute right-24 top-2">
+			<div className="absolute right-24 top-2 bg-white">
 				<button type="button" className="btn-ghost btn-sm btn-circle btn" onClick={emojiHanlder}>
 					<HiOutlineEmojiHappy className="text-2xl" />
 				</button>
@@ -61,8 +61,8 @@ const Emoji = ({ setInputMessage, inputRef }: Props) => {
 				<>
 					<div onClick={() => setIsOpen(false)} className="fixed inset-0"></div>
 
-					<div className="absolute bottom-0 right-24 shadow-lg">
-						<EmojiPicker onEmojiClick={changeHandler} />
+					<div className="absolute bottom-0 right-0 sm:right-24 shadow-lg">
+						<EmojiPicker onEmojiClick={changeHandler} width={300} />
 					</div>
 				</>
 			)}

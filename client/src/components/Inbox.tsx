@@ -78,7 +78,7 @@ const Inbox = () => {
 				<button className="btn-ghost btn-sm btn px-1" onClick={() => setIsOpen(!isOpen)}>
 					<div className="indicator">
 						<span
-							className={`badge-error badge badge-xs indicator-bottom indicator-item left-[8px] top-[7px] ${
+							className={`indicator-bottom badge-error badge badge-xs indicator-item left-[8px] top-[7px] ${
 								currentUser?.hasNewNotification ? 'block' : 'hidden'
 							}`}
 						></span>
@@ -98,8 +98,8 @@ const Inbox = () => {
 								<div>Error...</div>
 							) : (
 								<>
-									<div className="absolute -right-5 z-30 flex w-96 flex-col rounded-xl border bg-white shadow-lg sm:right-0 sm:w-[400px]">
-										<div className="border-b bg-base-300 p-5">
+									<div className="absolute z-30 flex w-[320px] flex-col rounded-md border bg-white shadow-lg -right-8 sm:right-0 sm:w-[400px]">
+										<div className="border-b bg-base-300 p-5 rounded-t-md">
 											<span className="text-2xl font-bold">Inbox</span>
 											<div className="mt-5 flex justify-between">
 												<div>

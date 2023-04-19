@@ -9,9 +9,10 @@ import { createChat } from '../api/chat';
 
 interface Props {
 	currentUserId: string;
+	closeSidebar: () => void;
 }
 
-const CreateChatButton = ({ currentUserId }: Props) => {
+const CreateChatButton = ({ currentUserId, closeSidebar }: Props) => {
 	const navigate = useNavigate();
 	const [roomName, setRoomName] = useState<string>('');
 	const [error, setError] = useState<string>('');
@@ -25,6 +26,8 @@ const CreateChatButton = ({ currentUserId }: Props) => {
 		},
 		onSuccess: (data) => {
 			document.getElementById('modal-2')!.click();
+
+			closeSidebar();
 
 			navigate(`/chat/${data.id}`);
 		},

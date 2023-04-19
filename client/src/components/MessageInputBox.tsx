@@ -1,4 +1,4 @@
-import { FormEvent, useRef, useState } from 'react';
+import { FormEvent, useEffect, useRef, useState } from 'react';
 import { InfiniteData, useMutation, useQueryClient } from '@tanstack/react-query';
 import Emoji from './Emoji';
 import produce from 'immer';
@@ -17,7 +17,7 @@ const MessageInputBox = ({ currentChat, currentUser }: Props) => {
 	const [inputMessage, setInputMessage] = useState<string>('');
 	const inputRef = useRef<HTMLInputElement>(null);
 	const formRef = useRef<HTMLFormElement>(null);
-	const { mutate: createMessageMutate } = useMutation({
+	const { mutate: createMessageMutate, isLoading } = useMutation({
 		mutationKey: ['createMessage', currentChat.chat.id],
 		mutationFn: ({
 			chatId,
@@ -87,6 +87,12 @@ const MessageInputBox = ({ currentChat, currentUser }: Props) => {
 		},
 	});
 
+	useEffect(() => {
+		if (!isLoading) {
+			inputRef.current?.focus();
+		}
+	}, [isLoading]);
+
 	const submitHandler = async (e: FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 
@@ -102,9 +108,10 @@ const MessageInputBox = ({ currentChat, currentUser }: Props) => {
 		<div className="absolute bottom-0 left-[2px] w-full bg-base-100 p-3">
 			<form ref={formRef} onSubmit={submitHandler} className="relative flex gap-x-2">
 				<input
+					disabled={isLoading}
 					data-cy="message-input"
 					ref={inputRef}
-					className="input-bordered input w-full"
+					className="input-bordered input w-full disabled:bg-white"
 					type="text"
 					value={inputMessage}
 					onChange={(e) => setInputMessage(e.target.value)}

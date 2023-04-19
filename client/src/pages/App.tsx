@@ -149,14 +149,28 @@ function App() {
 			});
 
 			if (currentChatId === chatId) {
-				queryClient.setQueryData<InfiniteData<Message[]>>(['messages', currentChatId], (old) => {
-					if (old) {
-						return produce(old, (draftState) => {
-							// There is an optimistic update about messages when creating a message so just override with new data.
-							draftState.pages[0][0] = { id: messageId, text, sender, createdAt, chatId, senderId: sender.id };
-						});
-					}
-				});
+				const state = queryClient.getQueryState<User>(['currentUser']);
+
+				if (state && state.data?.id === sender.id) {
+					// sender perspective
+					queryClient.setQueryData<InfiniteData<Message[]>>(['messages', currentChatId], (old) => {
+						if (old) {
+							return produce(old, (draftState) => {
+								// There is an optimistic update about messages when creating a message so just override with new data.
+								draftState.pages[0][0] = { id: messageId, text, sender, createdAt, chatId, senderId: sender.id };
+							});
+						}
+					});
+				} else {
+					// reciver perspective
+					queryClient.setQueryData<InfiniteData<Message[]>>(['messages', currentChatId], (old) => {
+						if (old) {
+							return produce(old, (draftState) => {
+								draftState.pages[0].unshift({ id: messageId, text, sender, createdAt, chatId, senderId: sender.id });
+							});
+						}
+					});
+				}
 			} else {
 				const state = queryClient.getQueryState<ChatType[]>(['chatRooms']);
 

@@ -54,7 +54,9 @@ const ChatBody = () => {
 												<div
 													ref={indexP === data.pages.length - 1 && index === page.length - 1 ? ref : undefined}
 													key={message.id}
-													className={`chat ${message.sender.id === currentUser!.id ? 'chat-end' : 'chat-start'}`}
+													className={`chat relative ${
+														message.sender.id === currentUser!.id ? 'chat-end' : 'chat-start'
+													}`}
 												>
 													<div className="chat-image avatar">
 														<div className="w-10 rounded-full border">
@@ -67,7 +69,7 @@ const ChatBody = () => {
 															{format(new Date(message.createdAt), 'PP p')}
 														</time>
 													</div>
-													<div className={`chat-bubble break-words ${message.id === 'temp' && 'text-gray-500'} `}>
+													<div className={`chat-bubble break-all ${message.id === 'temp' && 'text-gray-500'}`}>
 														{message.text}
 													</div>
 												</div>

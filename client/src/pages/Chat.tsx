@@ -77,6 +77,7 @@ const Chat = () => {
 			<MessageInputBox currentChat={currentChat} currentUser={currentUser!} />
 			<MemberList
 				isOpenMemberList={isOpenMemberList}
+				setIsOpenMemberList={setIsOpenMemberList}
 				chatId={chatId as string}
 				chatOwnerId={currentChat.chat.ownerId}
 			/>

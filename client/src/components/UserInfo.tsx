@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, SetStateAction, Dispatch } from 'react';
 import { HiCog } from 'react-icons/hi';
 import { useNavigate } from 'react-router-dom';
 
@@ -13,9 +13,10 @@ import FriendsButton from './FriendsButton';
 
 interface Props {
 	currentUser: User;
+	setIsSidebarOpen: Dispatch<SetStateAction<boolean>>;
 }
 
-const UserInfo = ({ currentUser }: Props) => {
+const UserInfo = ({ currentUser, setIsSidebarOpen }: Props) => {
 	const navigate = useNavigate();
 
 	const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
@@ -25,6 +26,10 @@ const UserInfo = ({ currentUser }: Props) => {
 
 		navigate('/');
 	}, [navigate]);
+
+	const closeSidebar = () => {
+		setIsSidebarOpen(false);
+	};
 
 	return (
 		<>
@@ -39,9 +44,9 @@ const UserInfo = ({ currentUser }: Props) => {
 								</div>
 							</div>
 						</div>
-						<CreateChatButton currentUserId={currentUser!.id} />
-						<FriendsButton />
-						<ExplorerButton />
+						<CreateChatButton closeSidebar={closeSidebar} currentUserId={currentUser!.id} />
+						<FriendsButton closeSidebar={closeSidebar} />
+						<ExplorerButton closeSidebar={closeSidebar} />
 						<div className="tooltip" data-tip="User Settings">
 							<button className="btn-ghost btn-sm btn px-1" onClick={() => setIsSettingsOpen(true)}>
 								<HiCog className="text-2xl" />

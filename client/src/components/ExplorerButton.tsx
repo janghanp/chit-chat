@@ -1,10 +1,16 @@
 import { useNavigate } from 'react-router-dom';
 import { IoCompassSharp } from 'react-icons/io5';
 
-const ExplorerButton = () => {
+interface Props {
+	closeSidebar: () => void;
+}
+
+const ExplorerButton = ({ closeSidebar }: Props) => {
 	const navigate = useNavigate();
 
 	const handleClick = async () => {
+		closeSidebar();
+
 		navigate('/explorer');
 	};
 

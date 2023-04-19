@@ -1,10 +1,16 @@
 import { useNavigate } from 'react-router-dom';
 import { HiOutlineUsers } from 'react-icons/hi';
 
-const FriendsButton = () => {
+interface Props {
+	closeSidebar: () => void;
+}
+
+const FriendsButton = ({ closeSidebar }: Props) => {
 	const navigate = useNavigate();
 
 	const handleClick = async () => {
+		closeSidebar();
+
 		navigate('/friends');
 	};
 
