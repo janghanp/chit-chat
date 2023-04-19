@@ -14,7 +14,6 @@
 		"eslint": "eslint ."
 	},
 	"devDependencies": {
-		"@faker-js/faker": "^7.6.0",
 		"@tsconfig/node18": "^1.0.1",
 		"@types/bcryptjs": "^2.4.2",
 		"@types/cookie-parser": "^1.4.3",
@@ -36,6 +35,7 @@
 		"@swc/core": "^1.3.25"
 	},
 	"dependencies": {
+		"@faker-js/faker": "^7.6.0",
 		"@prisma/client": "^4.8.1",
 		"@socket.io/admin-ui": "^0.5.1",
 		"bcryptjs": "^2.4.3",

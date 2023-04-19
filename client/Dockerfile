@@ -8,14 +8,6 @@ WORKDIR /app
 COPY ["package.json", "yarn.lock", "./"]
 RUN yarn install --frozen-lockfile --production=false
 
-# Development 
-FROM deps as development
-WORKDIR /app
-COPY . .
-EXPOSE 5173
-CMD [ "yarn", "dev" ]
-
-
 # Setup production node_modules
 FROM base as production-deps
 WORKDIR /app
@@ -31,11 +23,11 @@ COPY . .
 RUN yarn build
 
 # Production
-FROM base as production
+FROM nginx as production
 WORKDIR /app
 COPY --from=production-deps /app/node_modules /app/node_modules
 COPY --from=build /app/dist /app/dist
 COPY --from=build /app/public /app/public
 COPY --from=build /app/cypress /app/cypress
 COPY --from=build /app/package.json /app/package.json
-EXPOSE 5173
+COPY nginx.conf /etc/nginx/nginx.conf

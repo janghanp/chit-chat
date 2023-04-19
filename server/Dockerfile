@@ -9,19 +9,9 @@ WORKDIR /app
 COPY ["package.json", "yarn.lock", "./"]
 RUN yarn install --frozen-lockfile --production=false
 
-# Development
-FROM deps as development
-WORKDIR /app
-COPY prisma .
-RUN npx prisma generate
-COPY . .
-EXPOSE 8080
-CMD [ "yarn", "dev" ]
-
 # Setup production node_modules
 FROM base as production-deps
 WORKDIR /app
-COPY --from=deps /app/node_modules /app/node_modules
 COPY ["package.json", "yarn.lock", "./"]
 RUN yarn install --frozen-lockfile --production=true && yarn cache clean
 
@@ -43,5 +33,5 @@ COPY --from=build /app/dist /app/dist
 COPY --from=build /app/package.json /app/package.json
 COPY --from=build /app/prisma /app/prisma
 COPY . .
-EXPOSE 8080
+EXPOSE 9000
 CMD [ "node", "dist/index.js" ]

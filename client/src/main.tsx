@@ -7,7 +7,7 @@ import axios from 'axios';
 
 import './index.css';
 
-axios.defaults.baseURL = 'http://localhost:8080';
+axios.defaults.baseURL = 'http://localhost/api';
 
 const queryClient = new QueryClient({
 	defaultOptions: {

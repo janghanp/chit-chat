@@ -47,7 +47,7 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
 	cors: {
-		origin: 'http://localhost:5173',
+		origin: 'http://localhost',
 		methods: ['GET', 'POST'],
 		credentials: true,
 	},
@@ -61,20 +61,19 @@ instrument(io, {
 app.use(morgan('dev'));
 app.use(
 	cors({
-		origin: 'http://localhost:5173',
+		origin: 'http://localhost',
 		credentials: true,
 	})
 );
 app.use(express.json());
 app.use(cookieParser());
 
-app.use('/auth', authRoute);
-app.use('/user', checkToken, userRoute);
-app.use('/chat', checkToken, chatRoute);
-app.use('/message', checkToken, messageRoute);
-app.use('/notification', checkToken, notificationRoute);
-// For cypress e2e test.
-app.use('/seed', seedRoute);
+app.use('/api/auth', authRoute);
+app.use('/api/user', checkToken, userRoute);
+app.use('/api/chat', checkToken, chatRoute);
+app.use('/api/message', checkToken, messageRoute);
+app.use('/api/notification', checkToken, notificationRoute);
+app.use('/api/seed', seedRoute);
 
 interface UserWithSockets {
 	userId: string;
@@ -329,7 +328,7 @@ io.on('connect', (socket: Socket) => {
 	});
 });
 
-const port = process.env.PORT || 8080;
+const port = process.env.PORT || 9000;
 
 server.listen(port, () => {
 	console.log(`Listening on port ${port}`);
