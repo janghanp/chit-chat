@@ -29,7 +29,7 @@ describe('onBoarding', () => {
 	});
 
 	it('allows to creat a chat', () => {
-		cy.intercept('POST', '/chat').as('createChat');
+		cy.intercept('POST', '/api/chat').as('createChat');
 
 		const chatName = faker.lorem.word();
 

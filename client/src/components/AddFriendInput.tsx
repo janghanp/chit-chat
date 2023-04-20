@@ -66,8 +66,10 @@ const AddFriendInput = () => {
 
 	return (
 		<div className="flex w-full max-w-3xl flex-col items-start gap-y-3 p-5">
-			<span className="self-left text-xl font-bold">Add Friend</span>
-			<form onSubmit={submitHandler} className="relative w-full">
+			<div className="w-full max-w-[510px] self-center">
+				<span className="self-left text-xl font-bold">Add Friend</span>
+			</div>
+			<form onSubmit={submitHandler} className="relative w-full max-w-[510px] self-center">
 				<input
 					type="text"
 					placeholder="Enter a Username"

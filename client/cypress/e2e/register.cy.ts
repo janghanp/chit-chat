@@ -88,9 +88,9 @@ describe('register', () => {
 	});
 
 	it('allow users to register', () => {
-		cy.intercept('POST', '/auth/register').as('register');
-		cy.intercept('GET', '/chat/rooms*').as('chatRooms');
-		cy.intercept('GET', '/user/friends*').as('friends');
+		cy.intercept('POST', '/api/auth/register').as('register');
+		cy.intercept('GET', '/api/chat/rooms*').as('chatRooms');
+		cy.intercept('GET', '/api/user/friends*').as('friends');
 
 		const username = faker.name.firstName();
 
