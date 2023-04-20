@@ -1,3 +1,11 @@
+name: Cypress Tests
+
+on: push
+
+defaults:
+  run:
+    working-directory: ./client
+
 jobs:
   cypress-run:
     runs-on: ubuntu-22.04
@@ -11,18 +19,11 @@ jobs:
       - name: Create env file 🪪
         run: |
           echo "${{ secrets.ENV_FILE }}" > ../server/.env
-          cd ../server
-          pwd
-          ls -al
-          cat .env
 
       - name: Setup test database 📀
         run: yarn test:e2e:prisma
 
-      - name: Seed test databse 💿
-        run: yarn test:e2e:prisma:seed
-
-      - name: Cypress run 🧪
+      - name: Run cypress 🧪
         uses: cypress-io/github-action@v5
         with:
           start: yarn dev
