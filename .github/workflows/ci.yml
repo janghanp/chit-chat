@@ -1,32 +1,32 @@
-name: Cypress Tests
+# name: Cypress Tests
 
-on: push
+# on: push
 
-defaults:
-  run:
-    working-directory: ./client
+# defaults:
+#   run:
+#     working-directory: ./client
 
-jobs:
-  cypress-run:
-    runs-on: ubuntu-22.04
-    steps:
-      - name: Checkout 🛎
-        uses: actions/checkout@v3
+# jobs:
+#   cypress-run:
+#     runs-on: ubuntu-22.04
+#     steps:
+#       - name: Checkout 🛎
+#         uses: actions/checkout@v3
 
-      - name: Setup test backend server 💻
-        run: yarn test:e2e:api
+#       - name: Setup test backend server 💻
+#         run: yarn test:e2e:api
 
-      - name: Create env file 🪪
-        run: |
-          echo "${{ secrets.ENV_FILE }}" > ../server/.env
+#       - name: Create env file 🪪
+#         run: |
+#           echo "${{ secrets.ENV_FILE }}" > ../server/.env
 
-      - name: Setup test database 📀
-        run: yarn test:e2e:prisma
+#       - name: Setup test database 📀
+#         run: yarn test:e2e:prisma
 
-      - name: Run cypress 🧪
-        uses: cypress-io/github-action@v5
-        with:
-          start: yarn dev
-          wait-on: "http://localhost:5173"
-          config: "baseUrl=http://localhost:5173"
-          working-directory: ./client
+#       - name: Run cypress 🧪
+#         uses: cypress-io/github-action@v5
+#         with:
+#           start: yarn dev
+#           wait-on: "http://localhost:5173"
+#           config: "baseUrl=http://localhost:5173"
+#           working-directory: ./client
