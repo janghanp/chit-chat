@@ -54,7 +54,7 @@ const Friend = ({ friend }: Props) => {
 					</button>
 					{isOpen && (
 						<>
-							<ul className="menu menu-compact absolute top-10 right-0 z-40 w-52 rounded-lg border bg-base-100 p-2 shadow">
+							<ul className="menu menu-compact bg-base-100 absolute right-0 top-10 z-40 w-52 rounded-lg border p-2 shadow">
 								<li onClick={removeFriendHandler}>
 									<span>Remove Friend</span>
 								</li>

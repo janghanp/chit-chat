@@ -5,6 +5,7 @@ import Friend from '../components/Friend';
 import useFriends from '../hooks/useFriends';
 import AddFriendInput from '../components/AddFriendInput';
 import { socket } from '../socket';
+import { Friend as FriendType } from '../types';
 
 const Friends = () => {
 	const { isLoading, isError, data } = useFriends();
@@ -28,11 +29,11 @@ const Friends = () => {
 			) : (
 				<>
 					<AddFriendInput />
-					<div className="text-2xl font-bold text-base-content">Friends list</div>
+					<div className="text-base-content text-2xl font-bold">Friends list</div>
 					<div className="h-screen w-full max-w-3xl p-5">
 						<div className="w-full">
 							{data &&
-								data.map((friend: any) => {
+								data.map((friend: FriendType) => {
 									return (
 										<Fragment key={friend.id}>
 											<Friend friend={friend} />

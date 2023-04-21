@@ -81,7 +81,7 @@ const Settings = ({ closeSettings }: Props) => {
 			return;
 		}
 
-		let dataToUpdate: { newPassword?: string; username?: string } = {};
+		const dataToUpdate: { newPassword?: string; username?: string } = {};
 
 		// User trying to chagne their password.
 		if (newPassword && confirmNewPassword) {
@@ -160,7 +160,7 @@ const Settings = ({ closeSettings }: Props) => {
 
 	return (
 		<div className="fixed inset-0 z-40 flex h-screen items-center justify-center bg-gray-500/50">
-			<div className="w-full h-full sm:h-auto sm:max-w-xl sm:rounded-xl bg-base-100 p-10 shadow-xl border">
+			<div className="bg-base-100 h-full w-full border p-10 shadow-xl sm:h-auto sm:max-w-xl sm:rounded-xl">
 				<div className="flex flex-row items-center justify-between">
 					<div className="text-base-con mb-5 text-3xl font-bold">User Settings</div>
 					<div className="flex flex-col items-center justify-center gap-y-3">
@@ -174,10 +174,10 @@ const Settings = ({ closeSettings }: Props) => {
 
 				<div className="mt-14 w-full text-center">
 					<div className="avatar relative hover:cursor-pointer" onClick={() => fileInputRef.current?.click()}>
-						<div className="w-20 rounded-full ring-2 ring-base-content">
+						<div className="ring-base-content w-20 rounded-full ring-2">
 							<img src={preview || defaultImageUrl} alt="avatar" width={25} height={25} />
 						</div>
-						<div className="absolute inset-0 z-10 rounded-full border text-xs font-semibold text-base-content opacity-0 duration-300 hover:bg-black hover:bg-opacity-10 hover:opacity-100">
+						<div className="text-base-content absolute inset-0 z-10 rounded-full border text-xs font-semibold opacity-0 duration-300 hover:bg-black hover:bg-opacity-10 hover:opacity-100">
 							<HiCamera className="mx-auto translate-y-1/2 text-4xl" />
 						</div>
 					</div>

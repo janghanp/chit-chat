@@ -39,7 +39,7 @@ const ChatSettings = ({ chatId, currentUserId, setIsOpen }: Props) => {
 
 	useEffect(() => {
 		if (data) {
-			setRoomName(data?.chat.name!);
+			setRoomName(data.chat.name!);
 			setPreview(data.chat.icon || '');
 		}
 	}, [data]);
@@ -81,7 +81,7 @@ const ChatSettings = ({ chatId, currentUserId, setIsOpen }: Props) => {
 
 		formData.append('file', file || '');
 		formData.append('roomName', roomName);
-		formData.append('chatId', data?.chat.id!);
+		formData.append('chatId', data!.chat.id);
 
 		mutate(formData);
 	};
@@ -110,12 +110,12 @@ const ChatSettings = ({ chatId, currentUserId, setIsOpen }: Props) => {
 						<div className="form-control my-5 w-full">
 							<div className="my-3 w-full text-center">
 								<div className="avatar relative hover:cursor-pointer" onClick={() => fileInputRef.current?.click()}>
-									<div className="group w-20 rounded-full ring-2 ring-base-content">
+									<div className="ring-base-content group w-20 rounded-full ring-2">
 										{preview ? (
 											<>
 												<img src={preview} alt="avatar" width={25} height={25} />
 												<div className="absolute inset-0 rounded-full transition duration-200 group-hover:bg-gray-300/50">
-													<div className="absolute -top-2 -right-1 hidden group-hover:block">
+													<div className="absolute -right-1 -top-2 hidden group-hover:block">
 														<button
 															className="btn-outline btn-sm btn-circle btn bg-base-100"
 															onClick={deletePreviewHandler}
@@ -158,7 +158,7 @@ const ChatSettings = ({ chatId, currentUserId, setIsOpen }: Props) => {
 								}}
 								value={roomName}
 							/>
-							{error && <span className="mt-2 text-sm text-error">{error}</span>}
+							{error && <span className="text-error mt-2 text-sm">{error}</span>}
 						</div>
 						<div className="w-full text-right">
 							<button className={`btn ${isLoading && 'pointer-events-none'}`} onClick={submitHandler}>

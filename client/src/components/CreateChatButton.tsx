@@ -107,7 +107,7 @@ const CreateChatButton = ({ currentUserId, closeSidebar }: Props) => {
 								{/* Chat icon */}
 								<div className="my-3 w-full text-center">
 									<div className="avatar relative hover:cursor-pointer" onClick={() => fileInputRef.current?.click()}>
-										<div className="w-20 rounded-full ring-2 ring-base-content">
+										<div className="ring-base-content w-20 rounded-full ring-2">
 											{preview ? (
 												<img src={preview} alt="avatar" width={25} height={25} />
 											) : (
@@ -143,7 +143,7 @@ const CreateChatButton = ({ currentUserId, closeSidebar }: Props) => {
 									value={roomName}
 								/>
 								{error && (
-									<span className="mt-2 text-sm text-error" data-cy="create-chat-error">
+									<span className="text-error mt-2 text-sm" data-cy="create-chat-error">
 										{error}
 									</span>
 								)}

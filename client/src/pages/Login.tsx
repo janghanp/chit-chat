@@ -47,9 +47,9 @@ const Login = () => {
 	}
 
 	return (
-		<div className="min-h-screen bg-base-100">
+		<div className="bg-base-100 min-h-screen">
 			<div className="container mx-auto flex min-h-screen max-w-lg flex-col items-center justify-center">
-				<div className="w-full rounded-lg bg-base-100 p-10 shadow-none sm:shadow-lg sm:border">
+				<div className="bg-base-100 w-full rounded-lg p-10 shadow-none sm:border sm:shadow-lg">
 					<div className="text-center text-2xl font-bold">Welcome to chit-chat</div>
 					<form onSubmit={onSubmit} className="flex flex-col items-center justify-center gap-y-5">
 						<div className="w-full">

@@ -25,7 +25,7 @@ const ChatRoomList = ({ setIsSidebarOpen }: Props) => {
 	}, [chatRooms, currentUser]);
 
 	if (isLoading) {
-		var arr = Array.apply(null, Array(5));
+		const arr = Array(5).fill(0);
 
 		return (
 			<div>

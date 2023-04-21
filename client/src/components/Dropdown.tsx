@@ -30,7 +30,7 @@ const Dropdown = ({ isDropDownOpen, setIsDropDownOpen, isOwner, chatId }: Props)
 		onSuccess: () => {
 			queryClient.setQueryData<Chat[]>(['chatRooms'], (old) => {
 				if (old) {
-					return old.filter((el: any) => el.id !== chatId);
+					return old.filter((el) => el.id !== chatId);
 				}
 			});
 			queryClient.removeQueries({ queryKey: ['chat', chatId], exact: true });
@@ -41,7 +41,9 @@ const Dropdown = ({ isDropDownOpen, setIsDropDownOpen, isOwner, chatId }: Props)
 
 			navigate('/');
 		},
-		onError() {},
+		onError(error) {
+			console.log(error);
+		},
 	});
 	const { mutate: deleteChatMutate } = useMutation({
 		mutationKey: ['deleteChat', chatId],
@@ -51,7 +53,7 @@ const Dropdown = ({ isDropDownOpen, setIsDropDownOpen, isOwner, chatId }: Props)
 		onSuccess: () => {
 			queryClient.setQueriesData<Chat[]>(['chatRooms', currentUser!.id], (old) => {
 				if (old) {
-					return old.filter((el: any) => el.id !== chatId);
+					return old.filter((el) => el.id !== chatId);
 				}
 			});
 
@@ -59,7 +61,9 @@ const Dropdown = ({ isDropDownOpen, setIsDropDownOpen, isOwner, chatId }: Props)
 
 			navigate('/');
 		},
-		onError() {},
+		onError(error) {
+			console.log(error);
+		},
 	});
 
 	const leaveChatHandler = async () => {
@@ -92,7 +96,7 @@ const Dropdown = ({ isDropDownOpen, setIsDropDownOpen, isOwner, chatId }: Props)
 				{isDropDownOpen && (
 					<ul
 						data-cy="dropdown-menu"
-						className="menu rounded-box menu-compact absolute right-0 z-30 w-52 border bg-base-100 p-2 shadow-md"
+						className="menu rounded-box menu-compact bg-base-100 absolute right-0 z-30 w-52 border p-2 shadow-md"
 					>
 						{isOwner && (
 							<li
@@ -109,12 +113,12 @@ const Dropdown = ({ isDropDownOpen, setIsDropDownOpen, isOwner, chatId }: Props)
 						)}
 						<li onClick={isOwner ? deleteChatHandler : leaveChatHandler}>
 							{isOwner ? (
-								<div className="flex items-center justify-between text-error">
+								<div className="text-error flex items-center justify-between">
 									<span>Delete Chat</span>
 									<HiOutlineTrash />
 								</div>
 							) : (
-								<div className="flex items-center justify-between text-error">
+								<div className="text-error flex items-center justify-between">
 									<span>Leave Chat</span>
 									<HiOutlineArrowCircleRight />
 								</div>

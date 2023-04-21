@@ -1,0 +1,15 @@
+{
+	"extends": ["eslint:recommended", "plugin:@typescript-eslint/recommended", "react-app"],
+	"parser": "@typescript-eslint/parser",
+	"plugins": ["@typescript-eslint"],
+	"settings": {
+		"react": {
+			"version": "detect"
+		}
+	},
+	"rules": {
+		"no-mixed-operators": 0,
+		"@typescript-eslint/no-non-null-assertion": "off",
+		"@typescript-eslint/no-explicit-any": "off"
+	}
+}

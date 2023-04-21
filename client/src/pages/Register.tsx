@@ -55,9 +55,9 @@ const Register = () => {
 	}
 
 	return (
-		<div className="min-h-screen bg-base-100">
+		<div className="bg-base-100 min-h-screen">
 			<div className="container mx-auto flex min-h-screen max-w-lg flex-col items-center justify-center">
-				<div className="w-full rounded-lg bg-base-100 p-10 shadow-none sm:border sm:shadow-lg">
+				<div className="bg-base-100 w-full rounded-lg p-10 shadow-none sm:border sm:shadow-lg">
 					<div className="text-center text-2xl font-bold">Create an account</div>
 					<form onSubmit={onSubmit} className="flex flex-col items-center justify-center gap-y-3">
 						<div className="w-full">
@@ -147,7 +147,7 @@ const Register = () => {
 								</p>
 							)}
 						</div>
-						<button type="submit" className="btn w-full mt-5" data-cy="submit-button">
+						<button type="submit" className="btn mt-5 w-full" data-cy="submit-button">
 							Sign Up
 						</button>
 						<div className="flex w-full justify-center gap-x-4 text-sm font-semibold">

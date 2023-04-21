@@ -62,10 +62,10 @@ const SearchInChat = () => {
 				onFocus={() => setIsFocused(true)}
 				onBlur={() => setIsFocused(false)}
 			/>
-			<HiOutlineSearch className="absolute top-1.5 right-2 text-base-content" />
+			<HiOutlineSearch className="text-base-content absolute right-2 top-1.5" />
 			{query && isFocused && (
 				<div className="absolute mt-3 h-[500px] w-full">
-					<ul className="menu rounded-box menu-compact relative h-full w-[320px] flex-nowrap overflow-y-scroll border bg-base-100 p-2 text-left">
+					<ul className="menu rounded-box menu-compact bg-base-100 relative h-full w-[320px] flex-nowrap overflow-y-scroll border p-2 text-left">
 						<li className="menu-title">
 							<span>Member</span>
 						</li>
@@ -74,7 +74,7 @@ const SearchInChat = () => {
 								<li key={member.id} className="w-full">
 									<span className="w-full">
 										<div className="avatar">
-											<div className="w-7 rounded-full border-base-content">
+											<div className="border-base-content w-7 rounded-full">
 												<img src={member.avatar || defaultAvatar} width={20} height={20} alt="avatar" />
 											</div>
 										</div>

@@ -72,7 +72,7 @@ const Explorer = () => {
 
 	return (
 		<div className="flex h-screen w-full flex-col items-center justify-start p-5 sm:pl-[345px]">
-			<div className="mt-10 text-xl font-bold text-base-content mb-5">Find your community on chit-chat</div>
+			<div className="text-base-content mb-5 mt-10 text-xl font-bold">Find your community on chit-chat</div>
 			<input
 				onChange={changeHandler}
 				type="text"
@@ -80,7 +80,7 @@ const Explorer = () => {
 				placeholder="Explore chats"
 			/>
 			{filteredChats && filteredChats.length > 0 && !isLoading && (
-				<ul className="menu mt-3 w-full max-w-lg rounded-lg border bg-base-100 p-2 shadow-md">
+				<ul className="menu bg-base-100 mt-3 w-full max-w-lg rounded-lg border p-2 shadow-md">
 					{filteredChats?.map((chat) => {
 						return (
 							<li key={chat.id} onClick={() => joinRoomHandler(chat.name!)}>
@@ -98,7 +98,7 @@ const Explorer = () => {
 										})}
 										{chat.users.length > 4 && (
 											<div className="placeholder avatar border-0">
-												<div className="w-8 bg-neutral-focus text-xs font-semibold text-neutral-content">
+												<div className="bg-neutral-focus text-neutral-content w-8 text-xs font-semibold">
 													<span>+{chat.users.length - 4}</span>
 												</div>
 											</div>
@@ -111,7 +111,7 @@ const Explorer = () => {
 				</ul>
 			)}
 			{isLoading && (
-				<ul className="menu mt-3 w-full max-w-lg rounded-lg border bg-base-100 p-2 shadow-md">
+				<ul className="menu bg-base-100 mt-3 w-full max-w-lg rounded-lg border p-2 shadow-md">
 					<div className="text-center">
 						<SyncLoader size={10} color="#394E6A" margin={7} />
 					</div>

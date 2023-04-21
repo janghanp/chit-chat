@@ -33,13 +33,13 @@ const UserInfo = ({ currentUser, setIsSidebarOpen }: Props) => {
 
 	return (
 		<>
-			<div className="border-t bg-base-300">
+			<div className="bg-base-300 border-t">
 				{currentUser && (
 					<div className="flex flex-row items-center justify-evenly py-3">
 						<div className="flex flex-row items-center gap-x-2">
 							<div className="avatar">
 								<div className="absolute -top-0.5 right-0 z-10 h-3 w-3 rounded-full border bg-green-500"></div>
-								<div className="w-8 rounded-full border border-base-content">
+								<div className="border-base-content w-8 rounded-full border">
 									<img src={currentUser.avatar || defaultAvatar} width={20} height={20} alt="avatar" />
 								</div>
 							</div>

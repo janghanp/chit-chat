@@ -1,6 +1,8 @@
 import { PrismaClient } from '@prisma/client';
 import { faker } from '@faker-js/faker';
 import bcrypt from 'bcryptjs';
+import fs from 'fs';
+import path from 'path';
 
 const salt = bcrypt.genSaltSync(10);
 
@@ -79,7 +81,7 @@ export async function main() {
 		},
 	});
 
-	const messages: { chatId: string; text: string; senderId: string; id?: string }[] = [];
+	const messageTemplates: { chatId: string; text: string; senderId: string; id?: string }[] = [];
 
 	for (let i = 0; i < 50; i++) {
 		const message = {
@@ -88,14 +90,14 @@ export async function main() {
 			senderId: user1.id as string,
 		};
 
-		messages.push(message);
+		messageTemplates.push(message);
 	}
 
-	await prisma.message.createMany({ data: messages });
+	await prisma.message.createMany({ data: messageTemplates });
 
 	const message = await prisma.message.findFirst({
 		where: {
-			text: messages[0].text,
+			text: messageTemplates[0].text,
 		},
 	});
 
@@ -114,6 +116,18 @@ export async function main() {
 				},
 			},
 		},
+	});
+
+	fs.writeFile(path.resolve('../cypress/fixtures', `users.json`), JSON.stringify([user1, user2]), function (err) {
+		if (err) {
+			return console.error(err);
+		}
+	});
+
+	fs.writeFile(path.resolve('../cypress/fixtures', `chats.json`), JSON.stringify([chat]), function (err) {
+		if (err) {
+			return console.error(err);
+		}
 	});
 
 	console.timeEnd(`🌱 Database has been seeded`);

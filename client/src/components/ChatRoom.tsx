@@ -82,7 +82,7 @@ const ChatRoom = ({ chatRoom, setIsSidebarOpen }: Props) => {
 		if (chatId === chatRoom.id) {
 			axios.patch('/chat/read', { chatId, userId: currentUser!.id }, { withCredentials: true });
 
-			queryClient.setQueryData(['chatRooms'], (old: any) => {
+			queryClient.setQueryData<Chat[]>(['chatRooms'], (old) => {
 				return produce(old, (draftState: Chat[]) => {
 					draftState.forEach((chat: Chat) => {
 						if (chat.id === chatId) {
@@ -110,7 +110,7 @@ const ChatRoom = ({ chatRoom, setIsSidebarOpen }: Props) => {
 
 	const hasMessage = chatRoom.messages!.length > 0 ? true : false;
 
-	let isToday: boolean = true;
+	let isToday = true;
 
 	if (hasMessage) {
 		const gap = new Date().getTime() - new Date(chatRoom.messages![0].createdAt).getTime();
@@ -142,7 +142,7 @@ const ChatRoom = ({ chatRoom, setIsSidebarOpen }: Props) => {
 							<>
 								{chatRoom.name ? (
 									<div className="placeholder avatar">
-										<div className="w-10 rounded-full bg-neutral-focus text-neutral-content">
+										<div className="bg-neutral-focus text-neutral-content w-10 rounded-full">
 											<span>{chatRoom.name.charAt(0).toUpperCase()}</span>
 										</div>
 									</div>

@@ -44,7 +44,7 @@ const Chat = () => {
 			queryClient.setQueryData<ChatType[]>(['chatRooms'], (old) => {
 				if (old) {
 					return produce(old, (draftState) => {
-						if (!old.map((el: any) => el.id).includes(currentChat.chat.id)) {
+						if (!old.map((el: ChatType) => el.id).includes(currentChat.chat.id)) {
 							draftState.push({ ...currentChat.chat, messages: currentChat.chat.messages });
 						}
 					});
@@ -66,7 +66,7 @@ const Chat = () => {
 	}
 
 	return (
-		<div className={`fixed left-0 sm:left-80 ${isOpenMemberList ? 'right-56' : 'right-0'}  top-10 bottom-0`}>
+		<div className={`fixed left-0 sm:left-80 ${isOpenMemberList ? 'right-56' : 'right-0'}  bottom-0 top-10`}>
 			<Header
 				chatId={currentChat.chat.id}
 				isOwner={currentUser!.id === currentChat.chat.ownerId}

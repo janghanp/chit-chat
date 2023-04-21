@@ -1,0 +1,66 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  docker_compose:
+    steps:
+    - name: Set up docker containers
+    - uses: actions/checkout@v3
+    - uses: isbang/compose-action@v1.4.1
+      with:
+         compose-file: "./docker-compose.yml"
+
+  # lint:
+  #   name: ESLint
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: ⬇️ Checkout repo
+  #       uses: actions/checkout@v3
+
+  #     - name: ⎔ Setup node
+  #       uses: actions/setup-node@v3
+  #       with:
+  #         node-version: 18
+
+  #     - name: 📥 Download deps
+  #       uses: bahmutov/npm-install@v1
+  #       with:
+  #         useLockFile: false
+
+  #     - name: 🔬 Lint
+  #       working-directory: ./client
+  #       run: |
+  #         yarn eslint
+  #         cd ../server
+  #         yarn eslint
+
+  # cypress:
+  #   name: Cypress
+  #   runs-on: ubuntu-22.04
+  #   steps:
+  #     - name: Checkout 🛎
+  #       uses: actions/checkout@v3
+
+  #     - name: Install PM2
+  #       run: npm install pm2 -g
+
+  #     - name: Setup test backend server 💻
+  #       run: yarn test:e2e:server
+
+  #     - name: Create env file 🪪
+  #       run: |
+  #         echo "${{ secrets.ENV_FILE }}" > ../server/.env
+
+  #     - name: Setup test database 📀
+  #       run: yarn test:e2e:prisma
+
+  #     - name: Run cypress 🧪
+  #       uses: cypress-io/github-action@v5
+  #       with:
+  #         start: yarn dev
+  #         wait-on: 'http://localhost:5173'
+  #         config: 'baseUrl=http://localhost:5173'

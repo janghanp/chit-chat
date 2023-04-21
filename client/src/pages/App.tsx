@@ -198,7 +198,7 @@ function App() {
 			} else {
 				const state = queryClient.getQueryState<ChatType[]>(['chatRooms']);
 
-				let isOnChatRoomList: boolean = false;
+				let isOnChatRoomList = false;
 
 				if (state && state.data) {
 					const chatRoomIds = state.data.map((chat) => {
@@ -309,7 +309,7 @@ function App() {
 			});
 		};
 
-		const onReceiveNotification = (data: any) => {
+		const onReceiveNotification = (data: Notification) => {
 			queryClient.setQueriesData<Notification[]>(['notifications'], (old) => {
 				if (old) {
 					return [...old, data];

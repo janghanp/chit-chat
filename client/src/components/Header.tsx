@@ -16,7 +16,7 @@ const Header = ({ setIsOpenMemberList, currentChatName, isOwner, chatId }: Props
 	const [isDropDownOpen, setIsDropDownOpen] = useState<boolean>(false);
 
 	return (
-		<div className="fixed left-0 top-0 z-[22] flex h-10 w-full items-center justify-between bg-base-100 pr-5 shadow-md">
+		<div className="bg-base-100 fixed left-0 top-0 z-[22] flex h-10 w-full items-center justify-between pr-5 shadow-md">
 			<div className="relative hidden h-full w-[321px] items-center justify-center border-r shadow-inner sm:flex">
 				{currentChatName && <span className="text-base font-semibold">{currentChatName}</span>}
 				<Dropdown

@@ -28,6 +28,5 @@ WORKDIR /app
 COPY --from=production-deps /app/node_modules /app/node_modules
 COPY --from=build /app/dist /app/dist
 COPY --from=build /app/public /app/public
-COPY --from=build /app/cypress /app/cypress
 COPY --from=build /app/package.json /app/package.json
 COPY nginx.conf /etc/nginx/nginx.conf

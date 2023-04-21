@@ -43,8 +43,8 @@ const Member = ({ member, setIsOpenMemberList }: Props) => {
 	return (
 		<div className="relative">
 			<div
-				className="flex flex-row items-center justify-start gap-x-3 rounded-md py-1.5 px-2 transition duration-200 hover:cursor-pointer hover:bg-base-300"
-				onClick={currentUser?.id === member.id ? () => {} : () => setIsOpen(!isOpen)}
+				className="hover:bg-base-300 flex flex-row items-center justify-start gap-x-3 rounded-md px-2 py-1.5 transition duration-200 hover:cursor-pointer"
+				onClick={currentUser?.id === member.id ? undefined : () => setIsOpen(!isOpen)}
 			>
 				<div className="avatar">
 					<div
@@ -60,7 +60,7 @@ const Member = ({ member, setIsOpenMemberList }: Props) => {
 			</div>
 			{isOpen && (
 				<>
-					<ul className="menu menu-compact absolute left-5 top-8 z-40 w-52 rounded-lg border bg-base-100 p-2 shadow sm:top-0 sm:-left-[210px]">
+					<ul className="menu menu-compact bg-base-100 absolute left-5 top-8 z-40 w-52 rounded-lg border p-2 shadow sm:-left-[210px] sm:top-0">
 						<li onClick={createPrivateChatHandler}>
 							<span>private chat</span>
 						</li>

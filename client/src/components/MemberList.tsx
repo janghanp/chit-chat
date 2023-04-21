@@ -56,7 +56,7 @@ const MemberList = ({ chatOwnerId, chatId, isOpenMemberList, setIsOpenMemberList
 	}
 
 	return (
-		<div className="fixed right-0 top-0 z-20 flex h-full w-full flex-col gap-y-4 border-l bg-base-100 p-5 pt-16 shadow-md sm:w-56">
+		<div className="bg-base-100 fixed right-0 top-0 z-20 flex h-full w-full flex-col gap-y-4 border-l p-5 pt-16 shadow-md sm:w-56">
 			{host && (
 				<div>
 					<div className="mb-5 text-xs font-extrabold">HOST</div>

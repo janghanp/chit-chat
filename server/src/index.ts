@@ -1,5 +1,4 @@
 import * as dotenv from 'dotenv';
-dotenv.config();
 import express from 'express';
 import morgan from 'morgan';
 import http from 'http';
@@ -7,7 +6,6 @@ import { Server, Socket } from 'socket.io';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import cloudinary from 'cloudinary';
-import { instrument } from '@socket.io/admin-ui';
 import { PrismaClient } from '@prisma/client';
 
 import { checkToken } from './middleware/auth';
@@ -16,7 +14,8 @@ import userRoute from './routes/userRoute';
 import chatRoute from './routes/chatRoute';
 import messageRoute from './routes/messageRoute';
 import notificationRoute from './routes/notificationRoute';
-import seedRoute from './routes/seedRoute';
+
+dotenv.config();
 
 interface Chat {
 	id: string;
@@ -53,11 +52,6 @@ const io = new Server(server, {
 	},
 });
 
-instrument(io, {
-	auth: false,
-	mode: 'development',
-});
-
 app.use(morgan('dev'));
 app.use(
 	cors({
@@ -73,7 +67,6 @@ app.use('/api/user', checkToken, userRoute);
 app.use('/api/chat', checkToken, chatRoute);
 app.use('/api/message', checkToken, messageRoute);
 app.use('/api/notification', checkToken, notificationRoute);
-app.use('/api/seed', seedRoute);
 
 interface UserWithSockets {
 	userId: string;
@@ -132,7 +125,7 @@ io.on('connect', (socket: Socket) => {
 		socket.emit('set_members_status', { userIds: usersWithSockets.map((el) => el.userId) });
 	});
 
-	socket.on('check_online', (data: { receiverId: string, chatId: string }) => {
+	socket.on('check_online', (data: { receiverId: string; chatId: string }) => {
 		const { receiverId, chatId } = data;
 
 		const isOnline = usersWithSockets.some((el) => el.userId === receiverId);

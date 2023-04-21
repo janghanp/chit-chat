@@ -8,7 +8,7 @@ Cypress.Commands.add('login', () => {
 	cy.fixture('users.json').then((users) => {
 		cy.request({
 			method: 'POST',
-			url: 'http://localhost:9000/api/auth/login',
+			url: 'http://localhost/api/auth/login',
 			body: {
 				email: users[0].email,
 				password: users[0].username,
@@ -19,9 +19,5 @@ Cypress.Commands.add('login', () => {
 });
 
 Cypress.Commands.add('seed', () => {
-	cy.request('http://localhost:9000/api/seed').then((response) => {
-		cy.writeFile('cypress/fixtures/users.json', response.body.testUsers);
-		cy.writeFile('cypress/fixtures/chats.json', response.body.testChats);
-		cy.writeFile('cypress/fixtures/messages.json', response.body.testMessages);
-	});
+	cy.exec('yarn test:e2e:seed');
 });

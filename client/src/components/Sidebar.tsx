@@ -17,20 +17,20 @@ const Sidebar = () => {
 
 	return (
 		<>
-			<div className="fixed top-1 left-3 z-20 block sm:hidden">
+			<div className="fixed left-3 top-1 z-20 block sm:hidden">
 				<button onClick={() => setIsSidebarOpen(!isSidebarOpen)}>
 					<HiOutlineMenu className="text-3xl" />
 				</button>
 			</div>
-			<div className={`fixed top-0 bottom-0 sm:z-auto ${isSidebarOpen ? 'z-30' : '-z-10'}`}>
+			<div className={`fixed bottom-0 top-0 sm:z-auto ${isSidebarOpen ? 'z-30' : '-z-10'}`}>
 				<div
 					className={`${
 						!isSidebarOpen && '-translate-x-96'
-					} h-full border-r bg-base-100 pt-10 shadow-md duration-200 ease-linear sm:relative sm:translate-x-0`}
+					} bg-base-100 h-full border-r pt-10 shadow-md duration-200 ease-linear sm:relative sm:translate-x-0`}
 				>
 					<div className="flex h-full w-80 flex-col justify-between">
 						{currentChat && (
-							<div className="fixed top-0 left-0 z-30 flex h-10 w-[321px] items-center justify-center border-r border-b">
+							<div className="fixed left-0 top-0 z-30 flex h-10 w-[321px] items-center justify-center border-b border-r">
 								<span className="text-base font-semibold">{currentChat.chat.name}</span>
 								<Dropdown
 									isDropDownOpen={isDropDownOpen}

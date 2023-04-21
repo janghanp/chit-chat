@@ -103,7 +103,7 @@ const MessageInputBox = ({ currentChat, currentUser }: Props) => {
 	};
 
 	return (
-		<div className="absolute bottom-0 left-[2px] w-full bg-base-100 p-3">
+		<div className="bg-base-100 absolute bottom-0 left-[2px] w-full p-3">
 			<form ref={formRef} onSubmit={submitHandler} className="relative flex gap-x-2">
 				<input
 					disabled={isLoading}
