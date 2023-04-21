@@ -2,4 +2,4 @@
 
 ### docker-compose flow
 
-![alt text](./docker-compose.png)
+![alt text](./docker_compose_flow.png)
