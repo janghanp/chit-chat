@@ -1,5 +1,6 @@
 import { Fragment, useEffect, useState } from 'react';
-import { HiInbox, HiCheck } from 'react-icons/hi';
+import { createPortal } from 'react-dom';
+import { HiInbox, HiX } from 'react-icons/hi';
 import { SyncLoader } from 'react-spinners';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import produce from 'immer';
@@ -98,47 +99,66 @@ const Inbox = () => {
 								<div>Error...</div>
 							) : (
 								<>
-									<div className="absolute -right-8 z-30 flex w-[320px] flex-col rounded-md border bg-white shadow-lg sm:right-0 sm:w-[400px]">
-										<div className="bg-base-300 rounded-t-md border-b p-5">
-											<span className="text-2xl font-bold">Inbox</span>
-											<div className="mt-5 flex justify-between">
-												<div>
-													<button
-														className={`btn-outline btn-sm btn bg-base-100 normal-case ${
-															filter === 'all' ? 'bg-base-content text-white' : ''
-														} mr-3`}
-														onClick={() => setFilter('all')}
-													>
-														All
-													</button>
-													<button
-														className={`btn-outline btn-sm btn bg-base-100 normal-case ${
-															filter === 'unread' ? 'bg-base-content text-white' : ''
-														}`}
-														onClick={() => setFilter('unread')}
-													>
-														Unread
-													</button>
+									{createPortal(
+										<div className="fixed inset-0 z-30">
+											<div className="absolute right-0 top-0 flex h-full w-full flex-col rounded-none sm:rounded-md border bg-white shadow-lg sm:right-5 sm:top-10 sm:h-auto sm:w-[400px]">
+												<div className="bg-base-300 rounded-none sm:rounded-t-md border-b p-5">
+													<div className="flex justify-between">
+														<span className="text-2xl font-bold">Inbox</span>
+														<button
+															className="btn-outline btn-sm btn-circle btn flex bg-white sm:hidden"
+															onClick={() => setIsOpen(!isOpen)}
+														>
+															<HiX />
+														</button>
+													</div>
+													<div className="mt-5 flex justify-between">
+														<div>
+															<button
+																className={`btn-outline btn-sm btn bg-base-100 normal-case ${
+																	filter === 'all' ? 'bg-base-content text-white' : ''
+																} mr-3`}
+																onClick={() => setFilter('all')}
+															>
+																All
+															</button>
+															<button
+																className={`btn-outline btn-sm btn bg-base-100 normal-case ${
+																	filter === 'unread' ? 'bg-base-content text-white' : ''
+																}`}
+																onClick={() => setFilter('unread')}
+															>
+																Unread
+															</button>
+														</div>
+														<button
+															className="btn-outline btn-sm btn bg-white normal-case"
+															onClick={readAllNotificationsHandler}
+														>
+															Mark all as read
+														</button>
+													</div>
 												</div>
-												<div className="tooltip" data-tip="Mark All as Read">
-													<button
-														className="btn-outline btn-sm btn-circle btn bg-white"
-														onClick={readAllNotificationsHandler}
-													>
-														<HiCheck />
-													</button>
-												</div>
+												{notificaionts.length === 0 ? (
+													<div className="flex h-full  items-center justify-center sm:h-44">
+														<div className="font-mono font-semibold">You have no notifications...</div>
+													</div>
+												) : (
+													<>
+														{notificaionts.map((notification) => {
+															return (
+																<Fragment key={notification.id}>
+																	<Notification notification={notification} />
+																</Fragment>
+															);
+														})}
+													</>
+												)}
 											</div>
-										</div>
-										{notificaionts.map((notification) => {
-											return (
-												<Fragment key={notification.id}>
-													<Notification notification={notification} />
-												</Fragment>
-											);
-										})}
-									</div>
-									<div onClick={() => setIsOpen(false)} className="fixed inset-0"></div>
+											<div onClick={() => setIsOpen(false)} className="fixed inset-0 -z-20"></div>
+										</div>,
+										document.body
+									)}
 								</>
 							)}
 						</>

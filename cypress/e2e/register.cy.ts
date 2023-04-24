@@ -1,10 +1,6 @@
 import { faker } from '@faker-js/faker';
 
 describe('register', () => {
-	before(() => {
-		cy.seed();
-	});
-
 	beforeEach(() => {
 		cy.visit('/register');
 	});

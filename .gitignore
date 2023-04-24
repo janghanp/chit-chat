@@ -6,6 +6,7 @@ tests/cypress/fixtures
 server/node_modules
 server/dist
 server/.env
+server/.env.development
 
 # Logs
 client/logs
@@ -18,11 +19,14 @@ client/lerna-debug.log*
 client/node_modules
 client/dist
 client/*.local
+client/.env*
 
 cypress/fixtures
 cypress/videos
+cypress/screenshots
 
-# Editor directories and files
+supabase
+
 .vscode/*
 !.vscode/extensions.json
 .idea

@@ -6,12 +6,13 @@ import axios, { AxiosError } from 'axios';
 import { FormData, User } from '../types';
 import useUser from '../hooks/useUser';
 import { registerUser } from '../api/auth';
+import { SyncLoader } from 'react-spinners';
 
 const Register = () => {
 	const navigate = useNavigate();
 	const queryClient = useQueryClient();
 	const { data: currentUser } = useUser();
-	const { mutate: registerMutate } = useMutation({
+	const { mutate: registerMutate, isLoading } = useMutation({
 		mutationFn: ({ email, password, username }: { email: string; password: string; username: string }) =>
 			registerUser(email, password, username),
 		async onSuccess() {
@@ -57,12 +58,14 @@ const Register = () => {
 	return (
 		<div className="bg-base-100 min-h-screen">
 			<div className="container mx-auto flex min-h-screen max-w-lg flex-col items-center justify-center">
-				<div className="bg-base-100 w-full rounded-lg p-10 shadow-none sm:border sm:shadow-lg">
+				<div className="bg-base-100 relative w-full rounded-lg p-10 shadow-none sm:border sm:shadow-lg">
+					{isLoading && <div className="absolute inset-0 cursor-not-allowed rounded-lg bg-gray-200 opacity-50"></div>}
 					<div className="text-center text-2xl font-bold">Create an account</div>
 					<form onSubmit={onSubmit} className="flex flex-col items-center justify-center gap-y-3">
 						<div className="w-full">
 							<label className="label">Email</label>
 							<input
+								disabled={isLoading}
 								data-cy="email-input"
 								className={`input-bordered input w-full ${errors.email && 'border-error'}`}
 								{...register('email', {
@@ -93,6 +96,7 @@ const Register = () => {
 						<div className="w-full">
 							<label className="label">Password</label>
 							<input
+								disabled={isLoading}
 								data-cy="password-input"
 								className={`input-bordered input w-full ${errors.password && 'border-error'}`}
 								type="password"
@@ -114,6 +118,7 @@ const Register = () => {
 						<div className="w-full">
 							<label className="label">ConfirmPassword</label>
 							<input
+								disabled={isLoading}
 								data-cy="confirmPassword-input"
 								className={`input-bordered input w-full ${errors.password && 'border-error'}`}
 								type="password"
@@ -130,6 +135,7 @@ const Register = () => {
 						<div className="w-full">
 							<label className="label">Username</label>
 							<input
+								disabled={isLoading}
 								data-cy="username-input"
 								className={`input-bordered input w-full ${errors.username && 'border-error'}`}
 								{...register('username', {
@@ -147,8 +153,8 @@ const Register = () => {
 								</p>
 							)}
 						</div>
-						<button type="submit" className="btn mt-5 w-full" data-cy="submit-button">
-							Sign Up
+						<button type="submit" className="btn mt-5 w-full" data-cy="submit-button" disabled={isLoading}>
+							{isLoading ? <SyncLoader color="#021431" size={10} margin={4} /> : <span>signup</span>}
 						</button>
 						<div className="flex w-full justify-center gap-x-4 text-sm font-semibold">
 							<span>Already have an account?</span>

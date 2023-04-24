@@ -10,9 +10,11 @@
 		"prettier": "prettier --write .",
 		"cypress:open": "cypress open",
 		"cypress:run": "cypress run",
-		"test:e2e:server": "cd ./server && yarn && yarn build && pm2 start dist/index.js",
-		"test:e2e:prisma": "cd ./server && yarn prisma:generate",
-		"test:e2e:seed": "cd ./server && yarn prisma:seed"
+		"test:e2e:server": "cd ./server && yarn build && pm2 start dist/index.js",
+		"test:e2e:client": "cd ./client && yarn test:build && pm2 start 'yarn preview'",
+		"test:e2e:prisma:generate": "cd ./server && yarn prisma:generate",
+		"test:e2e:prisma:migrate": "cd ./server && yarn prisma:migrate",
+		"test:e2e:prisma:seed": "cd ./server && yarn prisma:seed"
 	},
 	"devDependencies": {
 		"@faker-js/faker": "^7.6.0",

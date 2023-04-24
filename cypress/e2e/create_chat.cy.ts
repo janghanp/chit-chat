@@ -1,10 +1,6 @@
 import { faker } from '@faker-js/faker';
 
 describe('onBoarding', () => {
-	before(() => {
-		cy.seed();
-	});
-
 	beforeEach(() => {
 		cy.login();
 		cy.visit('/explorer');

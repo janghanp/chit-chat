@@ -1,7 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import { faker } from '@faker-js/faker';
 import bcrypt from 'bcryptjs';
-import fs from 'fs';
+import fs from 'fs-extra';
 import path from 'path';
 
 const salt = bcrypt.genSaltSync(10);
@@ -118,17 +118,9 @@ export async function main() {
 		},
 	});
 
-	fs.writeFile(path.resolve('../cypress/fixtures', `users.json`), JSON.stringify([user1, user2]), function (err) {
-		if (err) {
-			return console.error(err);
-		}
-	});
+	fs.outputFile(path.resolve('../cypress/fixtures', `users.json`), JSON.stringify([user1, user2]));
 
-	fs.writeFile(path.resolve('../cypress/fixtures', `chats.json`), JSON.stringify([chat]), function (err) {
-		if (err) {
-			return console.error(err);
-		}
-	});
+	fs.outputFile(path.resolve('../cypress/fixtures', `chats.json`), JSON.stringify([chat]));
 
 	console.timeEnd(`🌱 Database has been seeded`);
 }

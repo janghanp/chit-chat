@@ -6,61 +6,118 @@ on:
       - main
 
 jobs:
-  docker_compose:
+  cypress_e2e_test:
+    name: Run cypress
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
     steps:
-    - name: Set up docker containers
-    - uses: actions/checkout@v3
-    - uses: isbang/compose-action@v1.4.1
-      with:
-         compose-file: "./docker-compose.yml"
+      - name: Checkout repo
+        uses: actions/checkout@v3
 
-  # lint:
-  #   name: ESLint
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: ⬇️ Checkout repo
-  #       uses: actions/checkout@v3
+      - name: Setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
 
-  #     - name: ⎔ Setup node
-  #       uses: actions/setup-node@v3
-  #       with:
-  #         node-version: 18
+      - name: Install PM2
+        run: npm install pm2 -g
 
-  #     - name: 📥 Download deps
-  #       uses: bahmutov/npm-install@v1
-  #       with:
-  #         useLockFile: false
+      - uses: bahmutov/npm-install@v1
+        with:
+          useLockFile: false
+          working-directory: |
+            ./
+            ./client
+            ./server
 
-  #     - name: 🔬 Lint
-  #       working-directory: ./client
-  #       run: |
-  #         yarn eslint
-  #         cd ../server
-  #         yarn eslint
+      - name: Create env file
+        run: |
+          echo "${{ secrets.ENV_FILE }}" > ./server/.env
+          echo "VITE_API_URL=http://localhost:9000/api" > ./client/.env.testing
 
-  # cypress:
-  #   name: Cypress
-  #   runs-on: ubuntu-22.04
-  #   steps:
-  #     - name: Checkout 🛎
-  #       uses: actions/checkout@v3
+      - name: Setup prisma with test db.
+        run: yarn test:e2e:prisma:generate && yarn test:e2e:prisma:migrate
 
-  #     - name: Install PM2
-  #       run: npm install pm2 -g
+      - name: Build and run server
+        run: yarn test:e2e:server
 
-  #     - name: Setup test backend server 💻
-  #       run: yarn test:e2e:server
+      - name: Build and run client
+        run: yarn test:e2e:client
 
-  #     - name: Create env file 🪪
-  #       run: |
-  #         echo "${{ secrets.ENV_FILE }}" > ../server/.env
+      - name: Seed test db
+        run: yarn test:e2e:prisma:seed
 
-  #     - name: Setup test database 📀
-  #       run: yarn test:e2e:prisma
+      - name: Run cypress
+        uses: cypress-io/github-action@v5
+        with:
+          config: pageLoadTimeout=100000,baseUrl=http://localhost:4173
+          env: apiUrl=http://localhost:9000/api
+          record: true
+          parallel: true
+        env:
+          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
+          GITHUB_TOKEN: ${{ secrets.TOKEN }}
 
-  #     - name: Run cypress 🧪
-  #       uses: cypress-io/github-action@v5
-  #       with:
-  #         start: yarn dev
-  #         wait-on: 'http://localhost:5173'
-  #         config: 'baseUrl=http://localhost:5173'
+  images_to_dockerhub:
+    needs: cypress_e2e_test
+    name: Push docker images
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Create env file
+        run: |
+          echo "VITE_API_URL=https://chitchat.lat/api" > ./client/.env.production
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Build and push (client)
+        uses: docker/build-push-action@v4
+        with:
+          context: ./client
+          file: ./client/Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/chit-chat-client:latest
+          target: production
+
+      - name: Build and push (server)
+        uses: docker/build-push-action@v4
+        with:
+          context: ./server
+          file: ./server/Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/chit-chat-server:latest
+          target: production
+
+      - name: Build and push (nginx)
+        uses: docker/build-push-action@v4
+        with:
+          context: ./nginx
+          file: ./nginx/Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/chit-chat-nginx:latest

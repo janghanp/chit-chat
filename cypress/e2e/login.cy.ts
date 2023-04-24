@@ -1,8 +1,4 @@
 describe('Login', () => {
-	before(() => {
-		cy.seed();
-	});
-
 	beforeEach(() => {
 		cy.visit('/login');
 	});

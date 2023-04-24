@@ -126,7 +126,7 @@ const Notification = ({ notification }: Props) => {
 	return (
 		<div
 			key={notification.id}
-			className="flex items-start gap-x-2 p-2 transition duration-300 hover:cursor-pointer hover:bg-gray-200/50"
+			className="flex items-start gap-x-2 p-2 transition duration-300 hover:cursor-pointer hover:bg-gray-200/50 border-b"
 			onClick={readNotificationHandler}
 		>
 			<div className="avatar">

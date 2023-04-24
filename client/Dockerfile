@@ -8,6 +8,12 @@ WORKDIR /app
 COPY ["package.json", "yarn.lock", "./"]
 RUN yarn install --frozen-lockfile --production=false
 
+# Development 
+FROM deps as development
+WORKDIR /app
+COPY . .
+CMD [ "yarn", "dev" ]
+
 # Setup production node_modules
 FROM base as production-deps
 WORKDIR /app

@@ -97,7 +97,10 @@ const CreateChatButton = ({ currentUserId, closeSidebar }: Props) => {
 				<div data-cy="create-chat-modal">
 					<input type="checkbox" id="modal-2" className="modal-toggle" onChange={clearStates} />
 					<label htmlFor="modal-2" className="modal">
-						<label htmlFor="" className="modal-box relative">
+						<label htmlFor="" className="modal-box relativ">
+							{isLoading && (
+								<div className="absolute inset-0 z-30 cursor-not-allowed rounded-lg bg-gray-200 opacity-50"></div>
+							)}
 							<label htmlFor="modal-2" className="btn-sm btn-circle btn absolute right-5 top-5">
 								✕
 							</label>
@@ -132,6 +135,7 @@ const CreateChatButton = ({ currentUserId, closeSidebar }: Props) => {
 									<span className="label-text text-sm font-bold uppercase">chatroom name</span>
 								</label>
 								<input
+									disabled={isLoading}
 									data-cy="create-chat-input"
 									type="text"
 									placeholder="Type here"
@@ -149,12 +153,8 @@ const CreateChatButton = ({ currentUserId, closeSidebar }: Props) => {
 								)}
 							</div>
 							<div className="w-full text-right">
-								<button
-									className={`btn ${isLoading && 'pointer-events-none'}`}
-									onClick={submitHandler}
-									data-cy="create-chat-submit"
-								>
-									{isLoading ? <SyncLoader color="#A3C6FF" size={10} margin={4} /> : <span>create</span>}
+								<button className="btn" onClick={submitHandler} data-cy="create-chat-submit" disabled={isLoading}>
+									{isLoading ? <SyncLoader color="#021431" size={10} margin={4} /> : <span>create</span>}
 								</button>
 							</div>
 						</label>

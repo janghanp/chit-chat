@@ -6,6 +6,7 @@ import axios, { AxiosError } from 'axios';
 import useUser from '../hooks/useUser';
 import { logInUser } from '../api/auth';
 import { User } from '../types';
+import { SyncLoader } from 'react-spinners';
 
 interface FormData {
 	email: string;
@@ -16,7 +17,7 @@ const Login = () => {
 	const navigate = useNavigate();
 	const queryClient = useQueryClient();
 	const { data: currentUser } = useUser();
-	const { mutate: logInMutate } = useMutation({
+	const { mutate: logInMutate, isLoading } = useMutation({
 		mutationFn: ({ email, password }: { email: string; password: string }) => logInUser(email, password),
 		async onSuccess() {
 			await queryClient.invalidateQueries<User>(['currentUser']);
@@ -49,12 +50,14 @@ const Login = () => {
 	return (
 		<div className="bg-base-100 min-h-screen">
 			<div className="container mx-auto flex min-h-screen max-w-lg flex-col items-center justify-center">
-				<div className="bg-base-100 w-full rounded-lg p-10 shadow-none sm:border sm:shadow-lg">
+				<div className="bg-base-100 relative w-full rounded-lg p-10 shadow-none sm:border sm:shadow-lg">
+					{isLoading && <div className="absolute inset-0 cursor-not-allowed rounded-lg bg-gray-200 opacity-50"></div>}
 					<div className="text-center text-2xl font-bold">Welcome to chit-chat</div>
 					<form onSubmit={onSubmit} className="flex flex-col items-center justify-center gap-y-5">
 						<div className="w-full">
 							<label className="label">Email</label>
 							<input
+								disabled={isLoading}
 								data-cy="email-input"
 								className={`input-bordered input w-full ${errors.email && 'border-error'}`}
 								{...register('email', {
@@ -85,6 +88,7 @@ const Login = () => {
 						<div className="w-full">
 							<label className="label">Password</label>
 							<input
+								disabled={isLoading}
 								data-cy="password-input"
 								className={`input-bordered input w-full ${errors.password && 'border-error'}`}
 								type="password"
@@ -103,10 +107,11 @@ const Login = () => {
 								</p>
 							)}
 						</div>
-						<button className="btn w-full" type="submit" data-cy="submit-button">
-							Log In
+						<button className="btn w-full" type="submit" data-cy="submit-button" disabled={isLoading}>
+							{isLoading ? <SyncLoader color="#021431" size={10} margin={4} /> : <span>Log in</span>}
 						</button>
 					</form>
+
 					<div className="mt-5 text-center text-sm font-semibold">
 						<span>Don't have an account?</span>
 						<Link to="/register">

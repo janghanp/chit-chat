@@ -11,8 +11,9 @@
 		"dev": "nodemon src/index.ts",
 		"start": "node dist/index.js",
 		"start:pm2": "pm2 start dist/index.js",
+		"prisma:generate": "npx prisma generate",
 		"prisma:seed": "npx prisma db seed",
-		"prisma:generate": "npx prisma generate"
+		"prisma:migrate": "npx prisma migrate deploy"
 	},
 	"dependencies": {
 		"@prisma/client": "4.13.0",
@@ -36,10 +37,12 @@
 		"@types/bcryptjs": "^2.4.2",
 		"@types/cookie-parser": "^1.4.3",
 		"@types/express": "^4.17.15",
+		"@types/fs-extra": "^11.0.1",
 		"@types/jsonwebtoken": "^9.0.0",
 		"@types/morgan": "^1.9.4",
 		"@types/multer": "^1.4.7",
 		"@types/node": "^18.11.18",
+		"fs-extra": "^11.1.1",
 		"nodemon": "^2.0.20",
 		"prisma": "^4.13.0",
 		"ts-node": "^10.9.1",

@@ -7,7 +7,7 @@ import axios from 'axios';
 
 import './index.css';
 
-axios.defaults.baseURL = 'http://localhost/api';
+axios.defaults.baseURL = import.meta.env.VITE_API_URL;
 
 const queryClient = new QueryClient({
 	defaultOptions: {

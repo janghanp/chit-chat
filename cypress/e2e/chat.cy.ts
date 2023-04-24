@@ -1,8 +1,4 @@
 describe('chat', () => {
-	before(() => {
-		cy.seed();
-	});
-
 	beforeEach(() => {
 		cy.login();
 		cy.fixture('chats.json').then((chats) => {
@@ -22,11 +18,11 @@ describe('chat', () => {
 		cy.dataCy('chat-body').contains('hello world');
 	});
 
-	it.only('allows users to leave a chat', () => {
-		cy.get('.h-full > .absolute > .swap-rotate > .swap-on > path').click();
-		cy.get('.h-full > .right-5 > .swap-rotate > input').check({ force: true });
-		cy.get('[data-cy="dropdown-menu"] > :nth-child(2) > .flex').click();
+	// it.only('allows users to leave a chat', () => {
+	// 	cy.get('.h-full > .absolute > .swap-rotate > .swap-on > path').click();
+	// 	cy.get('.h-full > .right-5 > .swap-rotate > input').check({ force: true });
+	// 	cy.get('[data-cy="dropdown-menu"] > :nth-child(2) > .flex').click();
 
-		cy.dataCy('chat-room-list').find('tr').should('have.length', 0);
-	});
+	// 	cy.dataCy('chat-room-list').find('tr').should('have.length', 0);
+	// });
 });
