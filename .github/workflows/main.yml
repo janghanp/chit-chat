@@ -102,17 +102,21 @@ jobs:
           context: ./client
           file: ./client/Dockerfile
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/chit-chat-client:latest
           target: production
+          tags: ${{ secrets.DOCKER_USERNAME }}/chit-chat-client:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
       - name: Build and push (server)
         uses: docker/build-push-action@v4
         with:
           context: ./server
           file: ./server/Dockerfile
+          target: production
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/chit-chat-server:latest
-          target: production
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
       - name: Build and push (nginx)
         uses: docker/build-push-action@v4
@@ -121,3 +125,5 @@ jobs:
           file: ./nginx/Dockerfile
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/chit-chat-nginx:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
