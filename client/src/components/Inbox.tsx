@@ -75,7 +75,7 @@ const Inbox = () => {
 
 	return (
 		<div className="relative">
-			<div className="tooltip tooltip-bottom z-30" data-tip="Inbox">
+			<div className="tooltip" data-tip="Inbox">
 				<button className="btn-ghost btn-sm btn px-1" onClick={() => setIsOpen(!isOpen)}>
 					<div className="indicator">
 						<span

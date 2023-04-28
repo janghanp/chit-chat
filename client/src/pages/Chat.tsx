@@ -12,6 +12,8 @@ import useUser from '../hooks/useUser';
 import useChat from '../hooks/useChat';
 import useFriends from '../hooks/useFriends';
 import { Chat as ChatType } from '../types';
+import { HiUserGroup, HiOutlineDotsCircleHorizontal } from 'react-icons/hi';
+import ChatHeader from '../components/ChatHeader';
 
 const Chat = () => {
 	const { chatId } = useParams();
@@ -66,21 +68,23 @@ const Chat = () => {
 	}
 
 	return (
-		<div className={`fixed left-0 sm:left-80 ${isOpenMemberList ? 'right-56' : 'right-0'}  bottom-0 top-10`}>
-			<Header
+		<div className="flex h-full w-full flex-col justify-between gap-y-3 p-3">
+			<ChatHeader
 				chatId={currentChat.chat.id}
 				isOwner={currentUser!.id === currentChat.chat.ownerId}
 				currentChatName={currentChat.chat.name}
 				setIsOpenMemberList={setIsOpenMemberList}
 			/>
-			<ChatBody />
+			<div className="flex-1 overflow-y-auto rounded-md border p-3 shadow-md">
+				<ChatBody />
+			</div>
 			<MessageInputBox currentChat={currentChat} currentUser={currentUser!} />
-			<MemberList
+			{/* <MemberList
 				isOpenMemberList={isOpenMemberList}
 				setIsOpenMemberList={setIsOpenMemberList}
 				chatId={chatId as string}
 				chatOwnerId={currentChat.chat.ownerId}
-			/>
+			/> */}
 		</div>
 	);
 };

@@ -84,47 +84,42 @@ const Dropdown = ({ isDropDownOpen, setIsDropDownOpen, isOwner, chatId }: Props)
 
 	return (
 		<>
-			<div className="absolute right-5">
-				<label className="swap swap-rotate z-30">
-					<input type="checkbox" />
-					<HiOutlineChevronDown className="swap-off z-20 h-5 w-5" onClick={() => setIsDropDownOpen((prev) => !prev)} />
-					<HiOutlineX className="swap-on z-20 h-5 w-5" onClick={() => setIsDropDownOpen((prev) => !prev)} />
-					{isDropDownOpen && (
-						<div className="fixed inset-0 z-10 cursor-default" onClick={() => setIsDropDownOpen((prev) => !prev)}></div>
-					)}
-				</label>
+			<div className="absolute right-0 top-10">
 				{isDropDownOpen && (
-					<ul
-						data-cy="dropdown-menu"
-						className="menu rounded-box menu-compact bg-base-100 absolute right-0 z-30 w-52 border p-2 shadow-md"
-					>
-						{isOwner && (
-							<li
-								onClick={() => {
-									setIsDropDownOpen(false);
-									setIsOpen(true);
-								}}
-							>
-								<div className="flex w-full items-center justify-between">
-									<span>Settings</span>
-									<HiOutlineWrenchScrewdriver />
-								</div>
-							</li>
-						)}
-						<li onClick={isOwner ? deleteChatHandler : leaveChatHandler}>
-							{isOwner ? (
-								<div className="text-error flex items-center justify-between">
-									<span>Delete Chat</span>
-									<HiOutlineTrash />
-								</div>
-							) : (
-								<div className="text-error flex items-center justify-between">
-									<span>Leave Chat</span>
-									<HiOutlineArrowCircleRight />
-								</div>
+					<>
+						<ul
+							data-cy="dropdown-menu"
+							className="menu rounded-box menu-compact bg-base-100 absolute right-0 z-30 w-52 border p-2 shadow-md"
+						>
+							{isOwner && (
+								<li
+									onClick={() => {
+										setIsDropDownOpen(false);
+										setIsOpen(true);
+									}}
+								>
+									<div className="flex w-full items-center justify-between">
+										<span>Settings</span>
+										<HiOutlineWrenchScrewdriver />
+									</div>
+								</li>
 							)}
-						</li>
-					</ul>
+							<li onClick={isOwner ? deleteChatHandler : leaveChatHandler}>
+								{isOwner ? (
+									<div className="text-error flex items-center justify-between">
+										<span>Delete Chat</span>
+										<HiOutlineTrash />
+									</div>
+								) : (
+									<div className="text-error flex items-center justify-between">
+										<span>Leave Chat</span>
+										<HiOutlineArrowCircleRight />
+									</div>
+								)}
+							</li>
+						</ul>
+						<div className="fixed inset-0 z-20" onClick={() => setIsDropDownOpen(false)}></div>
+					</>
 				)}
 			</div>
 			{isOwner && isOpen && <ChatSettings chatId={chatId} currentUserId={currentUser!.id} setIsOpen={setIsOpen} />}

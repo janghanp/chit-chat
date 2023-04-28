@@ -5,6 +5,8 @@ import produce from 'immer';
 
 import { createMessage } from '../api/message';
 import { socket } from '../socket';
+import { HiOutlinePaperAirplane } from 'react-icons/hi';
+
 import { ChatWithIsNewMember, Message, User } from '../types';
 
 interface Props {
@@ -103,20 +105,20 @@ const MessageInputBox = ({ currentChat, currentUser }: Props) => {
 	};
 
 	return (
-		<div className="bg-base-100 absolute bottom-0 left-[2px] w-full p-1">
+		<div className="bg-base-100 w-full">
 			<form ref={formRef} onSubmit={submitHandler} className="relative flex gap-x-2">
 				<input
 					disabled={isLoading}
 					data-cy="message-input"
 					ref={inputRef}
-					className="input-bordered input w-full disabled:bg-white"
+					className="input-bordered input w-full disabled:bg-white shadow-md"
 					type="text"
 					value={inputMessage}
 					onChange={(e) => setInputMessage(e.target.value)}
 				/>
 				<Emoji setInputMessage={setInputMessage} inputRef={inputRef} />
 				<button type="submit" className="btn" disabled={!inputMessage} data-cy="message-submit">
-					Send
+					<HiOutlinePaperAirplane className="text-xl" />
 				</button>
 			</form>
 		</div>

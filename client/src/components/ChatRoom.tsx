@@ -124,7 +124,7 @@ const ChatRoom = ({ chatRoom, setIsSidebarOpen }: Props) => {
 			onClick={clickHandler}
 			data-cy="chatRoom"
 		>
-			<th className="w-full rounded-none p-3">
+			<th className="w-full rounded-lg p-3 shadow-inherit border-none">
 				<div className="flex items-center justify-start gap-x-3">
 					<div className="indicator">
 						<span

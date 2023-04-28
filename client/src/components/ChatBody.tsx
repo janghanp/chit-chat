@@ -33,11 +33,7 @@ const ChatBody = () => {
 	}, [inView, hasNextPage, fetchNextPage]);
 
 	return (
-		<div
-			id="chat-body"
-			data-cy="chat-body"
-			className="absolute bottom-20	top-0 flex w-full flex-col-reverse gap-y-3 overflow-y-auto p-2 sm:p-5"
-		>
+		<div id="chat-body" data-cy="chat-body" className="flex w-full flex-col-reverse gap-y-3 overflow-y-auto">
 			{status === 'loading' ? (
 				<div></div>
 			) : (

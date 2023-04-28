@@ -36,7 +36,7 @@ const LogoutButton = () => {
 	return (
 		<>
 			<div className="tooltip" data-tip="Log Out">
-				<label htmlFor="modal-1" className="btn-ghost btn-sm btn px-1">
+				<label htmlFor="modal-1" className="btn-ghost btn-sm btn-square btn">
 					<HiOutlineLogout className="text-2xl" />
 				</label>
 			</div>
