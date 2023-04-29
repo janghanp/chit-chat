@@ -34,10 +34,11 @@ export interface PreviousChat {
 
 export interface Message {
 	id: string;
-	text: string;
+	text?: string;
 	senderId: string;
 	chatId: string;
 	sender: User;
+	attachments?: AttachmentInfo[];
 	createdAt: string;
 }
 
@@ -77,6 +78,19 @@ export interface Friend {
 	username: string;
 	avatar?: string;
 	isOnline?: boolean;
+}
+
+export interface Attachment {
+	id: string;
+	public_id?: string;
+	secure_url?: string;
+	preview?: string;
+	isUploading: boolean;
+}
+
+export interface AttachmentInfo {
+	public_id: string;
+	secure_url: string;
 }
 
 export interface AuthErrorResponse {

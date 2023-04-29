@@ -51,7 +51,7 @@ const Emoji = ({ setInputMessage, inputRef }: Props) => {
 
 	return (
 		<>
-			<div className="absolute right-24 top-2 bg-white">
+			<div className="">
 				<button type="button" className="btn-ghost btn-sm btn-circle btn" onClick={emojiHanlder}>
 					<HiOutlineEmojiHappy className="text-2xl" />
 				</button>

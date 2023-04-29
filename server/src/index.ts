@@ -35,6 +35,11 @@ interface CurrentUser {
 	chats: Chat[];
 }
 
+interface AttachmentInfo {
+	public_id: string;
+	secure_url: string;
+}
+
 const prisma = new PrismaClient();
 
 // cloudinary picks up env and is now configured.
@@ -46,7 +51,7 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
 	cors: {
-		origin: ['http://localhost:5173', 'http://localhost:4173', 'http://localhost','https://www.chitchat.lat'],
+		origin: ['http://localhost:5173', 'http://localhost:4173', 'http://localhost', 'https://www.chitchat.lat'],
 		methods: ['GET', 'POST'],
 		credentials: true,
 	},
@@ -55,7 +60,7 @@ const io = new Server(server, {
 app.use(morgan('dev'));
 app.use(
 	cors({
-		origin: ['http://localhost:5173', 'http://localhost:4173', 'http://localhost','https://www.chitchat.lat'],
+		origin: ['http://localhost:5173', 'http://localhost:4173', 'http://localhost', 'https://www.chitchat.lat'],
 		credentials: true,
 	})
 );
@@ -135,8 +140,15 @@ io.on('connect', (socket: Socket) => {
 
 	socket.on(
 		'private_message',
-		async (data: { chatId: string; messageId: string; text: string; sender: CurrentUser; createdAt: string }) => {
-			const { chatId, messageId, text, sender, createdAt } = data;
+		async (data: {
+			chatId: string;
+			messageId: string;
+			text: string;
+			sender: CurrentUser;
+			createdAt: string;
+			attachments: AttachmentInfo[];
+		}) => {
+			const { chatId, messageId, text, sender, createdAt, attachments } = data;
 
 			// Find a receiverId
 			const chat = await prisma.chat.findUnique({
@@ -195,6 +207,7 @@ io.on('connect', (socket: Socket) => {
 				text,
 				sender,
 				createdAt,
+				attachments,
 				isPrivate: true,
 			});
 		}
@@ -202,8 +215,17 @@ io.on('connect', (socket: Socket) => {
 
 	socket.on(
 		'send_message',
-		async (data: { messageId: string; text: string; chatId: string; sender: CurrentUser; createdAt: string }) => {
-			const { messageId, text, sender, chatId, createdAt } = data;
+		async (data: {
+			messageId: string;
+			text: string;
+			chatId: string;
+			sender: CurrentUser;
+			createdAt: string;
+			attachments: AttachmentInfo[];
+		}) => {
+			const { messageId, text, sender, chatId, createdAt, attachments } = data;
+
+			console.log(attachments);
 
 			io.to(chatId).emit('receive_message', {
 				chatId,
@@ -211,6 +233,7 @@ io.on('connect', (socket: Socket) => {
 				text,
 				sender,
 				createdAt,
+				attachments,
 				isPrivate: false,
 			});
 		}

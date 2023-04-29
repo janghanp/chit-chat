@@ -58,8 +58,8 @@ const CreateChatButton = ({ currentUserId, closeSidebar }: Props) => {
 		const file = event.target.files![0];
 
 		if (file) {
-			if (file.size > 1000000) {
-				setImageError('The image should be less than 1MB.');
+			if (file.size > 5000000) {
+				setImageError('The image should be less than 5MB.');
 				setFile(null);
 				setPreview('');
 				return;

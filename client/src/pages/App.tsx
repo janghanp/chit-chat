@@ -13,7 +13,7 @@ import Chat from './Chat';
 import NoMatch from './NoMatch';
 import Explorer from './Explore';
 import { socket } from '../socket';
-import { User, Chat as ChatType, Message, Notification, Friend } from '../types';
+import { User, Chat as ChatType, Message, Notification, Friend, AttachmentInfo } from '../types';
 import Friends from './Friends';
 
 function App() {
@@ -154,9 +154,10 @@ function App() {
 			text: string;
 			sender: User;
 			createdAt: string;
+			attachments: AttachmentInfo[];
 			isPrivate: boolean;
 		}) => {
-			const { chatId, messageId, text, sender, createdAt, isPrivate } = data;
+			const { chatId, messageId, text, sender, createdAt, isPrivate, attachments } = data;
 
 			const currentChatId = window.location.href.split('/').pop();
 
@@ -165,7 +166,11 @@ function App() {
 					return produce(old, (draftState) => {
 						draftState.forEach((chat) => {
 							if (chat.id === chatId) {
-								chat.messages = [{ id: messageId, text, sender, createdAt, senderId: sender.id, chatId }];
+								if (!text && attachments.length > 0) {
+									chat.messages = [{ id: messageId, text: 'image', sender, createdAt, senderId: sender.id, chatId }];
+								} else {
+									chat.messages = [{ id: messageId, text, sender, createdAt, senderId: sender.id, chatId }];
+								}
 							}
 						});
 					});
@@ -181,7 +186,15 @@ function App() {
 						if (old) {
 							return produce(old, (draftState) => {
 								// There is an optimistic update about messages when creating a message so just override with new data.
-								draftState.pages[0][0] = { id: messageId, text, sender, createdAt, chatId, senderId: sender.id };
+								draftState.pages[0][0] = {
+									id: messageId,
+									text,
+									sender,
+									createdAt,
+									chatId,
+									senderId: sender.id,
+									attachments,
+								};
 							});
 						}
 					});
@@ -190,7 +203,15 @@ function App() {
 					queryClient.setQueryData<InfiniteData<Message[]>>(['messages', currentChatId], (old) => {
 						if (old) {
 							return produce(old, (draftState) => {
-								draftState.pages[0].unshift({ id: messageId, text, sender, createdAt, chatId, senderId: sender.id });
+								draftState.pages[0].unshift({
+									id: messageId,
+									text,
+									sender,
+									createdAt,
+									chatId,
+									senderId: sender.id,
+									attachments,
+								});
 							});
 						}
 					});
@@ -235,7 +256,15 @@ function App() {
 								};
 							}
 
-							newChat.messages!.push({ id: messageId, text, sender, createdAt, chatId, senderId: sender.id });
+							newChat.messages!.push({
+								id: messageId,
+								text,
+								sender,
+								createdAt,
+								chatId,
+								senderId: sender.id,
+								attachments,
+							});
 
 							return [...old, newChat];
 						}
@@ -269,7 +298,15 @@ function App() {
 						queryClient.setQueryData<InfiniteData<Message[]>>(['messages', chatId], (old) => {
 							if (old) {
 								return produce(old, (draftState) => {
-									draftState.pages[0].unshift({ id: messageId, text, sender, createdAt, chatId, senderId: sender.id });
+									draftState.pages[0].unshift({
+										id: messageId,
+										text,
+										sender,
+										createdAt,
+										chatId,
+										senderId: sender.id,
+										attachments,
+									});
 								});
 							}
 						});

@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { Prisma, PrismaClient } from '@prisma/client';
 import { Request, Response, Router } from 'express';
 
 const router = Router();
@@ -6,7 +6,9 @@ const router = Router();
 const prisma = new PrismaClient();
 
 router.post('/', async (req: Request, res: Response) => {
-	const { chatId, text, senderId } = req.body;
+	const { chatId, text, senderId, attachments } = req.body;
+
+	const json = attachments as Prisma.JsonArray;
 
 	try {
 		const message = await prisma.message.create({
@@ -14,6 +16,7 @@ router.post('/', async (req: Request, res: Response) => {
 				chatId,
 				text,
 				senderId,
+				attachments: json,
 			},
 			include: {
 				sender: true,

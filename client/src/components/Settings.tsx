@@ -159,7 +159,7 @@ const Settings = ({ closeSettings }: Props) => {
 	};
 
 	return (
-		<div className='flex fixed z-30 inset-0 justify-center items-center'>
+		<div className="fixed inset-0 z-30 flex items-center justify-center">
 			<div className="fixed inset-0 z-20 bg-gray-400/50" onClick={() => closeSettings()}></div>
 			<div className="bg-base-100 z-30 h-full w-full border p-10 shadow-xl sm:h-auto sm:max-w-xl sm:rounded-xl">
 				<div className="flex flex-row items-center justify-between">

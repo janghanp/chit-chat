@@ -72,7 +72,7 @@ const Explorer = () => {
 
 	return (
 		<div className="bg-base-100 flex h-full w-full items-center justify-center rounded-md p-3">
-			<div className="w-full max-w-[510px] h-full pt-56">
+			<div className="h-full w-full max-w-[510px] pt-56">
 				<div className="text-base-content mb-5 text-2xl font-bold">Find your community on chit-chat</div>
 				<input
 					onChange={changeHandler}

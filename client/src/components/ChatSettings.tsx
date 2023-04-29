@@ -58,7 +58,7 @@ const ChatSettings = ({ chatId, currentUserId, setIsOpen }: Props) => {
 		return () => {
 			document.removeEventListener('keydown', handleKeydown);
 		};
-	}, []);
+	}, [setIsOpen]);
 
 	const changeFileHandler = (event: ChangeEvent<HTMLInputElement>) => {
 		const file = event.target.files![0];

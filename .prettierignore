@@ -1,2 +1,3 @@
 client/dist
+cypress/fixtures
 server/dist

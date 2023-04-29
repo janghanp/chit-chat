@@ -1,5 +1,4 @@
 import { Fragment, useEffect, useState } from 'react';
-import { createPortal } from 'react-dom';
 import { HiX } from 'react-icons/hi';
 import { HiBell } from 'react-icons/hi2';
 import { SyncLoader } from 'react-spinners';

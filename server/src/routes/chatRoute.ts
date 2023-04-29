@@ -534,4 +534,44 @@ router.patch('/read', async (req: Request, res: Response) => {
 	}
 });
 
+router.post('/:chatId/attachments', uploader.single('file'), async (req: Request, res: Response) => {
+	const { chatId } = req.params;
+
+	if (!req.file) {
+		return res.status(500).json({ message: 'Something went wrong, please try again...' });
+	}
+
+	try {
+		// Upload an image to cloudinary.
+		const upload = await cloudinary.v2.uploader.upload(req.file.path, { folder: `/chit-chat/chat/${chatId}` });
+
+		const attachment = {
+			public_id: upload.public_id,
+			secure_url: upload.secure_url,
+		};
+
+		return res.status(200).json(attachment);
+	} catch (error) {
+		console.log(error);
+
+		return res.status(500).json({ message: 'Something went wrong, please try again...' });
+	}
+});
+
+router.delete('/:chatId/attachments', async (req: Request, res: Response) => {
+	const { public_id } = req.body;
+
+	try {
+		if (public_id) {
+			const result = await cloudinary.v2.uploader.destroy(public_id);
+
+			return res.status(204).json(result);
+		}
+	} catch (error) {
+		console.log(error);
+
+		return res.status(500).json({ message: 'Something went wrong, please try again...' });
+	}
+});
+
 export default router;

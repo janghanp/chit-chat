@@ -27,7 +27,7 @@ const Friends = () => {
 					<SyncLoader margin={10} color="#394E6A" size={10} />
 				</div>
 			) : (
-				<div className="pt-20 h-full w-full max-w-2xl">
+				<div className="h-full w-full max-w-2xl pt-20">
 					<AddFriendInput />
 					<div className="text-base-content text-2xl font-bold">Friends list</div>
 					<div className="w-full p-5">

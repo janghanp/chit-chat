@@ -183,7 +183,7 @@ const ChatRoom = ({ chatRoom, setIsSidebarOpen }: Props) => {
 						<div className="max-w-[210px] overflow-x-hidden text-ellipsis text-sm font-normal">
 							{hasMessage && (
 								<span>
-									{chatRoom.messages![0].sender.username}: {chatRoom.messages![0].text}
+									{chatRoom.messages![0].sender.username}: {chatRoom.messages![0].text || 'image'}
 								</span>
 							)}
 						</div>
