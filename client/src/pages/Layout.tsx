@@ -11,6 +11,7 @@ const Layout = () => {
 			<div className="w-full flex-1 rounded-md border shadow-md">
 				<Outlet />
 			</div>
+			<div id="chat-member-list"></div>
 		</div>
 	);
 };

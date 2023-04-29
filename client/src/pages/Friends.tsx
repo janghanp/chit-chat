@@ -27,10 +27,10 @@ const Friends = () => {
 					<SyncLoader margin={10} color="#394E6A" size={10} />
 				</div>
 			) : (
-				<div className="mt-20 h-full w-full max-w-2xl">
+				<div className="pt-20 h-full w-full max-w-2xl">
 					<AddFriendInput />
 					<div className="text-base-content text-2xl font-bold">Friends list</div>
-					<div className="h-full w-full p-5">
+					<div className="w-full p-5">
 						<div className="w-full">
 							{data &&
 								data.map((friend: FriendType) => {

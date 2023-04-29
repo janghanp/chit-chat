@@ -5,15 +5,14 @@ import produce from 'immer';
 
 import MemberList from '../components/MemberList';
 import ChatBody from '../components/ChatBody';
-import Header from '../components/Header';
 import MessageInputBox from '../components/MessageInputBox';
 import { socket } from '../socket';
 import useUser from '../hooks/useUser';
 import useChat from '../hooks/useChat';
 import useFriends from '../hooks/useFriends';
 import { Chat as ChatType } from '../types';
-import { HiUserGroup, HiOutlineDotsCircleHorizontal } from 'react-icons/hi';
 import ChatHeader from '../components/ChatHeader';
+import { createPortal } from 'react-dom';
 
 const Chat = () => {
 	const { chatId } = useParams();
@@ -68,23 +67,26 @@ const Chat = () => {
 	}
 
 	return (
-		<div className="flex h-full w-full flex-col justify-between gap-y-3 p-3 bg-base-100 rounded-md">
+		<div className="bg-base-100 flex h-full w-full flex-col justify-between gap-y-3 rounded-md p-3">
 			<ChatHeader
 				chatId={currentChat.chat.id}
 				isOwner={currentUser!.id === currentChat.chat.ownerId}
 				currentChatName={currentChat.chat.name}
 				setIsOpenMemberList={setIsOpenMemberList}
 			/>
-			<div className="flex-1 rounded-md p-3 relative shadow-md border overflow-y-auto">
+			<div className="relative flex-1 overflow-y-auto rounded-md border p-3 shadow-md">
 				<ChatBody />
 			</div>
 			<MessageInputBox currentChat={currentChat} currentUser={currentUser!} />
-			{/* <MemberList
-				isOpenMemberList={isOpenMemberList}
-				setIsOpenMemberList={setIsOpenMemberList}
-				chatId={chatId as string}
-				chatOwnerId={currentChat.chat.ownerId}
-			/> */}
+			{createPortal(
+				<MemberList
+					isOpenMemberList={isOpenMemberList}
+					setIsOpenMemberList={setIsOpenMemberList}
+					chatId={chatId as string}
+					chatOwnerId={currentChat.chat.ownerId}
+				/>,
+				document.getElementById('chat-member-list')!
+			)}
 		</div>
 	);
 };

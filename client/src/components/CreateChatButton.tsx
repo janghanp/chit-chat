@@ -131,7 +131,7 @@ const CreateChatButton = ({ currentUserId, closeSidebar }: Props) => {
 										<div className="absolute inset-0 z-30 cursor-not-allowed rounded-lg bg-gray-200 opacity-50"></div>
 									)}
 									<button
-										className="btn-sm btn-circle btn absolute right-0"
+										className="btn-sm btn-outline btn-circle btn absolute right-0"
 										onClick={() => {
 											clearStates();
 											setIsOpen(false);

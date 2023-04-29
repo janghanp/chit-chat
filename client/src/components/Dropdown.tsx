@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Dispatch, SetStateAction, useState } from 'react';
-import { HiOutlineChevronDown, HiOutlineX, HiOutlineTrash, HiOutlineArrowCircleRight } from 'react-icons/hi';
+import { HiOutlineTrash, HiOutlineArrowCircleRight } from 'react-icons/hi';
 import { HiOutlineWrenchScrewdriver } from 'react-icons/hi2';
 
 import { deleteChat, leaveChat } from '../api/chat';
