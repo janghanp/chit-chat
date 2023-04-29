@@ -21,16 +21,16 @@ const Friends = () => {
 	}
 
 	return (
-		<div className="flex h-screen w-full flex-col items-center justify-start p-5 sm:pl-[345px]">
+		<div className="bg-base-100 flex h-full w-full flex-col items-center justify-center rounded-md p-3">
 			{isLoading ? (
 				<div className="my-auto">
 					<SyncLoader margin={10} color="#394E6A" size={10} />
 				</div>
 			) : (
-				<>
+				<div className="mt-20 h-full w-full max-w-2xl">
 					<AddFriendInput />
 					<div className="text-base-content text-2xl font-bold">Friends list</div>
-					<div className="h-screen w-full max-w-3xl p-5">
+					<div className="h-full w-full p-5">
 						<div className="w-full">
 							{data &&
 								data.map((friend: FriendType) => {
@@ -42,7 +42,7 @@ const Friends = () => {
 								})}
 						</div>
 					</div>
-				</>
+				</div>
 			)}
 		</div>
 	);

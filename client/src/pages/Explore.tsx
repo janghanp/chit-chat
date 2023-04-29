@@ -71,52 +71,54 @@ const Explorer = () => {
 	};
 
 	return (
-		<div className="flex h-screen w-full flex-col items-center justify-start p-5 sm:pl-[345px]">
-			<div className="text-base-content mb-5 mt-10 text-xl font-bold">Find your community on chit-chat</div>
-			<input
-				onChange={changeHandler}
-				type="text"
-				className="input-bordered input my-3 w-full max-w-[510px] shadow-md"
-				placeholder="Explore chats"
-			/>
-			{filteredChats && filteredChats.length > 0 && !isLoading && (
-				<ul className="menu bg-base-100 mt-3 w-full max-w-lg rounded-lg border p-2 shadow-md">
-					{filteredChats?.map((chat) => {
-						return (
-							<li key={chat.id} onClick={() => joinRoomHandler(chat.name!)}>
-								<div className="flex flex-row items-center justify-between">
-									<span>{chat.name}</span>
-									<div className="avatar-group -space-x-3">
-										{chat.users.slice(0, 4).map((user) => {
-											return (
-												<div key={user.id} className="avatar border-0">
-													<div className="w-8 rounded-full border">
-														<img src={user.avatar || defaultAvatar} alt={user.username} width={20} height={20} />
+		<div className="bg-base-100 flex h-full w-full items-center justify-center rounded-md p-3">
+			<div className="mt-56 h-full w-full max-w-[510px]">
+				<div className="text-base-content mb-5 text-2xl font-bold">Find your community on chit-chat</div>
+				<input
+					onChange={changeHandler}
+					type="text"
+					className="input-bordered input my-3 w-full max-w-[510px] shadow-md"
+					placeholder="Explore chats"
+				/>
+				{filteredChats && filteredChats.length > 0 && !isLoading && (
+					<ul className="menu bg-base-100 mt-3 w-full max-w-lg rounded-lg border p-2 shadow-md">
+						{filteredChats?.map((chat) => {
+							return (
+								<li key={chat.id} onClick={() => joinRoomHandler(chat.name!)}>
+									<div className="flex flex-row items-center justify-between">
+										<span>{chat.name}</span>
+										<div className="avatar-group -space-x-3">
+											{chat.users.slice(0, 4).map((user) => {
+												return (
+													<div key={user.id} className="avatar border-0">
+														<div className="w-8 rounded-full border">
+															<img src={user.avatar || defaultAvatar} alt={user.username} width={20} height={20} />
+														</div>
+													</div>
+												);
+											})}
+											{chat.users.length > 4 && (
+												<div className="placeholder avatar border-0">
+													<div className="bg-neutral-focus text-neutral-content w-8 text-xs font-semibold">
+														<span>+{chat.users.length - 4}</span>
 													</div>
 												</div>
-											);
-										})}
-										{chat.users.length > 4 && (
-											<div className="placeholder avatar border-0">
-												<div className="bg-neutral-focus text-neutral-content w-8 text-xs font-semibold">
-													<span>+{chat.users.length - 4}</span>
-												</div>
-											</div>
-										)}
+											)}
+										</div>
 									</div>
-								</div>
-							</li>
-						);
-					})}
-				</ul>
-			)}
-			{isLoading && (
-				<ul className="menu bg-base-100 mt-3 w-full max-w-lg rounded-lg border p-2 shadow-md">
-					<div className="text-center">
-						<SyncLoader size={10} color="#394E6A" margin={7} />
-					</div>
-				</ul>
-			)}
+								</li>
+							);
+						})}
+					</ul>
+				)}
+				{isLoading && (
+					<ul className="menu bg-base-100 mt-3 w-full max-w-lg rounded-lg border p-2 shadow-md">
+						<div className="text-center">
+							<SyncLoader size={10} color="#394E6A" margin={7} />
+						</div>
+					</ul>
+				)}
+			</div>
 		</div>
 	);
 };
