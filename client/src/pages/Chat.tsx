@@ -68,14 +68,14 @@ const Chat = () => {
 	}
 
 	return (
-		<div className="flex h-full w-full flex-col justify-between gap-y-3 p-3">
+		<div className="flex h-full w-full flex-col justify-between gap-y-3 p-3 bg-base-100 rounded-md">
 			<ChatHeader
 				chatId={currentChat.chat.id}
 				isOwner={currentUser!.id === currentChat.chat.ownerId}
 				currentChatName={currentChat.chat.name}
 				setIsOpenMemberList={setIsOpenMemberList}
 			/>
-			<div className="flex-1 overflow-y-auto rounded-md border p-3 shadow-md">
+			<div className="flex-1 rounded-md p-3 relative shadow-md border overflow-y-auto">
 				<ChatBody />
 			</div>
 			<MessageInputBox currentChat={currentChat} currentUser={currentUser!} />

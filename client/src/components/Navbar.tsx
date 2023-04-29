@@ -11,7 +11,7 @@ const Navbar = () => {
 	};
 
 	return (
-		<div className="flex h-full max-w-4xl flex-col items-center justify-center gap-y-10 rounded-md border p-3 shadow-md">
+		<div className="flex h-full max-w-4xl flex-col items-center justify-center gap-y-10 rounded-md border p-3 shadow-md bg-base-100">
 			<Inbox />
 			<FriendsButton closeSidebar={closeSidebar} />
 			<ExplorerButton closeSidebar={closeSidebar} />

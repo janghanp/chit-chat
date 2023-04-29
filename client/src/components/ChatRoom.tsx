@@ -124,8 +124,8 @@ const ChatRoom = ({ chatRoom, setIsSidebarOpen }: Props) => {
 			onClick={clickHandler}
 			data-cy="chatRoom"
 		>
-			<th className="w-full rounded-lg p-3 shadow-inherit border-none">
-				<div className="flex items-center justify-start gap-x-3">
+			<th className="w-full rounded-lg border-none p-3 shadow-inherit">
+				<div className="flex w-full items-center justify-start gap-x-3">
 					<div className="indicator">
 						<span
 							className={`badge-primary badge badge-xs indicator-item right-1 top-1 ${
@@ -161,7 +161,7 @@ const ChatRoom = ({ chatRoom, setIsSidebarOpen }: Props) => {
 							</>
 						)}
 					</div>
-					<div className="flex w-full max-w-[244px] flex-col  overflow-hidden">
+					<div className="flex w-full flex-col">
 						<span className="flex w-full items-center justify-between font-semibold">
 							<span>{chatRoom.name || receiverUsername}</span>
 							<span>
@@ -180,11 +180,13 @@ const ChatRoom = ({ chatRoom, setIsSidebarOpen }: Props) => {
 								</time>
 							</span>
 						</span>
-						{hasMessage && (
-							<span className="overflow-hidden text-ellipsis text-sm font-normal">
-								{chatRoom.messages![0].sender.username}: {chatRoom.messages![0].text}
-							</span>
-						)}
+						<div className="max-w-[210px] overflow-x-hidden text-ellipsis text-sm font-normal">
+							{hasMessage && (
+								<span>
+									{chatRoom.messages![0].sender.username}: {chatRoom.messages![0].text}
+								</span>
+							)}
+						</div>
 					</div>
 				</div>
 			</th>
