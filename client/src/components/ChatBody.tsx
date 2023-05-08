@@ -1,12 +1,11 @@
 import { Fragment, useEffect } from 'react';
-import { format } from 'date-fns';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { useParams } from 'react-router';
 import { useInView } from 'react-intersection-observer';
 
-import defaultImageUrl from '/default.jpg';
 import { fetchMessages } from '../api/message';
 import useUser from '../hooks/useUser';
+import ChatMessage from './ChatMessage';
 
 const ChatBody = () => {
 	const { chatId } = useParams();
@@ -47,47 +46,15 @@ const ChatBody = () => {
 									<Fragment key={indexP}>
 										{page.map((message, index) => {
 											return (
-												<div
-													ref={indexP === data.pages.length - 1 && index === page.length - 1 ? ref : undefined}
-													key={message.id}
-													className={`chat relative ${
-														message.sender.id === currentUser!.id ? 'chat-end' : 'chat-start'
-													}`}
-												>
-													<div className="chat-image avatar">
-														<div className="w-10 rounded-full border">
-															<img src={message.sender.avatar || defaultImageUrl} alt={message.sender.username} />
-														</div>
-													</div>
-													<div className="chat-header text-sm">
-														{message.sender.username}
-														<time className="ml-2 text-xs opacity-50">
-															{format(new Date(message.createdAt), 'PP p')}
-														</time>
-													</div>
-													{message.text ? (
-														<div className={`chat-bubble break-all ${message.id === 'temp' && 'text-gray-500'}`}>
-															{message.text}
-														</div>
-													) : (
-														<></>
-														// <div className=""></div>
-													)}
-													{message.attachments.length > 0 && (
-														<div className="chat-end mt-3 flex flex-row-reverse flex-wrap gap-3">
-															{message.attachments.map((attachment) => {
-																return (
-																	<div
-																		key={attachment.public_id}
-																		className="bg-base-100 right-0 h-56 w-56 rounded-md border p-3 shadow-md"
-																	>
-																		<img src={attachment.secure_url} alt="attachment iamge" width={250} height={250} />
-																	</div>
-																);
-															})}
-														</div>
-													)}
-												</div>
+												<Fragment key={message.id}>
+													<ChatMessage
+														message={message}
+														isOwner={message.sender.id === currentUser!.id}
+														firstElementRef={
+															indexP === data.pages.length - 1 && index === page.length - 1 ? ref : undefined
+														}
+													/>
+												</Fragment>
 											);
 										})}
 									</Fragment>
