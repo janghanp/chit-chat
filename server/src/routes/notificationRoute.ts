@@ -6,7 +6,12 @@ const prisma = new PrismaClient();
 const router = Router();
 
 router.post('/', async (req: Request, res: Response) => {
-	const { message, receiverId, senderId }: { receiverId: string; message: string; senderId: string } = req.body;
+	const {
+		message,
+		receiverId,
+		senderId,
+		link,
+	}: { receiverId: string; message: string; senderId: string; link?: string } = req.body;
 
 	try {
 		const existingNotification = await prisma.notification.findFirst({
@@ -19,9 +24,18 @@ router.post('/', async (req: Request, res: Response) => {
 						receiverId,
 					},
 					{
-						message: {
-							contains: 'sent',
-						},
+						OR: [
+							{
+								message: {
+									contains: 'sent',
+								},
+							},
+							{
+								message: {
+									contains: 'invited',
+								},
+							},
+						],
 					},
 				],
 			},
@@ -34,6 +48,7 @@ router.post('/', async (req: Request, res: Response) => {
 		const notification = await prisma.notification.create({
 			data: {
 				message,
+				link,
 				receiver: {
 					connect: {
 						id: receiverId,

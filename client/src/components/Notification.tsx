@@ -1,6 +1,7 @@
-import { memo } from 'react';
+import { Dispatch, SetStateAction, memo } from 'react';
 import { formatDistance, subDays } from 'date-fns';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
 
 import { Friend, Notification as NotificationType } from '../types';
 import defaultAvatar from '/default.jpg';
@@ -12,10 +13,12 @@ import { socket } from '../socket';
 
 interface Props {
 	notification: NotificationType;
+	setIsOepn: Dispatch<SetStateAction<boolean>>;
 }
 
-const Notification = ({ notification }: Props) => {
+const Notification = ({ notification, setIsOepn }: Props) => {
 	const queryClient = useQueryClient();
+	const navigate = useNavigate();
 	const { data: currentUser } = useUser();
 	const { mutate: createNotificationMutate } = useCreateNotification();
 	const { mutate: addFriendMutate } = useMutation({
@@ -113,7 +116,15 @@ const Notification = ({ notification }: Props) => {
 		});
 	};
 
-	const ignoreFriendRequest = () => {
+	const joinChat = () => {
+		if (notification.link) {
+			navigate(notification.link);
+			deleteNotificationMutate({ notificationId: notification.id });
+			setIsOepn(false);
+		}
+	};
+
+	const ignoreRequest = () => {
 		deleteNotificationMutate({ notificationId: notification.id });
 	};
 
@@ -149,7 +160,17 @@ const Notification = ({ notification }: Props) => {
 						<button className="btn-success btn-sm btn normal-case" onClick={acceptFriendRequest}>
 							Accept
 						</button>
-						<button className="btn-outline btn-ghost btn-sm btn normal-case" onClick={ignoreFriendRequest}>
+						<button className="btn-outline btn-ghost btn-sm btn normal-case" onClick={ignoreRequest}>
+							Ignore
+						</button>
+					</div>
+				)}
+				{notification.message.includes('invited') && (
+					<div className="flex gap-x-2">
+						<button className="btn-success btn-sm btn normal-case" onClick={joinChat}>
+							Join
+						</button>
+						<button className="btn-outline btn-ghost btn-sm btn normal-case" onClick={ignoreRequest}>
 							Ignore
 						</button>
 					</div>

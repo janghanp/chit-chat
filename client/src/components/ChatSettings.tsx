@@ -9,10 +9,10 @@ import useChat from '../hooks/useChat';
 interface Props {
 	chatId: string;
 	currentUserId: string;
-	setIsOpen: Dispatch<SetStateAction<boolean>>;
+	setIsSettingOpen: Dispatch<SetStateAction<boolean>>;
 }
 
-const ChatSettings = ({ chatId, currentUserId, setIsOpen }: Props) => {
+const ChatSettings = ({ chatId, currentUserId, setIsSettingOpen }: Props) => {
 	const { data } = useChat(chatId, currentUserId);
 	const [roomName, setRoomName] = useState<string>('');
 	const [error, setError] = useState<string>('');
@@ -49,7 +49,7 @@ const ChatSettings = ({ chatId, currentUserId, setIsOpen }: Props) => {
 
 			if (key === 'Escape') {
 				event.preventDefault();
-				setIsOpen(false);
+				setIsSettingOpen(false);
 			}
 		}
 
@@ -58,7 +58,7 @@ const ChatSettings = ({ chatId, currentUserId, setIsOpen }: Props) => {
 		return () => {
 			document.removeEventListener('keydown', handleKeydown);
 		};
-	}, [setIsOpen]);
+	}, [setIsSettingOpen]);
 
 	const changeFileHandler = (event: ChangeEvent<HTMLInputElement>) => {
 		const file = event.target.files![0];
@@ -112,7 +112,7 @@ const ChatSettings = ({ chatId, currentUserId, setIsOpen }: Props) => {
 	};
 
 	const closeModal = () => {
-		setIsOpen(false);
+		setIsSettingOpen(false);
 	};
 
 	return (

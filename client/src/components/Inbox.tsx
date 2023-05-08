@@ -147,7 +147,7 @@ const Inbox = () => {
 												{notificaionts.map((notification) => {
 													return (
 														<Fragment key={notification.id}>
-															<Notification notification={notification} />
+															<Notification notification={notification} setIsOepn={setIsOpen} />
 														</Fragment>
 													);
 												})}

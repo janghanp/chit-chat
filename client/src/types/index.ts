@@ -45,6 +45,7 @@ export interface Message {
 export interface Notification {
 	id: string;
 	message: string;
+	link?: string;
 	read: boolean;
 	receiverId: string;
 	senderId: string;

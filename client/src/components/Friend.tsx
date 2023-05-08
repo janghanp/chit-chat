@@ -1,20 +1,25 @@
 import { useState } from 'react';
 import { HiEllipsisVertical, HiChatBubbleLeft } from 'react-icons/hi2';
+import { useParams } from 'react-router-dom';
 
 import defaultAvatar from '/default.jpg';
 import useCreatePrivateChat from '../hooks/useCreatePrivateChat';
 import useUser from '../hooks/useUser';
 import useRemoveFriend from '../hooks/useRemoveFriend';
+import useCreateNotification from '../hooks/useCreateNotification';
 
 interface Props {
 	friend: any;
+	isInviting?: boolean;
 }
 
-const Friend = ({ friend }: Props) => {
+const Friend = ({ friend, isInviting }: Props) => {
+	const { chatId } = useParams();
 	const { data: currentUser } = useUser();
 	const { mutate: createPrivateChatMutate } = useCreatePrivateChat();
 	const { mutate: removeFriendMutate } = useRemoveFriend(friend);
 	const [isOpen, setIsOpen] = useState<boolean>(false);
+	const { mutate: createNotificationMutate } = useCreateNotification();
 
 	const clickHandler = () => {
 		createPrivateChatMutate({ senderId: currentUser!.id, receiverId: friend.id });
@@ -22,6 +27,15 @@ const Friend = ({ friend }: Props) => {
 
 	const removeFriendHandler = () => {
 		removeFriendMutate({ senderId: currentUser!.id, receiverId: friend.id });
+	};
+
+	const inviteFriend = () => {
+		createNotificationMutate({
+			receiverId: friend.id,
+			message: `has invited you to join a chat`,
+			senderId: currentUser!.id,
+			link: `/chat/${chatId}`,
+		});
 	};
 
 	return (
@@ -42,28 +56,37 @@ const Friend = ({ friend }: Props) => {
 				</div>
 				<span className="ml-2 font-bold">{friend.username}</span>
 			</div>
-			<div className="flex gap-x-3">
-				<div className="tooltip tooltip-top " data-tip="Message">
-					<button className="btn-outline btn-ghost btn-sm btn-circle btn px-1.5" onClick={clickHandler}>
-						<HiChatBubbleLeft className="text-xl" />
+
+			{isInviting ? (
+				<div>
+					<button className="btn btn-sm btn-ghost btn-outline normal-case" onClick={inviteFriend}>
+						Invite
 					</button>
 				</div>
-				<div className="tooltip tooltip-top" data-tip="More">
-					<button className="btn-outline btn-ghost btn-sm btn-circle btn px-1.5" onClick={() => setIsOpen(!isOpen)}>
-						<HiEllipsisVertical className="text-xl" />
-					</button>
-					{isOpen && (
-						<>
-							<ul className="menu menu-compact bg-base-100 absolute right-0 top-10 z-40 w-52 rounded-lg border p-2 shadow">
-								<li onClick={removeFriendHandler}>
-									<span>Remove Friend</span>
-								</li>
-							</ul>
-							<div onClick={() => setIsOpen(false)} className="fixed inset-0"></div>
-						</>
-					)}
+			) : (
+				<div className="flex gap-x-3">
+					<div className="tooltip tooltip-top " data-tip="Message">
+						<button className="btn-outline btn-ghost btn-sm btn-circle btn px-1.5" onClick={clickHandler}>
+							<HiChatBubbleLeft className="text-xl" />
+						</button>
+					</div>
+					<div className="tooltip tooltip-top" data-tip="More">
+						<button className="btn-outline btn-ghost btn-sm btn-circle btn px-1.5" onClick={() => setIsOpen(!isOpen)}>
+							<HiEllipsisVertical className="text-xl" />
+						</button>
+						{isOpen && (
+							<>
+								<ul className="menu menu-compact bg-base-100 absolute right-0 top-10 z-40 w-52 rounded-lg border p-2 shadow">
+									<li onClick={removeFriendHandler}>
+										<span>Remove Friend</span>
+									</li>
+								</ul>
+								<div onClick={() => setIsOpen(false)} className="fixed inset-0"></div>
+							</>
+						)}
+					</div>
 				</div>
-			</div>
+			)}
 		</div>
 	);
 };

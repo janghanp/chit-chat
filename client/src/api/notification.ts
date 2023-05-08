@@ -2,13 +2,14 @@ import axios from 'axios';
 
 import { User, Notification } from '../types';
 
-export const createNotification = async (message: string, receiverId: string, senderId: string) => {
+export const createNotification = async (message: string, receiverId: string, senderId: string, link?: string) => {
 	const { data } = await axios.post<User>(
 		'/notification',
 		{
 			message,
 			receiverId,
 			senderId,
+			link,
 		},
 		{ withCredentials: true }
 	);

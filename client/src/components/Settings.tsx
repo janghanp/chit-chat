@@ -172,7 +172,6 @@ const Settings = ({ closeSettings }: Props) => {
 					</div>
 				</div>
 				<Toaster />
-
 				<div className="mt-14 w-full text-center">
 					<div className="avatar relative hover:cursor-pointer" onClick={() => fileInputRef.current?.click()}>
 						<div className="ring-base-content w-20 rounded-full ring-2">

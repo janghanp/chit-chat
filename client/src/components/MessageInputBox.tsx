@@ -66,6 +66,9 @@ const MessageInputBox = ({ currentChat, currentUser }: Props) => {
 		onSuccess: (data, variables) => {
 			const { attachments } = variables;
 
+			const chatBody = document.getElementById('chat-body');
+			chatBody!.scrollTo(0, chatBody!.scrollHeight);
+
 			// Group chat message
 			if (currentChat!.chat.type === 'GROUP') {
 				socket.emit('send_message', {

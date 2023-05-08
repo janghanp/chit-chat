@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Dispatch, SetStateAction, useState } from 'react';
 import { HiOutlineTrash, HiOutlineArrowCircleRight } from 'react-icons/hi';
-import { HiOutlineWrenchScrewdriver } from 'react-icons/hi2';
+import { HiOutlineWrenchScrewdriver, HiOutlineEnvelope } from 'react-icons/hi2';
 
 import { deleteChat, leaveChat } from '../api/chat';
 import { socket } from '../socket';
@@ -9,6 +9,7 @@ import { useNavigate } from 'react-router';
 import useUser from '../hooks/useUser';
 import ChatSettings from './ChatSettings';
 import { Chat } from '../types';
+import InviteFriends from './InviteFriends';
 
 interface Props {
 	isDropDownOpen: boolean;
@@ -21,7 +22,8 @@ const Dropdown = ({ isDropDownOpen, setIsDropDownOpen, isOwner, chatId }: Props)
 	const queryClient = useQueryClient();
 	const navigate = useNavigate();
 	const { data: currentUser } = useUser();
-	const [isOpen, setIsOpen] = useState<boolean>(false);
+	const [isSettingOpen, setIsSettingOpen] = useState<boolean>(false);
+	const [isInviteOpen, setIsInviteOpen] = useState<boolean>(false);
 	const { mutate: leaveChatMutate } = useMutation({
 		mutationKey: ['leaveChat', chatId],
 		mutationFn: ({ chatId, userId }: { chatId: string; userId: string }) => {
@@ -92,17 +94,30 @@ const Dropdown = ({ isDropDownOpen, setIsDropDownOpen, isOwner, chatId }: Props)
 							className="menu rounded-box menu-compact bg-base-100 absolute right-0 z-30 w-52 border p-2 shadow-md"
 						>
 							{isOwner && (
-								<li
-									onClick={() => {
-										setIsDropDownOpen(false);
-										setIsOpen(true);
-									}}
-								>
-									<div className="flex w-full items-center justify-between">
-										<span>Settings</span>
-										<HiOutlineWrenchScrewdriver />
-									</div>
-								</li>
+								<>
+									<li
+										onClick={() => {
+											setIsDropDownOpen(false);
+											setIsInviteOpen(true);
+										}}
+									>
+										<div className="flex w-full items-center justify-between">
+											<span>Invite friends</span>
+											<HiOutlineEnvelope />
+										</div>
+									</li>
+									<li
+										onClick={() => {
+											setIsDropDownOpen(false);
+											setIsSettingOpen(true);
+										}}
+									>
+										<div className="flex w-full items-center justify-between">
+											<span>Settings</span>
+											<HiOutlineWrenchScrewdriver />
+										</div>
+									</li>
+								</>
 							)}
 							<li onClick={isOwner ? deleteChatHandler : leaveChatHandler}>
 								{isOwner ? (
@@ -122,7 +137,12 @@ const Dropdown = ({ isDropDownOpen, setIsDropDownOpen, isOwner, chatId }: Props)
 					</>
 				)}
 			</div>
-			{isOwner && isOpen && <ChatSettings chatId={chatId} currentUserId={currentUser!.id} setIsOpen={setIsOpen} />}
+
+			{isOwner && isSettingOpen && (
+				<ChatSettings chatId={chatId} currentUserId={currentUser!.id} setIsSettingOpen={setIsSettingOpen} />
+			)}
+
+			{isOwner && isInviteOpen && <InviteFriends chatId={chatId} setIsInviteOpen={setIsInviteOpen} />}
 		</>
 	);
 };
