@@ -30,11 +30,18 @@ const Dropdown = ({ isDropDownOpen, setIsDropDownOpen, isOwner, chatId }: Props)
 			return leaveChat(chatId, userId);
 		},
 		onSuccess: () => {
-			queryClient.setQueryData<Chat[]>(['chatRooms'], (old) => {
+			queryClient.setQueryData<Chat[]>(['groupChatRooms'], (old) => {
 				if (old) {
 					return old.filter((el) => el.id !== chatId);
 				}
 			});
+
+			queryClient.setQueryData<Chat[]>(['privateChatRooms'], (old) => {
+				if (old) {
+					return old.filter((el) => el.id !== chatId);
+				}
+			});
+
 			queryClient.removeQueries({ queryKey: ['chat', chatId], exact: true });
 			queryClient.removeQueries({ queryKey: ['members', chatId], exact: true });
 			queryClient.removeQueries({ queryKey: ['messages', chatId], exact: true });
@@ -53,7 +60,13 @@ const Dropdown = ({ isDropDownOpen, setIsDropDownOpen, isOwner, chatId }: Props)
 			return deleteChat(chatId);
 		},
 		onSuccess: () => {
-			queryClient.setQueriesData<Chat[]>(['chatRooms', currentUser!.id], (old) => {
+			queryClient.setQueriesData<Chat[]>(['groupChatRooms', currentUser!.id], (old) => {
+				if (old) {
+					return old.filter((el) => el.id !== chatId);
+				}
+			});
+
+			queryClient.setQueriesData<Chat[]>(['privateChatRooms', currentUser!.id], (old) => {
 				if (old) {
 					return old.filter((el) => el.id !== chatId);
 				}

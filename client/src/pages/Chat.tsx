@@ -40,12 +40,13 @@ const Chat = () => {
 		}
 	}, [currentChat, chatId, currentUser, queryClient]);
 
+	//Add the chat that the current user has just joined to, if the user has no the group chat room on the sidebar.
 	useEffect(() => {
 		if (currentChat && isSuccess) {
-			queryClient.setQueryData<ChatType[]>(['chatRooms'], (old) => {
+			queryClient.setQueryData<ChatType[]>(['groupChatRooms'], (old) => {
 				if (old) {
 					return produce(old, (draftState) => {
-						if (!old.map((el: ChatType) => el.id).includes(currentChat.chat.id)) {
+						if (!old.map((el: ChatType) => el.id).includes(currentChat.chat.id) && currentChat.chat.type === 'GROUP') {
 							draftState.push({ ...currentChat.chat, messages: currentChat.chat.messages });
 						}
 					});

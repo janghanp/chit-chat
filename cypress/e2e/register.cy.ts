@@ -85,7 +85,7 @@ describe('register', () => {
 
 	it('allow users to register', () => {
 		cy.intercept('POST', '/api/auth/register').as('register');
-		cy.intercept('GET', '/api/chat/rooms*').as('chatRooms');
+		cy.intercept('GET', '/api/chat/group*').as('groupChatRooms');
 		cy.intercept('GET', '/api/user/friends*').as('friends');
 
 		const username = faker.name.firstName();
@@ -101,7 +101,7 @@ describe('register', () => {
 
 		cy.wait('@register').its('response.statusCode').should('eq', 200);
 
-		cy.wait('@chatRooms');
+		cy.wait('@groupChatRooms');
 		cy.dataCy('chatRoom').should('not.exist');
 
 		cy.dataCy('friend-button').click();

@@ -51,7 +51,7 @@ function App() {
 				});
 			}
 
-			queryClient.setQueryData<ChatType[]>(['chatRooms'], (old) => {
+			queryClient.setQueryData<ChatType[]>(['privateChatRooms'], (old) => {
 				if (old) {
 					return produce(old, (draftState) => {
 						draftState.forEach((chat) => {
@@ -95,7 +95,7 @@ function App() {
 				});
 			}
 
-			queryClient.setQueryData<ChatType[]>(['chatRooms'], (old) => {
+			queryClient.setQueryData<ChatType[]>(['privateChatRooms'], (old) => {
 				if (old) {
 					return produce(old, (draftState) => {
 						draftState.forEach((chat) => {
@@ -161,22 +161,42 @@ function App() {
 
 			const currentChatId = window.location.href.split('/').pop();
 
-			queryClient.setQueryData<ChatType[]>(['chatRooms'], (old) => {
-				if (old) {
-					return produce(old, (draftState) => {
-						draftState.forEach((chat) => {
-							if (chat.id === chatId) {
-								if (!text && attachments.length > 0) {
-									chat.messages = [{ id: messageId, text: 'image', sender, createdAt, senderId: sender.id, chatId }];
-								} else {
-									chat.messages = [{ id: messageId, text, sender, createdAt, senderId: sender.id, chatId }];
+			// Update a preview message on the sidebar.
+			if (isPrivate) {
+				queryClient.setQueryData<ChatType[]>(['privateChatRooms'], (old) => {
+					if (old) {
+						return produce(old, (draftState) => {
+							draftState.forEach((chat) => {
+								if (chat.id === chatId) {
+									if (!text && attachments.length > 0) {
+										chat.messages = [{ id: messageId, text: 'image', sender, createdAt, senderId: sender.id, chatId }];
+									} else {
+										chat.messages = [{ id: messageId, text, sender, createdAt, senderId: sender.id, chatId }];
+									}
 								}
-							}
+							});
 						});
-					});
-				}
-			});
+					}
+				});
+			} else {
+				queryClient.setQueryData<ChatType[]>(['groupChatRooms'], (old) => {
+					if (old) {
+						return produce(old, (draftState) => {
+							draftState.forEach((chat) => {
+								if (chat.id === chatId) {
+									if (!text && attachments.length > 0) {
+										chat.messages = [{ id: messageId, text: 'image', sender, createdAt, senderId: sender.id, chatId }];
+									} else {
+										chat.messages = [{ id: messageId, text, sender, createdAt, senderId: sender.id, chatId }];
+									}
+								}
+							});
+						});
+					}
+				});
+			}
 
+			// Update a message in the chat.
 			if (currentChatId === chatId) {
 				const state = queryClient.getQueryState<User>(['currentUser']);
 
@@ -217,99 +237,165 @@ function App() {
 					});
 				}
 			} else {
-				const state = queryClient.getQueryState<ChatType[]>(['chatRooms']);
+				if (isPrivate) {
+					let isOnChatRoomList = false;
 
-				let isOnChatRoomList = false;
+					const privateChats = queryClient.getQueryState<ChatType[]>(['privateChatRooms']);
 
-				if (state && state.data) {
-					const chatRoomIds = state.data.map((chat) => {
-						return chat.id;
-					});
+					if (privateChats && privateChats.data) {
+						const privateChatIds = privateChats.data.map((privateChat) => {
+							return privateChat.id;
+						});
 
-					// Check the chat that needs to be updated on the chatroom list.
-					isOnChatRoomList = chatRoomIds.includes(chatId);
-				}
+						// Check the chat that needs to be updated on the chatroom list.
+						isOnChatRoomList = privateChatIds.includes(chatId);
+					}
 
-				// When there is no the chat that needs to be updated on the chatroom list.
-				if (!isOnChatRoomList) {
-					queryClient.setQueryData<ChatType[]>(['chatRooms'], (old) => {
-						if (old) {
-							let newChat!: ChatType;
-
-							if (isPrivate) {
-								newChat = {
+					if (!isOnChatRoomList) {
+						queryClient.setQueryData<ChatType[]>(['privateChatRooms'], (old) => {
+							if (old) {
+								const newChat: ChatType = {
 									id: chatId,
 									createdAt,
 									messages: [],
 									readBy: [],
 									type: 'PRIVATE',
 								};
-							}
 
-							if (!isPrivate) {
-								newChat = {
+								newChat.messages!.push({
+									id: messageId,
+									text,
+									sender,
+									createdAt,
+									chatId,
+									senderId: sender.id,
+									attachments,
+								});
+
+								return [...old, newChat];
+							}
+						});
+					}
+
+					if (isOnChatRoomList) {
+						const state = queryClient.getQueryState<ChatType>(['chat', chatId]);
+
+						const currentUser = queryClient.getQueryData<User>(['currentUser']);
+
+						// Show new message indicator
+						if (sender.id !== currentUser!.id) {
+							queryClient.setQueryData<ChatType[]>(['privateChatRooms'], (old) => {
+								if (old) {
+									return produce(old, (draftState) => {
+										draftState.forEach((chat) => {
+											if (chat.id === chatId) {
+												chat.readBy = chat.readBy.filter((userId) => userId !== currentUser!.id);
+											}
+										});
+									});
+								}
+							});
+						}
+
+						// When the chat has been fetched then update the messages of the chat, otherwise it doesn't have to be updated.
+						// It is going to fetch new messages.
+						if (state) {
+							queryClient.setQueryData<InfiniteData<Message[]>>(['messages', chatId], (old) => {
+								if (old) {
+									return produce(old, (draftState) => {
+										draftState.pages[0].unshift({
+											id: messageId,
+											text,
+											sender,
+											createdAt,
+											chatId,
+											senderId: sender.id,
+											attachments,
+										});
+									});
+								}
+							});
+						}
+					}
+				} else {
+					let isOnChatRoomList = false;
+
+					const groupChats = queryClient.getQueryState<ChatType[]>(['groupChatRooms']);
+
+					if (groupChats && groupChats.data) {
+						const groupChatIds = groupChats.data.map((groupChat) => {
+							return groupChat.id;
+						});
+
+						// Check the chat that needs to be updated on the chatroom list.
+						isOnChatRoomList = groupChatIds.includes(chatId);
+					}
+
+					if (!isOnChatRoomList) {
+						queryClient.setQueryData<ChatType[]>(['groupChatRooms'], (old) => {
+							if (old) {
+								const newChat: ChatType = {
 									id: chatId,
 									createdAt,
 									messages: [],
 									readBy: [],
 									type: 'GROUP',
 								};
-							}
 
-							newChat.messages!.push({
-								id: messageId,
-								text,
-								sender,
-								createdAt,
-								chatId,
-								senderId: sender.id,
-								attachments,
-							});
-
-							return [...old, newChat];
-						}
-					});
-				}
-
-				// When there is the chat that needs to be updated on the chatroom list.
-				if (isOnChatRoomList) {
-					const state = queryClient.getQueryState<ChatType>(['chat', chatId]);
-
-					const currentUser = queryClient.getQueryData<User>(['currentUser']);
-
-					// Show new message indicator
-					if (sender.id !== currentUser!.id) {
-						queryClient.setQueryData<ChatType[]>(['chatRooms'], (old) => {
-							if (old) {
-								return produce(old, (draftState) => {
-									draftState.forEach((chat) => {
-										if (chat.id === chatId) {
-											chat.readBy = chat.readBy.filter((userId) => userId !== currentUser!.id);
-										}
-									});
+								newChat.messages!.push({
+									id: messageId,
+									text,
+									sender,
+									createdAt,
+									chatId,
+									senderId: sender.id,
+									attachments,
 								});
+
+								return [...old, newChat];
 							}
 						});
 					}
 
-					// When the chat has been fetched then update the messages of the chat, otherwise it doesn't have to be updated.
-					// It is going to fetch new messages.
-					if (state) {
-						queryClient.setQueryData<InfiniteData<Message[]>>(['messages', chatId], (old) => {
-							if (old) {
-								return produce(old, (draftState) => {
-									draftState.pages[0].unshift({
-										id: messageId,
-										text,
-										sender,
-										createdAt,
-										chatId,
-										senderId: sender.id,
-										attachments,
+					if (isOnChatRoomList) {
+						const state = queryClient.getQueryState<ChatType>(['chat', chatId]);
+
+						const currentUser = queryClient.getQueryData<User>(['currentUser']);
+
+						// Show new message indicator
+						if (sender.id !== currentUser!.id) {
+							queryClient.setQueryData<ChatType[]>(['groupChatRooms'], (old) => {
+								if (old) {
+									return produce(old, (draftState) => {
+										draftState.forEach((chat) => {
+											if (chat.id === chatId) {
+												chat.readBy = chat.readBy.filter((userId) => userId !== currentUser!.id);
+											}
+										});
 									});
-								});
-							}
-						});
+								}
+							});
+						}
+
+						// When the chat has been fetched then update the messages of the chat, otherwise it doesn't have to be updated.
+						// It is going to fetch new messages.
+						if (state) {
+							queryClient.setQueryData<InfiniteData<Message[]>>(['messages', chatId], (old) => {
+								if (old) {
+									return produce(old, (draftState) => {
+										draftState.pages[0].unshift({
+											id: messageId,
+											text,
+											sender,
+											createdAt,
+											chatId,
+											senderId: sender.id,
+											attachments,
+										});
+									});
+								}
+							});
+						}
 					}
 				}
 			}
@@ -381,7 +467,7 @@ function App() {
 		const onIsOnline = (data: { isOnline: boolean; chatId: string }) => {
 			const { isOnline, chatId } = data;
 
-			queryClient.setQueryData<ChatType[]>(['chatRooms'], (old) => {
+			queryClient.setQueryData<ChatType[]>(['privateChatRooms'], (old) => {
 				if (old) {
 					return produce(old, (draftState) => {
 						draftState.forEach((chat) => {

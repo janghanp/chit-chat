@@ -27,8 +27,6 @@ const InviteFriends = ({ setIsInviteOpen, chatId }: Props) => {
 
 	const friendsNotInTheChat = friends?.filter((friend) => !memberIds?.includes(friend.id));
 
-	console.log({ friendsNotInTheChat });
-
 	return (
 		<div className="fixed inset-0 z-30 flex items-center justify-center">
 			<div className="fixed inset-0 z-20 bg-gray-400/50" onClick={closeModal}></div>

@@ -18,7 +18,7 @@ const useCreatePrivateChat = () => {
 				return;
 			}
 
-			queryClient.setQueryData(['chatRooms'], (old: any) => {
+			queryClient.setQueryData(['privateChatRooms'], (old: any) => {
 				return [...old, data];
 			});
 

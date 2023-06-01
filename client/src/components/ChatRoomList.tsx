@@ -33,18 +33,6 @@ const ChatRoomList = ({ setIsSidebarOpen }: Props) => {
 		}
 	}, [groupChatRooms, currentUser]);
 
-	// Filter chatRooms when searching.
-	// useEffect(() => {
-	// 	const groupChats = chatRooms?.filter((chat) => chat.name?.includes(search)) || [];
-
-	// 	const privateChats = chatRooms?.filter((chat) => chat.privateMsgReceiverName);
-	// 	const final = privateChats?.filter((chat) => chat.privateMsgReceiverName?.includes(search)) || [];
-
-	// 	const result = [...groupChats, ...final];
-
-	// 	setFilteredChatRooms(result);
-	// }, [search, chatRooms]);
-
 	const toggleTypeHandler = () => {
 		setIsGroupChat((prevState) => !prevState);
 	};
@@ -77,10 +65,16 @@ const ChatRoomList = ({ setIsSidebarOpen }: Props) => {
 			</div>
 
 			<div className="tabs tabs-boxed bg-base-100 mb-5 border shadow-sm">
-				<span onClick={toggleTypeHandler} className={`tab tab-sm flex-1 ${isGroupChat && 'tab-active'}`}>
+				<span
+					onClick={toggleTypeHandler}
+					className={`tab tab-sm flex-1 ${isGroupChat && ' bg-base-content rounded-md text-white'}`}
+				>
 					Group
 				</span>
-				<span onClick={toggleTypeHandler} className={`tab tab-sm flex-1 ${!isGroupChat && 'tab-active'}`}>
+				<span
+					onClick={toggleTypeHandler}
+					className={`tab tab-sm flex-1 ${!isGroupChat && 'bg-base-content rounded-md text-white'}`}
+				>
 					Direct message
 				</span>
 			</div>

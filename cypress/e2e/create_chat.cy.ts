@@ -6,7 +6,7 @@ describe('onBoarding', () => {
 		cy.visit('/explorer');
 	});
 
-	it('should show chatRooms that a user in', () => {
+	it('should show group chat rooms that a user in', () => {
 		cy.dataCy('chat-room-list').find('tr').should('have.length', 1);
 	});
 

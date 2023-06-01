@@ -90,8 +90,6 @@ const Settings = ({ closeSettings }: Props) => {
 
 		// User tyring to chagne their username.
 		if (username && username !== currentUser!.username) {
-			console.log(username, currentUser!.username);
-
 			dataToUpdate.username = username;
 		}
 

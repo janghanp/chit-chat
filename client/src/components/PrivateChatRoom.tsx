@@ -23,7 +23,7 @@ const PrivateChatRoom = ({ privateChatRoom, setIsSidebarOpen }: Props) => {
 	const [isNewMessage, setIsNewMessage] = useState<boolean>(false);
 
 	useEffect(() => {
-		socket.emit('check_online', { receiverId: privateChatRoom.users!.id, chatId: privateChatRoom.id });
+		socket.emit('check_online', { receiverId: privateChatRoom.users![0].id, chatId: privateChatRoom.id });
 	}, [privateChatRoom]);
 
 	// Set new message indicator.
@@ -38,7 +38,7 @@ const PrivateChatRoom = ({ privateChatRoom, setIsSidebarOpen }: Props) => {
 		if (chatId === privateChatRoom.id) {
 			axios.patch('/chat/read', { chatId, userId: currentUser!.id }, { withCredentials: true });
 
-			queryClient.setQueryData<Chat[]>(['chatRooms'], (old) => {
+			queryClient.setQueryData<Chat[]>(['privateChatRooms'], (old) => {
 				return produce(old, (draftState: Chat[]) => {
 					draftState.forEach((chat: Chat) => {
 						if (chat.id === chatId) {
@@ -88,30 +88,20 @@ const PrivateChatRoom = ({ privateChatRoom, setIsSidebarOpen }: Props) => {
 								isNewMessage ? 'block' : 'hidden'
 							}`}
 						></span>
-						{privateChatRoom.icon ? (
-							<div className="avatar">
-								<div className="w-10 rounded-full">
-									<img src={privateChatRoom.icon} alt={privateChatRoom.name} />
-								</div>
+						<div className="avatar">
+							<div
+								className={`absolute bottom-0 right-0 z-10 h-3 w-3 rounded-full border ${
+									privateChatRoom.isReceiverOnline ? 'bg-green-500' : 'bg-gray-400'
+								} `}
+							></div>
+							<div className="w-10 rounded-full border">
+								<img src={privateChatRoom.users![0].avatar || defaultAvatar} alt="receiver" />
 							</div>
-						) : (
-							<>
-								<div className="avatar">
-									<div
-										className={`absolute bottom-0 right-0 z-10 h-3 w-3 rounded-full border ${
-											privateChatRoom.isReceiverOnline ? 'bg-green-500' : 'bg-gray-400'
-										} `}
-									></div>
-									<div className="w-10 rounded-full border">
-										<img src={privateChatRoom.users?.avatar || defaultAvatar} alt="receiver" />
-									</div>
-								</div>
-							</>
-						)}
+						</div>
 					</div>
 					<div className="flex w-full flex-col">
 						<span className="flex w-full items-center justify-between font-semibold">
-							<span>{privateChatRoom.users?.username}</span>
+							<span>{privateChatRoom.users![0].username}</span>
 							<span>
 								<time className="ml-2 text-xs opacity-50">
 									{!hasMessage ? (

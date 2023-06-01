@@ -13,7 +13,8 @@ const LogoutButton = () => {
 		mutationFn: () => logOutUser(),
 		onSuccess() {
 			queryClient.removeQueries({ queryKey: ['currentUser'] });
-			queryClient.removeQueries({ queryKey: ['chatRooms'] });
+			queryClient.removeQueries({ queryKey: ['groupChatRooms'] });
+			queryClient.removeQueries({ queryKey: ['privateChatRooms'] });
 			queryClient.removeQueries({ queryKey: ['chat'] });
 			queryClient.removeQueries({ queryKey: ['messages'] });
 

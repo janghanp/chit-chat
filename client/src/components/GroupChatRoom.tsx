@@ -32,7 +32,7 @@ const GroupChatRoom = ({ groupChatRoom, setIsSidebarOpen }: Props) => {
 		if (chatId === groupChatRoom.id) {
 			axios.patch('/chat/read', { chatId, userId: currentUser!.id }, { withCredentials: true });
 
-			queryClient.setQueryData<Chat[]>(['chatRooms'], (old) => {
+			queryClient.setQueryData<Chat[]>(['groupChatRooms'], (old) => {
 				return produce(old, (draftState: Chat[]) => {
 					draftState.forEach((chat: Chat) => {
 						if (chat.id === chatId) {
