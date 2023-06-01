@@ -13,8 +13,8 @@ import Chat from './Chat';
 import NoMatch from './NoMatch';
 import Explorer from './Explore';
 import { socket } from '../socket';
-import { User, Chat as ChatType, Message, Notification, Friend, AttachmentInfo } from '../types';
 import Friends from './Friends';
+import { User, Chat as ChatType, Message, Notification, Friend, AttachmentInfo } from '../types';
 
 function App() {
 	const queryClient = useQueryClient();
@@ -55,7 +55,8 @@ function App() {
 				if (old) {
 					return produce(old, (draftState) => {
 						draftState.forEach((chat) => {
-							if (chat.type === 'PRIVATE' && chat.privateMsgReceiverId === userId) {
+							if (chat.type === 'PRIVATE' && chat.users![0].id === userId) {
+								console.log('set user status');
 								chat.isReceiverOnline = true;
 							}
 						});
@@ -99,7 +100,7 @@ function App() {
 				if (old) {
 					return produce(old, (draftState) => {
 						draftState.forEach((chat) => {
-							if (chat.type === 'PRIVATE' && chat.privateMsgReceiverId === userId) {
+							if (chat.type === 'PRIVATE' && chat.users![0].id === userId) {
 								chat.isReceiverOnline = false;
 							}
 						});
@@ -260,6 +261,13 @@ function App() {
 									messages: [],
 									readBy: [],
 									type: 'PRIVATE',
+									users: [
+										{
+											id: sender.id,
+											username: sender.username,
+											avatar: sender.avatar,
+										},
+									],
 								};
 
 								newChat.messages!.push({

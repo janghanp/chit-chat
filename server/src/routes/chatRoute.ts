@@ -530,32 +530,32 @@ router.post('/private', async (req: Request, res: Response) => {
 	}
 });
 
-router.get('/private', async (req: Request, res: Response) => {
-	const { chatId, userId } = req.query;
+// router.get('/private', async (req: Request, res: Response) => {
+// 	const { chatId, userId } = req.query;
 
-	try {
-		const chatWithReciver = await prisma.chat.findUnique({
-			where: {
-				id: chatId as string,
-			},
-			select: {
-				users: {
-					where: {
-						NOT: {
-							id: userId as string,
-						},
-					},
-				},
-			},
-		});
+// 	try {
+// 		const chatWithReciver = await prisma.chat.findUnique({
+// 			where: {
+// 				id: chatId as string,
+// 			},
+// 			select: {
+// 				users: {
+// 					where: {
+// 						NOT: {
+// 							id: userId as string,
+// 						},
+// 					},
+// 				},
+// 			},
+// 		});
 
-		return res.status(200).json(chatWithReciver?.users[0]);
-	} catch (error) {
-		console.log(error);
+// 		return res.status(200).json(chatWithReciver?.users[0]);
+// 	} catch (error) {
+// 		console.log(error);
 
-		return res.sendStatus(500);
-	}
-});
+// 		return res.sendStatus(500);
+// 	}
+// });
 
 router.patch('/read', async (req: Request, res: Response) => {
 	const { chatId, userId } = req.body;
