@@ -24,6 +24,7 @@ export interface Chat {
 	readBy: string[];
 	messages?: Message[];
 	privateMsgReceiverId?: string;
+	privateMsgReceiverName?: string;
 	isReceiverOnline?: boolean;
 }
 

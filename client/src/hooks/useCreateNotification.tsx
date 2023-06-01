@@ -5,7 +5,17 @@ import { socket } from '../socket';
 
 const useCreateNotification = () => {
 	const { mutate } = useMutation({
-		mutationFn: ({ message, receiverId, senderId, link }: { message: string; receiverId: string; senderId: string, link?: string }) => {
+		mutationFn: ({
+			message,
+			receiverId,
+			senderId,
+			link,
+		}: {
+			message: string;
+			receiverId: string;
+			senderId: string;
+			link?: string;
+		}) => {
 			return createNotification(message, receiverId, senderId, link);
 		},
 		onSuccess: async (data) => {

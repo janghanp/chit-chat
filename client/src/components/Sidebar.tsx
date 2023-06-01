@@ -18,9 +18,6 @@ const Sidebar = () => {
 				<h1 className="text-3xl font-bold">Chats</h1>
 				<CreateChatButton closeSidebar={closeSidebar} currentUserId={currentUser!.id} />
 			</div>
-			<div className="p-3">
-				<input type="text" placeholder="Search..." className="input input-sm input-bordered w-full" />
-			</div>
 			<div className="no-scrollbar h-full overflow-y-auto">
 				<ChatRoomList setIsSidebarOpen={setIsSidebarOpen} />
 			</div>

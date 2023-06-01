@@ -50,6 +50,7 @@ const ChatRoom = ({ chatRoom, setIsSidebarOpen }: Props) => {
 								draftState.forEach((chat) => {
 									if (chat.type === 'PRIVATE' && chat.id === chatRoom.id) {
 										chat.privateMsgReceiverId = data.id;
+										chat.privateMsgReceiverName = data.username;
 									}
 								});
 							});
@@ -140,10 +141,10 @@ const ChatRoom = ({ chatRoom, setIsSidebarOpen }: Props) => {
 							</div>
 						) : (
 							<>
-								{chatRoom.name ? (
+								{chatRoom.type === 'GROUP' ? (
 									<div className="placeholder avatar">
 										<div className="bg-neutral-focus text-neutral-content w-10 rounded-full">
-											<span>{chatRoom.name.charAt(0).toUpperCase()}</span>
+											<span>{chatRoom.name!.charAt(0).toUpperCase()}</span>
 										</div>
 									</div>
 								) : (

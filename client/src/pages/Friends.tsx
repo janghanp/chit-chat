@@ -31,7 +31,7 @@ const Friends = () => {
 					<AddFriendInput />
 					<div className="text-base-content text-2xl font-bold">Friends list</div>
 					<div className="w-full p-5">
-						<div className="w-full flex flex-col gap-y-3">
+						<div className="flex w-full flex-col gap-y-3">
 							{data &&
 								data.map((friend: FriendType) => {
 									return (

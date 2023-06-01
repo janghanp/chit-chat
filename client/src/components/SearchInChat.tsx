@@ -29,7 +29,7 @@ const SearchInChat = () => {
 				});
 
 				const messages = messagesData.pages.map((page) => {
-					return page.filter((message) => message.text.includes(query));
+					return page.filter((message) => message.text!.includes(query));
 				});
 
 				setFilteredMembers(members);
@@ -91,7 +91,7 @@ const SearchInChat = () => {
 								<li key={message.id} className="w-full">
 									<span className="w-full">
 										<span className="w-full break-words">
-											<Compo value={message.text} highlight={query} />
+											<Compo value={message.text as string} highlight={query} />
 										</span>
 									</span>
 								</li>

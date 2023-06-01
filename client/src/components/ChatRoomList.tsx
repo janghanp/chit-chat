@@ -1,10 +1,11 @@
-import { Dispatch, SetStateAction, useEffect, useRef } from 'react';
+import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
 import useChatRooms from '../hooks/useChatRooms';
 import useUser from '../hooks/useUser';
 import { socket } from '../socket';
 
 import ChatRoom from './ChatRoom';
 import ChatRoomSkeleton from './ChatRoomSkeleton';
+import { Chat } from '../types';
 
 interface Props {
 	setIsSidebarOpen: Dispatch<SetStateAction<boolean>>;
@@ -12,6 +13,8 @@ interface Props {
 
 const ChatRoomList = ({ setIsSidebarOpen }: Props) => {
 	const { isLoading, isError, data: chatRooms } = useChatRooms();
+	const [search, setSearch] = useState<string>('');
+	const [filteredChatRooms, setFilteredChatRooms] = useState<Chat[]>();
 
 	const { data: currentUser } = useUser();
 
@@ -23,6 +26,17 @@ const ChatRoomList = ({ setIsSidebarOpen }: Props) => {
 			setRef.current = true;
 		}
 	}, [chatRooms, currentUser]);
+
+	// useEffect(() => {
+	// 	const groupChats = chatRooms?.filter((chat) => chat.name?.includes(search)) || [];
+
+	// 	const privateChats = chatRooms?.filter((chat) => chat.privateMsgReceiverName);
+	// 	const final = privateChats?.filter((chat) => chat.privateMsgReceiverName?.includes(search)) || [];
+
+	// 	const result = [...groupChats, ...final];
+
+	// 	setFilteredChatRooms(result);
+	// }, [search, chatRooms]);
 
 	if (isLoading) {
 		const arr = Array(5).fill(0);
@@ -41,14 +55,24 @@ const ChatRoomList = ({ setIsSidebarOpen }: Props) => {
 	}
 
 	return (
-		<table className="table w-full" data-cy="chat-room-list">
-			<tbody className="w-full">
-				{chatRooms &&
-					chatRooms.map((chatRoom) => {
-						return <ChatRoom key={chatRoom.id} chatRoom={chatRoom} setIsSidebarOpen={setIsSidebarOpen} />;
-					})}
-			</tbody>
-		</table>
+		<>
+			<div className="px-1 py-5">
+				<input
+					type="text"
+					onChange={(e) => setSearch(e.target.value)}
+					placeholder="Search..."
+					className="input input-sm input-bordered w-full"
+				/>
+			</div>
+			<table className="table w-full" data-cy="chat-room-list">
+				<tbody className="w-full">
+					{chatRooms &&
+						chatRooms.map((chatRoom) => {
+							return <ChatRoom key={chatRoom.id} chatRoom={chatRoom} setIsSidebarOpen={setIsSidebarOpen} />;
+						})}
+				</tbody>
+			</table>
+		</>
 	);
 };
 
