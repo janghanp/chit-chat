@@ -74,7 +74,7 @@ const Chat = () => {
 				currentChatName={currentChat.chat.name}
 				setIsOpenMemberList={setIsOpenMemberList}
 			/>
-			<div className="bg-base-300 relative flex-1 overflow-y-auto rounded-md border p-3 shadow-md">
+			<div className="relative flex-1 overflow-y-auto rounded-md border bg-gray-100/50 p-3 shadow-md">
 				<ChatBody />
 			</div>
 			<MessageInputBox currentChat={currentChat} currentUser={currentUser!} />

@@ -14,8 +14,19 @@ export const fetchChat = async (chatId: string, userId: string) => {
 	return data;
 };
 
-export const fetchChatRooms = async (userId: string) => {
-	const { data } = await axios.get<Chat[]>('/chat/rooms', {
+export const fetchGroupChatRooms = async (userId: string) => {
+	const { data } = await axios.get<Chat[]>('/chat/group', {
+		params: {
+			userId,
+		},
+		withCredentials: true,
+	});
+
+	return data;
+};
+
+export const fetchPrivateChatRooms = async (userId: string) => {
+	const { data } = await axios.get<Chat[]>('/chat/private', {
 		params: {
 			userId,
 		},

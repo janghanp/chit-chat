@@ -26,6 +26,7 @@ export interface Chat {
 	privateMsgReceiverId?: string;
 	privateMsgReceiverName?: string;
 	isReceiverOnline?: boolean;
+	users?: User
 }
 
 export interface PreviousChat {

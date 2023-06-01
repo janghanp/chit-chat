@@ -117,16 +117,19 @@ router.get('/search', async (req: Request, res: Response) => {
 	}
 });
 
-router.get('/rooms', async (req: Request, res: Response) => {
+router.get('/group', async (req: Request, res: Response) => {
 	const { userId } = req.query;
 
 	try {
-		const userWithChats = await prisma.user.findUnique({
+		const userWithGroupChats = await prisma.user.findUnique({
 			where: {
 				id: userId as string,
 			},
 			include: {
 				chats: {
+					where: {
+						type: 'GROUP',
+					},
 					orderBy: {
 						createdAt: 'asc',
 					},
@@ -145,16 +148,71 @@ router.get('/rooms', async (req: Request, res: Response) => {
 			},
 		});
 
-		// Filter left private chats out.
-		const activeChats = userWithChats?.chats.filter((chat) => {
-			return !userWithChats?.leftPrivateChatIds.includes(chat.id);
-		});
-
-		if (!userWithChats) {
+		if (!userWithGroupChats) {
 			return res.status(400).json({ message: 'No chat rooms found' });
 		}
 
-		return res.status(200).json(activeChats);
+		return res.status(200).json(userWithGroupChats.chats);
+	} catch (error) {
+		console.log(error);
+
+		return res.sendStatus(500);
+	}
+});
+
+router.get('/private', async (req: Request, res: Response) => {
+	const { userId } = req.query;
+
+	try {
+		const userWithPrivateChats = await prisma.user.findUnique({
+			where: {
+				id: userId as string,
+			},
+			include: {
+				chats: {
+					where: {
+						type: 'PRIVATE',
+					},
+					orderBy: {
+						createdAt: 'asc',
+					},
+					include: {
+						messages: {
+							take: 1,
+							orderBy: {
+								createdAt: 'desc',
+							},
+							include: {
+								sender: true,
+							},
+						},
+						users: {
+							where: {
+								NOT: {
+									id: userId as string,
+								},
+							},
+							select: {
+								id: true,
+								avatar: true,
+								username: true,
+							},
+						},
+					},
+				},
+			},
+		});
+
+		if (!userWithPrivateChats) {
+			return res.status(400).json({ message: 'No chat rooms found' });
+		}
+
+		// Filter private chats that the current user has left.
+		const activePrivateChats = userWithPrivateChats?.chats.filter((chat) => {
+			return !userWithPrivateChats?.leftPrivateChatIds.includes(chat.id);
+		});
+
+		return res.status(200).json(activePrivateChats);
 	} catch (error) {
 		console.log(error);
 

@@ -35,7 +35,7 @@ const ChatBody = () => {
 		<div
 			id="chat-body"
 			data-cy="chat-body"
-			className="flex h-full w-full flex-col-reverse gap-y-3 overflow-y-auto border"
+			className="flex h-full w-full flex-col-reverse gap-y-3 overflow-y-auto"
 		>
 			{status === 'loading' ? (
 				<div></div>

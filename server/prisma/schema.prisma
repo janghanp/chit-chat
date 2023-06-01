@@ -44,11 +44,14 @@ model Message {
 }
 
 model Chat {
-  id        String   @id @unique @default(cuid())
+  id String @id @unique @default(cuid())
+
+  //The belows should be empty when a chat is private.
   name      String?
   icon      String?
   public_id String?
   ownerId   String?
+
   type      Type     @default(GROUP)
   readBy    String[]
   createdAt DateTime @default(now())
