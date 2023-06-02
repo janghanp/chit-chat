@@ -72,7 +72,9 @@ const Chat = () => {
 			<ChatHeader
 				chatId={currentChat.chat.id}
 				isOwner={currentUser!.id === currentChat.chat.ownerId}
-				currentChatName={currentChat.chat.name}
+				currentChatName={
+					currentChat.chat.type === 'GROUP' ? currentChat.chat.name : currentChat.chat.users![0].username
+				}
 				setIsOpenMemberList={setIsOpenMemberList}
 			/>
 			<div className="relative flex-1 overflow-y-auto rounded-md border bg-gray-100/50 p-3 shadow-md">

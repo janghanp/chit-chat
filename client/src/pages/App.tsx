@@ -56,7 +56,6 @@ function App() {
 					return produce(old, (draftState) => {
 						draftState.forEach((chat) => {
 							if (chat.type === 'PRIVATE' && chat.users![0].id === userId) {
-								console.log('set user status');
 								chat.isReceiverOnline = true;
 							}
 						});

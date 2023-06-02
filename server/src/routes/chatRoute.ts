@@ -1,3 +1,4 @@
+/* eslint-disable no-mixed-spaces-and-tabs */
 import { PrismaClient } from '@prisma/client';
 import { Request, Response, Router } from 'express';
 import cloudinary from 'cloudinary';
@@ -18,11 +19,21 @@ router.get('/', async (req: Request, res: Response) => {
 	const { chatId, userId } = req.query;
 
 	try {
+		const chat = await prisma.chat.findUnique({
+			where: {
+				id: chatId as string,
+			},
+		});
+
+		if (!chat) {
+			return res.status(400).json({ message: 'No chat rooms found' });
+		}
+
 		let chatWithUsersAndMessages;
 		let isNewMember = false;
 
-		// Check if a user joined the room for the first time.
-		const chat = await prisma.chat.findFirst({
+		// Check if a user joined the chat for the first time.
+		const existingChat = await prisma.chat.findFirst({
 			where: {
 				AND: [
 					{
@@ -47,13 +58,29 @@ router.get('/', async (req: Request, res: Response) => {
 					},
 					take: 1,
 				},
+				users:
+					chat.type === 'GROUP'
+						? false
+						: {
+								where: {
+									NOT: {
+										id: userId as string,
+									},
+								},
+								select: {
+									id: true,
+									username: true,
+									avatar: true,
+								},
+						  },
 			},
 		});
 
-		chatWithUsersAndMessages = chat;
+		chatWithUsersAndMessages = existingChat;
 
-		// A new member to the room.
-		if (!chat) {
+		// A new member to the chat.
+		// Connect the user to the chat.
+		if (!existingChat) {
 			// Connect a user to the existing chat.
 			const updatedChat = await prisma.chat.update({
 				where: {
@@ -79,6 +106,21 @@ router.get('/', async (req: Request, res: Response) => {
 						},
 						take: 1,
 					},
+					users:
+						chat.type === 'GROUP'
+							? false
+							: {
+									where: {
+										NOT: {
+											id: userId as string,
+										},
+									},
+									select: {
+										id: true,
+										username: true,
+										avatar: true,
+									},
+							  },
 				},
 			});
 
