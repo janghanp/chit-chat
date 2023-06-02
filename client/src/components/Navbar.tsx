@@ -27,7 +27,7 @@ const Navbar = ({ setIsSideOpen }: Props) => {
 	};
 
 	return (
-		<div className="md:bg-base-100 flex h-full items-center justify-evenly md:justify-center gap-x-5 md:rounded-md border bg-gray-200 p-3 shadow-md md:flex-col md:gap-y-10">
+		<div className="md:bg-base-100 flex h-full items-center justify-evenly gap-x-5 border bg-gray-200 p-3 shadow-md md:flex-col md:justify-center md:gap-y-10 md:rounded-md">
 			<div className="tooltip block md:hidden" data-tip="Chats">
 				<button
 					className="btn-ghost btn-sm btn btn-square"

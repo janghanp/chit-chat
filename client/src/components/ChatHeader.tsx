@@ -17,7 +17,7 @@ const ChatHeader = ({ setIsOpenMemberList, currentChatName, isOwner, chatId }: P
 	const [isDropDownOpen, setIsDropDownOpen] = useState<boolean>(false);
 
 	const openSide = () => {
-		setIsSideOpen(prevState => !prevState);
+		setIsSideOpen((prevState) => !prevState);
 	};
 
 	return (
