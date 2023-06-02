@@ -1,25 +1,30 @@
-import { useState, memo } from 'react';
+import { memo, Dispatch, SetStateAction } from 'react';
 
 import ChatRoomList from './ChatRoomList';
 import useUser from '../hooks/useUser';
 import CreateChatButton from './CreateChatButton';
 
-const Sidebar = () => {
+interface Props {
+	setIsSideOpen?: Dispatch<SetStateAction<boolean>>;
+}
+
+const Sidebar = ({ setIsSideOpen }: Props) => {
 	const { data: currentUser } = useUser();
-	const [_isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
 
 	const closeSidebar = () => {
-		// setIsSidebarOpen(false);
+		if (setIsSideOpen) {
+			setIsSideOpen(false);
+		}
 	};
 
 	return (
-		<div className="bg-base-100 flex w-80 flex-col gap-y-5 rounded-md border p-3 shadow-md">
+		<div className="bg-base-100 flex h-full w-80 flex-col gap-y-5 rounded-md border p-3 shadow-md">
 			<div className="boder flex items-center justify-between p-3">
 				<h1 className="text-3xl font-bold">Chats</h1>
 				<CreateChatButton closeSidebar={closeSidebar} currentUserId={currentUser!.id} />
 			</div>
 			<div className="no-scrollbar h-full overflow-y-auto">
-				<ChatRoomList setIsSidebarOpen={setIsSidebarOpen} />
+				<ChatRoomList setIsSidebarOpen={setIsSideOpen} />
 			</div>
 		</div>
 	);

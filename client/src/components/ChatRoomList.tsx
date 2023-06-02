@@ -9,7 +9,7 @@ import usePrivateChatRooms from '../hooks/usePrivateChatRooms';
 import useUser from '../hooks/useUser';
 
 interface Props {
-	setIsSidebarOpen: Dispatch<SetStateAction<boolean>>;
+	setIsSidebarOpen?: Dispatch<SetStateAction<boolean>>;
 }
 
 const ChatRoomList = ({ setIsSidebarOpen }: Props) => {

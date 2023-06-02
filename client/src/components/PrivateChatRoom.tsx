@@ -12,7 +12,7 @@ import { socket } from '../socket';
 
 interface Props {
 	privateChatRoom: Chat;
-	setIsSidebarOpen: Dispatch<SetStateAction<boolean>>;
+	setIsSidebarOpen?: Dispatch<SetStateAction<boolean>>;
 }
 
 const PrivateChatRoom = ({ privateChatRoom, setIsSidebarOpen }: Props) => {
@@ -59,7 +59,9 @@ const PrivateChatRoom = ({ privateChatRoom, setIsSidebarOpen }: Props) => {
 	}, [chatId, queryClient, currentUser, privateChatRoom.id]);
 
 	const clickHandler = async () => {
-		setIsSidebarOpen(false);
+		if (setIsSidebarOpen) {
+			setIsSidebarOpen(false);
+		}
 
 		navigate(`/chat/${privateChatRoom.id}`);
 	};

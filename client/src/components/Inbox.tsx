@@ -99,7 +99,7 @@ const Inbox = () => {
 							{isError ? (
 								<div>Error...</div>
 							) : (
-								<div className="fixed bottom-5 left-[100px] top-5 z-30 w-full max-w-[320px] shadow-lg">
+								<div className="fixed inset-0 z-30 w-full shadow-lg md:bottom-5 md:left-[100px] md:top-5 md:max-w-[320px]">
 									<div className="bg-base-100 flex h-full w-full flex-col rounded-md">
 										<div className="bg-base-300 rounded-none border-b p-5 sm:rounded-t-md">
 											<div className="flex justify-between">

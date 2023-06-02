@@ -104,7 +104,7 @@ const Dropdown = ({ isDropDownOpen, setIsDropDownOpen, isOwner, chatId }: Props)
 					<>
 						<ul
 							data-cy="dropdown-menu"
-							className="menu rounded-box menu-compact bg-base-100 absolute right-0 z-30 w-52 border p-2 shadow-md"
+							className="menu rounded-md menu-compact bg-base-100 absolute right-0 z-30 w-52 border p-2 shadow-md"
 						>
 							{isOwner && (
 								<>

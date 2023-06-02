@@ -10,7 +10,7 @@ import useUser from '../hooks/useUser';
 
 interface Props {
 	groupChatRoom: Chat;
-	setIsSidebarOpen: Dispatch<SetStateAction<boolean>>;
+	setIsSidebarOpen?: Dispatch<SetStateAction<boolean>>;
 }
 
 const GroupChatRoom = ({ groupChatRoom, setIsSidebarOpen }: Props) => {
@@ -53,7 +53,9 @@ const GroupChatRoom = ({ groupChatRoom, setIsSidebarOpen }: Props) => {
 	}, [chatId, queryClient, currentUser, groupChatRoom.id]);
 
 	const clickHandler = async () => {
-		setIsSidebarOpen(false);
+		if (setIsSidebarOpen) {
+			setIsSidebarOpen(false);
+		}
 
 		navigate(`/chat/${groupChatRoom.id}`);
 	};

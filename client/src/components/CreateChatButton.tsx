@@ -9,7 +9,7 @@ import { createChat } from '../api/chat';
 
 interface Props {
 	currentUserId: string;
-	closeSidebar: () => void;
+	closeSidebar?: () => void;
 }
 
 const CreateChatButton = ({ currentUserId, closeSidebar }: Props) => {
@@ -27,7 +27,10 @@ const CreateChatButton = ({ currentUserId, closeSidebar }: Props) => {
 		},
 		onSuccess: (data) => {
 			setIsOpen(false);
-			closeSidebar();
+
+			if (closeSidebar) {
+				closeSidebar();
+			}
 
 			navigate(`/chat/${data.id}`);
 		},
