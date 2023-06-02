@@ -1,31 +1,28 @@
 node_modules
-
-tests/node_modules
-tests/cypress/fixtures
-
-server/node_modules
-server/dist
-server/.env
-server/.env.development
+supabase
+notes.md
 
 # Logs
-client/logs
-client/*.log
-client/npm-debug.log*
-client/yarn-debug.log*
-client/yarn-error.log*
-client/pnpm-debug.log*
-client/lerna-debug.log*
-client/node_modules
-client/dist
-client/*.local
-client/.env*
+frontend/logs
+frontend/*.log
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+frontend/pnpm-debug.log*
+frontend/lerna-debug.log*
+frontend/node_modules
+frontend/dist
+frontend/*.local
+frontend/.env*
+
+backend/node_modules
+backend/dist
+backend/.env
+backend/.env.development
 
 cypress/fixtures
 cypress/videos
 cypress/screenshots
-
-supabase
 
 .vscode/*
 !.vscode/extensions.json
@@ -37,4 +34,3 @@ supabase
 *.sln
 *.sw?
 
-notes.md
