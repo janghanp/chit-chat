@@ -26,10 +26,8 @@ const Navbar = ({ setIsSideOpen }: Props) => {
 		closeSettings();
 	};
 
-	console.log({ isSettingsOpen });
-
 	return (
-		<div className="md:bg-base-100 flex h-full items-center justify-center gap-x-10 rounded-md border bg-gray-200 p-3 shadow-md md:flex-col md:gap-y-10">
+		<div className="md:bg-base-100 flex h-full items-center justify-evenly md:justify-center gap-x-5 md:rounded-md border bg-gray-200 p-3 shadow-md md:flex-col md:gap-y-10">
 			<div className="tooltip block md:hidden" data-tip="Chats">
 				<button
 					className="btn-ghost btn-sm btn btn-square"
@@ -51,10 +49,9 @@ const Navbar = ({ setIsSideOpen }: Props) => {
 				<button
 					className="btn-ghost btn-sm btn btn-square"
 					onClick={() => {
-						setIsSettingsOpen(true);
 						if (setIsSideOpen) {
-							console.log('close');
 							setIsSideOpen(false);
+							setIsSettingsOpen(true);
 						}
 					}}
 				>

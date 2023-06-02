@@ -33,8 +33,9 @@ const Layout = () => {
 				<Outlet context={[setIsSideOpen]} />
 			</div>
 
-			<div className="-ml-5" id="chat-member-list"></div>
+			<div className="fixed right-0 -ml-5 h-full md:relative" id="chat-member-list"></div>
 
+			{/* Mobile screen navbar */}
 			{(!location.pathname.includes('chat') || isSideOpen) && (
 				<div className="fixed bottom-0 left-0 right-0 z-50 block md:hidden">
 					<Navbar setIsSideOpen={setIsSideOpen} />

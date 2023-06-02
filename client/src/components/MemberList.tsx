@@ -56,7 +56,13 @@ const MemberList = ({ chatOwnerId, chatId, isOpenMemberList, setIsOpenMemberList
 	}
 
 	return (
-		<div className="bg-base-100 flex h-full w-64 flex-col gap-y-4 rounded-md border p-5 shadow-md ml-5">
+		<div className="bg-base-100 ml-5 flex h-full w-64 flex-col gap-y-4 rounded-md border p-5 shadow-md">
+			{/* Background for mobile screen */}
+			<div
+				className="fixed inset-0 -z-10 block bg-gray-600/50 md:hidden"
+				onClick={() => setIsOpenMemberList(false)}
+			></div>
+
 			<div className="pb-10">
 				<div className="text-3xl font-bold">Members</div>
 			</div>

@@ -86,14 +86,14 @@ const GroupChatRoom = ({ groupChatRoom, setIsSidebarOpen }: Props) => {
 						></span>
 						{groupChatRoom.icon ? (
 							<div className="avatar">
-								<div className="w-10 rounded-full">
+								<div className="w-10 rounded-full border">
 									<img src={groupChatRoom.icon} alt={groupChatRoom.name} />
 								</div>
 							</div>
 						) : (
 							<>
 								<div className="placeholder avatar">
-									<div className="bg-neutral-focus text-neutral-content w-10 rounded-full">
+									<div className="bg-neutral-focus text-neutral-content w-10 rounded-full border">
 										<span>{groupChatRoom.name!.charAt(0).toUpperCase()}</span>
 									</div>
 								</div>
