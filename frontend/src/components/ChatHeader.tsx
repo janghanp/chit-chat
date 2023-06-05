@@ -13,7 +13,7 @@ interface Props {
 }
 
 const ChatHeader = ({ setIsOpenMemberList, currentChatName, isOwner, chatId }: Props) => {
-	const [setIsSideOpen] = useOutletContext();
+	const { setIsSideOpen } = useOutletContext<{ setIsSideOpen: Dispatch<SetStateAction<boolean>> }>();
 	const [isDropDownOpen, setIsDropDownOpen] = useState<boolean>(false);
 
 	const openSide = () => {
