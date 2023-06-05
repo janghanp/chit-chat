@@ -528,6 +528,18 @@ router.post('/private', async (req: Request, res: Response) => {
 						sender: true,
 					},
 				},
+				users: {
+					where: {
+						NOT: {
+							id: senderId,
+						},
+					},
+					select: {
+						id: true,
+						avatar: true,
+						username: true,
+					},
+				},
 			},
 		});
 
@@ -547,6 +559,18 @@ router.post('/private', async (req: Request, res: Response) => {
 				messages: {
 					include: {
 						sender: true,
+					},
+				},
+				users: {
+					where: {
+						NOT: {
+							id: senderId,
+						},
+					},
+					select: {
+						id: true,
+						avatar: true,
+						username: true,
 					},
 				},
 			},
