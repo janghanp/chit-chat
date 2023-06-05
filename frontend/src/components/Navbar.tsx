@@ -27,8 +27,8 @@ const Navbar = ({ setIsSideOpen }: Props) => {
 	};
 
 	return (
-		<div className="md:bg-base-100 flex h-full items-center justify-evenly gap-x-5 border bg-gray-200 p-3 shadow-md md:flex-col md:justify-center md:gap-y-10 md:rounded-md">
-			<div className="tooltip block md:hidden" data-tip="Chats">
+		<div className="md:bg-base-100 fixed bottom-0 z-30 flex h-[52px] w-full  items-center justify-evenly gap-x-5 border bg-gray-200 p-3 shadow-md md:relative md:h-full md:flex-col md:justify-center md:gap-y-10 md:rounded-md">
+			{/* <div className="tooltip block md:hidden" data-tip="Chats">
 				<button
 					className="btn-ghost btn-sm btn btn-square"
 					onClick={() => {
@@ -40,7 +40,7 @@ const Navbar = ({ setIsSideOpen }: Props) => {
 				>
 					<HiChat className="text-3xl" />
 				</button>
-			</div>
+			</div> */}
 
 			<Inbox />
 			<FriendsButton closeSidebar={closeSidebar} />
@@ -51,6 +51,8 @@ const Navbar = ({ setIsSideOpen }: Props) => {
 					onClick={() => {
 						if (setIsSideOpen) {
 							setIsSideOpen(false);
+							setIsSettingsOpen(true);
+						} else {
 							setIsSettingsOpen(true);
 						}
 					}}

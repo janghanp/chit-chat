@@ -7,9 +7,7 @@ import axios from 'axios';
 
 import './index.css';
 
-// axios.defaults.baseURL = import.meta.env.VITE_API_URL;
-// axios.defaults.baseURL = 'http://localhost:9000/api';
-axios.defaults.baseURL = 'https://api.chitchat.lat/api';
+axios.defaults.baseURL = 'http://localhost:9000/api';
 
 const queryClient = new QueryClient({
 	defaultOptions: {
