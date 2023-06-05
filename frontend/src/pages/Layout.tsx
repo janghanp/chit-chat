@@ -30,7 +30,7 @@ const Layout = () => {
 			)}
 
 			<div className="w-full flex-1 rounded-md border shadow-md">
-				<Outlet context={[setIsSideOpen]} />
+				<Outlet context={{ setIsSideOpen }} />
 			</div>
 
 			<div className="fixed right-0 -ml-5 h-full md:relative" id="chat-member-list"></div>
