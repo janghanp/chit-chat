@@ -51,7 +51,7 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
 	cors: {
-		origin: ['http://localhost:5173', 'http://localhost:4173', 'http://localhost', 'https://www.chitchat.lat'],
+		origin: ['http://localhost:5173', 'http://localhost:4173', 'http://localhost', 'https://www.chitchat.lat', 'https://chitchat.lat'],
 		methods: ['GET', 'POST'],
 		credentials: true,
 	},
@@ -60,7 +60,7 @@ const io = new Server(server, {
 app.use(morgan('dev'));
 app.use(
 	cors({
-		origin: ['http://localhost:5173', 'http://localhost:4173', 'http://localhost', 'https://www.chitchat.lat'],
+		origin: ['http://localhost:5173', 'http://localhost:4173', 'http://localhost', 'https://www.chitchat.lat', 'https://chitchat.lat'],
 		credentials: true,
 	})
 );
