@@ -1,8 +1,8 @@
-import { ChangeEvent, useEffect, useRef, useState } from 'react';
+import { ChangeEvent, useRef, useState } from 'react';
 import axios from 'axios';
 import { HiCamera, HiX } from 'react-icons/hi';
 import toast, { Toaster } from 'react-hot-toast';
-import { useForm } from "react-hook-form";
+import { useForm } from 'react-hook-form';
 
 import { AuthErrorResponse, AxiosResponseWithUsername, User } from '../types';
 import defaultImageUrl from '/default.jpg';
@@ -15,19 +15,12 @@ interface FormData {
 	username: string;
 }
 
-interface Props {
-	closeSettings: () => void;
-}
-
-const Settings = ({ closeSettings }: Props) => {
+const Settings = () => {
 	const { data: currentUser } = useUser();
-
 	const [preview, setPreview] = useState<string>(currentUser!.avatar || '');
 	const [imageError, setImageError] = useState<string>();
 	const [isUploading, setIsUploading] = useState<boolean>(false);
-
 	const fileInputRef = useRef<HTMLInputElement>(null);
-
 	const {
 		register,
 		handleSubmit,
@@ -40,23 +33,6 @@ const Settings = ({ closeSettings }: Props) => {
 			username: currentUser!.username,
 		},
 	});
-
-	useEffect(() => {
-		function handleKeydown(event: KeyboardEvent) {
-			const key = event.key;
-
-			if (key === 'Escape') {
-				event.preventDefault();
-				closeSettings();
-			}
-		}
-
-		document.addEventListener('keydown', handleKeydown);
-
-		return () => {
-			document.removeEventListener('keydown', handleKeydown);
-		};
-	}, [closeSettings]);
 
 	// Determining permission of submit button.
 	let isDisable = true;
@@ -99,8 +75,6 @@ const Settings = ({ closeSettings }: Props) => {
 			});
 
 			window.location.href = '/';
-
-			closeSettings();
 		} catch (error) {
 			if (axios.isAxiosError(error) && error.response?.status === 400) {
 				// Set an error into username field.
@@ -157,17 +131,10 @@ const Settings = ({ closeSettings }: Props) => {
 	};
 
 	return (
-		<div className="fixed inset-0 z-30 flex items-center justify-center">
-			<div className="fixed inset-0 z-20 bg-gray-400/50" onClick={() => closeSettings()}></div>
-			<div className="bg-base-100 z-30 h-full w-full border p-10 shadow-xl sm:h-auto sm:max-w-xl sm:rounded-xl">
+		<div className="bg-base-100 flex h-full w-full flex-col items-center justify-center rounded-md p-3">
+			<div className="w-[400px]">
 				<div className="flex flex-row items-center justify-between">
 					<div className="text-base-con mb-5 text-3xl font-bold">User Settings</div>
-					<div className="flex flex-col items-center justify-center gap-y-3">
-						<button className="btn-outline btn-sm btn-circle btn" onClick={closeSettings}>
-							<HiX />
-						</button>
-						<kbd className="kbd kbd-sm">ESC</kbd>
-					</div>
 				</div>
 				<Toaster />
 				<div className="mt-14 w-full text-center">

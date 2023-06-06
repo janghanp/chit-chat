@@ -3,18 +3,19 @@ import { useEffect } from 'react';
 import { InfiniteData, useQueryClient } from '@tanstack/react-query';
 import produce from 'immer';
 
+import { socket } from '../socket';
+import { User, Chat as ChatType, Message, Notification, Friend, AttachmentInfo } from '../types';
+import AutoLogin from '../components/AutoLogin';
 import RequireAuth from '../components/RequiredAuth';
 import Layout from './Layout';
 import Home from './Home';
 import Login from './Login';
 import Register from './Register';
-import AutoLogin from '../components/AutoLogin';
 import Chat from './Chat';
 import NoMatch from './NoMatch';
 import Explorer from './Explore';
-import { socket } from '../socket';
 import Friends from './Friends';
-import { User, Chat as ChatType, Message, Notification, Friend, AttachmentInfo } from '../types';
+import Settings from './Settings';
 
 function App() {
 	const queryClient = useQueryClient();
@@ -523,6 +524,7 @@ function App() {
 						<Route path="/explorer" element={<Explorer />} />
 						<Route path="/chat/:chatId" element={<Chat />} />
 						<Route path="/friends" element={<Friends />} />
+						<Route path="/settings" element={<Settings />} />
 					</Route>
 				</Route>
 

@@ -27,7 +27,7 @@ const ChatRoomSkeleton = ({ index }: Props) => {
 	}
 
 	return (
-		<div className="mx-auto h-[68px] w-full max-w-sm p-4 shadow">
+		<div className="mx-auto h-[68px] w-full max-w-sm p-4">
 			<div className="flex animate-pulse space-x-4">
 				<div className={`h-10 w-10 rounded-full ${bgColor}`}></div>
 				<div className="flex-1 space-y-6 py-1">
