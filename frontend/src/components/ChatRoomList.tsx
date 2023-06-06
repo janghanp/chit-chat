@@ -27,8 +27,6 @@ const ChatRoomList = ({ setIsSidebarOpen }: Props) => {
 		return <div>Error...</div>;
 	}
 
-	const arr = Array(5).fill(0);
-
 	return (
 		<>
 			<div className="tabs tabs-boxed bg-base-100 mb-5 border shadow-sm">
@@ -47,9 +45,11 @@ const ChatRoomList = ({ setIsSidebarOpen }: Props) => {
 			</div>
 			{isGroupChatsLoading || isPrivateChatLoading ? (
 				<>
-					{arr.map((_, index) => {
-						return <ChatRoomSkeleton key={index} index={index} />;
-					})}
+					{Array(5)
+						.fill(0)
+						.map((_, index) => {
+							return <ChatRoomSkeleton key={index} index={index} />;
+						})}
 				</>
 			) : (
 				<table className="table w-full" data-cy="chat-room-list">

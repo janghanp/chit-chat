@@ -2,18 +2,11 @@ import ExplorerButton from './ExplorerButton';
 import FriendsButton from './FriendsButton';
 import LogoutButton from './LogoutButton';
 import Inbox from './Inbox';
-import { Dispatch, SetStateAction } from 'react';
 import SettingsButton from './SettingsButton';
 
-interface Props {
-	setIsSideOpen?: Dispatch<SetStateAction<boolean>>;
-}
-
-const Navbar = ({ setIsSideOpen }: Props) => {
+const Navbar = () => {
 	const closeSidebar = () => {
-		if (setIsSideOpen) {
-			setIsSideOpen(false);
-		}
+		console.log('close');
 	};
 
 	return (

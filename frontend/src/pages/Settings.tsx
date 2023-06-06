@@ -134,7 +134,7 @@ const Settings = () => {
 		<div className="bg-base-100 flex h-full w-full flex-col items-center justify-center rounded-md p-3">
 			<div className="w-[400px]">
 				<div className="flex flex-row items-center justify-between">
-					<div className="text-base-con mb-5 text-3xl font-bold">User Settings</div>
+					<div className="text-base-content text-3xl font-bold">User Settings</div>
 				</div>
 				<Toaster />
 				<div className="mt-14 w-full text-center">

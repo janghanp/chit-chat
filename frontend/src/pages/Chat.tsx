@@ -80,7 +80,7 @@ const Chat = () => {
 	}
 
 	return (
-		<div className="bg-base-100 flex h-full w-full flex-col justify-between gap-y-3 rounded-md p-3">
+		<div className="bg-base-100 flex h-full w-full flex-col justify-between gap-y-3 rounded-md pl-3 pr-3 pb-3">
 			<ChatHeader
 				chatId={currentChat.chat.id}
 				isOwner={currentUser!.id === currentChat.chat.ownerId}

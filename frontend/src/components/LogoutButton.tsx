@@ -6,6 +6,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { socket } from '../socket';
 import { logOutUser } from '../api/auth';
 
+
 const LogoutButton = () => {
 	const queryClient = useQueryClient();
 
@@ -36,11 +37,10 @@ const LogoutButton = () => {
 
 	return (
 		<>
-			<div className="tooltip" data-tip="Log Out">
-				<label htmlFor="modal-1" className="btn-ghost btn-sm btn-square btn">
-					<HiOutlineLogout className="text-2xl" />
-				</label>
-			</div>
+			<label htmlFor="modal-1" className="flex text-red-600">
+				<HiOutlineLogout className="text-xl" />
+				<span className="ml-3">Logout</span>
+			</label>
 			{createPortal(
 				<div>
 					<input type="checkbox" id="modal-1" className="modal-toggle fixed inset-0" />

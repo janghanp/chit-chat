@@ -1,14 +1,10 @@
 import { Outlet } from 'react-router-dom';
 
 import Sidebar from '../components/Sidebar';
-import Navbar from '../components/Navbar';
 
 const Layout = () => {
 	return (
-		<div className="flex h-screen gap-x-0 md:gap-x-5 p-0 pb-12 md:p-5">
-			<div>
-				<Navbar />
-			</div>
+		<div className="flex h-screen gap-x-0 p-0 md:gap-x-5 md:p-5">
 			<div>
 				<Sidebar />
 			</div>

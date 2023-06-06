@@ -15,7 +15,7 @@ const ChatHeader = ({ setIsOpenMemberList, currentChatName, isOwner, chatId }: P
 
 	return (
 		<div className="flex items-center justify-between pl-10 md:pl-0">
-			<div className="w-full p-3 text-3xl font-bold">{currentChatName}</div>
+			<div className="mt-2 w-full p-0 text-2xl font-bold md:p-3 md:text-3xl">{currentChatName}</div>
 			<div className="relative flex gap-x-3">
 				<div className="tooltip tooltip-bottom" data-tip="Members">
 					<button className="btn-ghost btn-sm btn btn-square" onClick={() => setIsOpenMemberList((prev) => !prev)}>

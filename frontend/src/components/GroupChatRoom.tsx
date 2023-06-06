@@ -76,7 +76,7 @@ const GroupChatRoom = ({ groupChatRoom, setIsSidebarOpen }: Props) => {
 			onClick={clickHandler}
 			data-cy="chatRoom"
 		>
-			<th className="w-full rounded-lg border-none p-3 shadow-inherit">
+			<th className="w-full rounded-lg border-none p-3 shadow-inherit transition duration-300 hover:bg-gray-100">
 				<div className="flex w-full items-center justify-start gap-x-3">
 					<div className="indicator">
 						<span

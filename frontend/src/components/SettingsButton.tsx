@@ -1,25 +1,27 @@
-import { HiCog } from 'react-icons/hi';
+import { Dispatch, SetStateAction } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { HiCog } from 'react-icons/hi';
 
 interface Props {
 	closeSidebar: () => void;
+	setIsOpen: Dispatch<SetStateAction<boolean>>;
 }
 
-const SettingsButton = ({ closeSidebar }: Props) => {
+const SettingsButton = ({ closeSidebar, setIsOpen }: Props) => {
 	const navigate = useNavigate();
 
 	const handleClick = async () => {
 		closeSidebar();
+		setIsOpen(false);
 
 		navigate('/settings');
 	};
 
 	return (
-		<div className="tooltip" data-tip="Settings">
-			<button className="btn-ghost btn-sm btn btn-square" onClick={handleClick}>
-				<HiCog className="text-3xl" />
-			</button>
-		</div>
+		<button className="flex" onClick={handleClick}>
+			<HiCog className="text-xl" />
+			<span className="ml-3">Settings</span>
+		</button>
 	);
 };
 
