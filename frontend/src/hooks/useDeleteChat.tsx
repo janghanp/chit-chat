@@ -6,37 +6,37 @@ import { Chat } from '../types';
 import { socket } from '../socket';
 
 const useDeleteChat = (chatId: string, currentUserId: string) => {
-	const navigate = useNavigate();
-	const queryClient = useQueryClient();
+    const navigate = useNavigate();
+    const queryClient = useQueryClient();
 
-	const { mutate } = useMutation({
-		mutationKey: ['deleteChat', chatId],
-		mutationFn: ({ chatId }: { chatId: string }) => {
-			return deleteChat(chatId);
-		},
-		onSuccess: () => {
-			queryClient.setQueriesData<Chat[]>(['groupChatRooms', currentUserId], (old) => {
-				if (old) {
-					return old.filter((el) => el.id !== chatId);
-				}
-			});
+    const { mutate } = useMutation({
+        mutationKey: ['deleteChat', chatId],
+        mutationFn: ({ chatId }: { chatId: string }) => {
+            return deleteChat(chatId);
+        },
+        onSuccess: () => {
+            queryClient.setQueriesData<Chat[]>(['groupChatRooms', currentUserId], (old) => {
+                if (old) {
+                    return old.filter((el) => el.id !== chatId);
+                }
+            });
 
-			queryClient.setQueriesData<Chat[]>(['privateChatRooms', currentUserId], (old) => {
-				if (old) {
-					return old.filter((el) => el.id !== chatId);
-				}
-			});
+            queryClient.setQueriesData<Chat[]>(['privateChatRooms', currentUserId], (old) => {
+                if (old) {
+                    return old.filter((el) => el.id !== chatId);
+                }
+            });
 
-			socket.emit('delete_chat', { chatId });
+            socket.emit('delete_chat', { chatId });
 
-			navigate('/');
-		},
-		onError(error) {
-			console.log(error);
-		},
-	});
+            navigate('/');
+        },
+        onError(error) {
+            console.log(error);
+        },
+    });
 
-	return { mutate };
+    return { mutate };
 };
 
 export default useDeleteChat;
