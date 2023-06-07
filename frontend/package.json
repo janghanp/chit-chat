@@ -17,6 +17,7 @@
 		"daisyui": "^2.46.1",
 		"date-fns": "^2.29.3",
 		"emoji-picker-react": "^4.4.8",
+		"framer-motion": "^10.12.16",
 		"immer": "^9.0.21",
 		"react": "^18.2.0",
 		"react-dom": "^18.2.0",

@@ -4,15 +4,15 @@ import { HiCog } from 'react-icons/hi';
 
 interface Props {
 	closeSidebar: () => void;
-	setIsOpen: Dispatch<SetStateAction<boolean>>;
+	setIsDropdownOpen: Dispatch<SetStateAction<boolean>>;
 }
 
-const SettingsButton = ({ closeSidebar, setIsOpen }: Props) => {
+const SettingsButton = ({ closeSidebar, setIsDropdownOpen }: Props) => {
 	const navigate = useNavigate();
 
 	const handleClick = async () => {
 		closeSidebar();
-		setIsOpen(false);
+		setIsDropdownOpen(false);
 
 		navigate('/settings');
 	};

@@ -8,7 +8,7 @@ import ExplorerButton from './ExplorerButton';
 
 const SideBottom = () => {
 	const { data: currentUser } = useUser();
-	const [isOpen, setIsOpen] = useState<boolean>(false);
+	const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false);
 
 	return (
 		<div className="absolute bottom-0 left-0 right-0">
@@ -16,7 +16,7 @@ const SideBottom = () => {
 				<div className="flex items-center gap-x-3">
 					<div
 						className="avatar ring-base-content rounded-full transition duration-200 hover:cursor-pointer hover:ring-2"
-						onClick={() => setIsOpen(!isOpen)}
+						onClick={() => setIsDropdownOpen(!isDropdownOpen)}
 					>
 						<div className={`absolute -top-0.5 right-0 z-10 h-3 w-3 rounded-full border bg-green-500`}></div>
 						<div className="w-8 rounded-full">
@@ -24,7 +24,7 @@ const SideBottom = () => {
 						</div>
 					</div>
 					<span className="text-sm font-bold">{currentUser?.username}</span>
-					{isOpen && <UserProfileDropdown setIsOpen={setIsOpen} />}
+					{isDropdownOpen && <UserProfileDropdown setIsDropdownOpen={setIsDropdownOpen} />}
 				</div>
 
 				<div className="flex items-center gap-x-3 pt-1">
