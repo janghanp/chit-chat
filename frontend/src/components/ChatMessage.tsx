@@ -10,6 +10,9 @@ interface Props {
 }
 
 const ChatMessage = ({ message, isOwner, firstElementRef }: Props) => {
+	console.log(message);
+	console.log(message.attachments);
+
 	return (
 		<div ref={firstElementRef} key={message.id} className={`chat relative my-2 ${isOwner ? 'chat-end' : 'chat-start'}`}>
 			<div className="chat-image avatar">
@@ -17,16 +20,13 @@ const ChatMessage = ({ message, isOwner, firstElementRef }: Props) => {
 					<img src={message.sender.avatar || defaultImageUrl} alt={message.sender.username} />
 				</div>
 			</div>
-
 			<div className="chat-header text-sm">
 				{message.sender.username}
 				<time className="ml-2 text-xs opacity-50">{format(new Date(message.createdAt), 'PP p')}</time>
 			</div>
-
 			{message.text && (
 				<div className={`chat-bubble break-all ${message.id === 'temp' && 'text-gray-500'}`}>{message.text}</div>
 			)}
-
 			{message.attachments && message.attachments.length > 0 && (
 				<div className={`chat-footer chat-end mt-3 flex flex-wrap gap-3 ${isOwner ? 'justify-end' : 'justify-start'}`}>
 					{message.attachments.map((attachment) => {

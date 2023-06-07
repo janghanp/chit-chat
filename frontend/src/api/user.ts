@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-import { Friend, User } from '../types';
+import { AxiosResponseWithUsername, Friend, User } from '../types';
 
 export const addFriend = async (senderId: string, receiverId: string) => {
 	const { data } = await axios.patch<'OK'>(
@@ -48,4 +48,20 @@ export const fetchUserByUsername = async (username: string) => {
 	});
 
 	return { data, status };
+};
+
+export const updateUser = async (dataToUpdate: { newPassword?: string; username?: string }) => {
+	const { data } = await axios.patch<AxiosResponseWithUsername>('/user', dataToUpdate, {
+		withCredentials: true,
+	});
+
+	return data;
+};
+
+export const uploadAvatar = async (formData: FormData) => {
+	const { data } = await axios.post<User>('/user/avatar', formData, {
+		withCredentials: true,
+	});
+
+	return data;
 };

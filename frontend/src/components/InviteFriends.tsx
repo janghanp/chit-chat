@@ -12,7 +12,6 @@ interface Props {
 
 const InviteFriends = ({ setIsInviteOpen, chatId }: Props) => {
 	const { isLoading: isFriendsLoading, data: friends } = useFriends();
-
 	const { isLoading: isMembersLoading, data: members } = useMembers(chatId);
 
 	const closeModal = () => {

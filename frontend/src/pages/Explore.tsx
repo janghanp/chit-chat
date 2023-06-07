@@ -1,25 +1,26 @@
 import axios from 'axios';
-import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { ChangeEvent, useEffect, useState } from 'react';
 import { SyncLoader } from 'react-spinners';
 
-import useDebounce from '../hooks/useDebounce';
-import { Chat, User } from '../types';
 import defaultAvatar from '/default.jpg';
+import { Chat, User } from '../types';
+import useDebounce from '../hooks/useDebounce';
+import useJoinChat from '../hooks/useJoinChat';
 
 interface ChatWithMembers extends Chat {
 	users: User[];
 }
 
-const Explorer = () => {
-	const navigate = useNavigate();
-	//* By setting this value as an object, even if you get the same text as before, it is going to be a different reference.
-	//* When a user keeps doing like, enter "s" and delete on and on.
+const Explore = () => {
+	// By setting this value as an object, even if you get the same text as before, it is going to be a different reference.
+	// When a user keeps doing like, enter "s" and delete on and on.
 	const [query, setQuery] = useState<{ text: string }>({ text: '' });
 	const [isLoading, setIsLoading] = useState<boolean>(false);
 	const [filteredChats, setFilterdChats] = useState<ChatWithMembers[] | null>();
 	const debouncedValue = useDebounce<{ text: string }>(query, 500);
+	const { mutate: joinChatMutate } = useJoinChat();
 
+	// Search a chat.
 	useEffect(() => {
 		if (debouncedValue.text) {
 			const fetchChatsByQuery = async () => {
@@ -43,21 +44,11 @@ const Explorer = () => {
 		}
 	}, [debouncedValue]);
 
-	const joinRoomHandler = async (roomName: string) => {
-		try {
-			const { data } = await axios.get<Chat>('/chat/name', {
-				params: { chatName: roomName },
-				withCredentials: true,
-			});
-
-			navigate(`/chat/${data.id}`);
-		} catch (error) {
-			// No chatroom found handle the error.
-			console.log(error);
-		}
+	const joinChatHandler = async (chatName: string) => {
+		joinChatMutate({ chatName });
 	};
 
-	const changeHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
+	const inputChangeHandler = (event: ChangeEvent<HTMLInputElement>) => {
 		const value = event.target.value;
 
 		if (value) {
@@ -75,7 +66,7 @@ const Explorer = () => {
 			<div className="h-full w-full max-w-[510px] pt-56">
 				<div className="text-base-content mb-5 text-2xl font-bold">Find your community on chit-chat</div>
 				<input
-					onChange={changeHandler}
+					onChange={inputChangeHandler}
 					type="text"
 					className="input-bordered input my-3 w-full max-w-[510px] shadow-md"
 					placeholder="Explore chats"
@@ -84,7 +75,7 @@ const Explorer = () => {
 					<ul className="menu bg-base-100 mt-3 w-full max-w-lg rounded-lg border p-2 shadow-md">
 						{filteredChats?.map((chat) => {
 							return (
-								<li key={chat.id} onClick={() => joinRoomHandler(chat.name!)}>
+								<li key={chat.id} onClick={() => joinChatHandler(chat.name!)}>
 									<div className="flex flex-row items-center justify-between">
 										<span>{chat.name}</span>
 										<div className="avatar-group -space-x-3">
@@ -123,4 +114,4 @@ const Explorer = () => {
 	);
 };
 
-export default Explorer;
+export default Explore;

@@ -5,7 +5,7 @@ interface Props {
 	closeSidebar: () => void;
 }
 
-const ExplorerButton = ({ closeSidebar }: Props) => {
+const ExploreButton = ({ closeSidebar }: Props) => {
 	const navigate = useNavigate();
 
 	const handleClick = async () => {
@@ -23,4 +23,4 @@ const ExplorerButton = ({ closeSidebar }: Props) => {
 	);
 };
 
-export default ExplorerButton;
+export default ExploreButton;

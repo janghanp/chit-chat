@@ -1,4 +1,4 @@
-import ExplorerButton from './ExplorerButton';
+import ExplorerButton from './ExploreButton';
 import FriendsButton from './FriendsButton';
 import LogoutButton from './LogoutButton';
 import Inbox from './Inbox';

@@ -1,10 +1,9 @@
-import { useMutation } from '@tanstack/react-query';
 import { ChangeEvent, Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
 import { HiCamera, HiOutlineX } from 'react-icons/hi';
 import { SyncLoader } from 'react-spinners';
 
-import { updateChat } from '../api/chat';
 import useChat from '../hooks/useChat';
+import useUpdateChat from '../hooks/useUpdateChat';
 
 interface Props {
 	chatId: string;
@@ -20,21 +19,7 @@ const ChatSettings = ({ chatId, currentUserId, setIsSettingOpen }: Props) => {
 	const [preview, setPreview] = useState<string>();
 	const [imageError, setImageError] = useState<string>();
 	const fileInputRef = useRef<HTMLInputElement>(null);
-	const { isLoading, mutate } = useMutation({
-		mutationFn: (formData: FormData) => {
-			return updateChat(formData);
-		},
-		onSuccess: (data) => {
-			window.location.href = '/';
-		},
-		onError: (error: any) => {
-			if (error.response.status === 400) {
-				setError(error.response.data.message);
-			}
-
-			console.log(error);
-		},
-	});
+	const { mutate: updateChatMutate, isLoading } = useUpdateChat(setError);
 
 	useEffect(() => {
 		if (data) {
@@ -101,7 +86,7 @@ const ChatSettings = ({ chatId, currentUserId, setIsSettingOpen }: Props) => {
 		formData.append('roomName', roomName);
 		formData.append('chatId', data!.chat.id);
 
-		mutate(formData);
+		updateChatMutate(formData);
 	};
 
 	const deletePreviewHandler = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {

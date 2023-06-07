@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useParams } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import produce from 'immer';
@@ -9,19 +10,17 @@ import MessageInputBox from '../components/MessageInputBox';
 import { socket } from '../socket';
 import useUser from '../hooks/useUser';
 import useChat from '../hooks/useChat';
-import useFriends from '../hooks/useFriends';
 import { Chat as ChatType } from '../types';
 import ChatHeader from '../components/ChatHeader';
-import { createPortal } from 'react-dom';
 
 const Chat = () => {
 	const { chatId } = useParams();
 	const queryClient = useQueryClient();
 	const { data: currentUser } = useUser();
 	const { isLoading, isError, data: currentChat, isSuccess } = useChat(chatId as string, currentUser!.id);
-	useFriends();
 	const [isOpenMemberList, setIsOpenMemberList] = useState<boolean>(false);
 
+	//Join chat
 	useEffect(() => {
 		if (currentChat) {
 			socket.emit('join_chat', {
@@ -40,7 +39,7 @@ const Chat = () => {
 		}
 	}, [currentChat, chatId, currentUser, queryClient]);
 
-	//Add the chat that the current user has just joined to, if the user has no the group chat room on the sidebar.
+	//Add a chat in the that the current user has just joined to, if the user has no the group chat on the sidebar.
 	useEffect(() => {
 		if (currentChat && isSuccess) {
 			if (currentChat.chat.type === 'GROUP') {
@@ -80,7 +79,7 @@ const Chat = () => {
 	}
 
 	return (
-		<div className="bg-base-100 flex h-full w-full flex-col justify-between gap-y-3 rounded-md pl-3 pr-3 pb-3">
+		<div className="bg-base-100 flex h-full w-full flex-col justify-between gap-y-3 rounded-md pb-3 pl-3 pr-3">
 			<ChatHeader
 				chatId={currentChat.chat.id}
 				isOwner={currentUser!.id === currentChat.chat.ownerId}

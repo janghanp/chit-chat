@@ -18,8 +18,8 @@ const Friend = ({ friend, isInviting }: Props) => {
 	const { data: currentUser } = useUser();
 	const { mutate: createPrivateChatMutate } = useCreatePrivateChat();
 	const { mutate: removeFriendMutate } = useRemoveFriend(friend);
-	const [isOpen, setIsOpen] = useState<boolean>(false);
 	const { mutate: createNotificationMutate } = useCreateNotification();
+	const [isOpen, setIsOpen] = useState<boolean>(false);
 
 	const clickHandler = () => {
 		createPrivateChatMutate({ senderId: currentUser!.id, receiverId: friend.id });

@@ -1,10 +1,11 @@
 import { useState } from 'react';
+
 import useUser from '../hooks/useUser';
 import UserProfileDropdown from './UserProfileDropdown';
 import defaultAvatar from '/default.jpg';
 import Inbox from './Inbox';
 import FriendsButton from './FriendsButton';
-import ExplorerButton from './ExplorerButton';
+import ExploreButton from './ExploreButton';
 
 const SideBottom = () => {
 	const { data: currentUser } = useUser();
@@ -28,7 +29,7 @@ const SideBottom = () => {
 				</div>
 
 				<div className="flex items-center gap-x-3 pt-1">
-					<ExplorerButton closeSidebar={() => console.log('test')} />
+					<ExploreButton closeSidebar={() => console.log('test')} />
 					<FriendsButton closeSidebar={() => console.log('test')} />
 					<Inbox />
 				</div>

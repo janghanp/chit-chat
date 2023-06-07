@@ -7,7 +7,7 @@ import LogoutButton from './LogoutButton';
 import Settings from './Settings';
 import { createPortal } from 'react-dom';
 import { User } from '../types';
-import ExplorerButton from './ExplorerButton';
+import ExplorerButton from './ExploreButton';
 import CreateChatButton from './CreateChatButton';
 import FriendsButton from './FriendsButton';
 

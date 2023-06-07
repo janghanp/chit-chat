@@ -13,7 +13,7 @@ import Login from './Login';
 import Register from './Register';
 import Chat from './Chat';
 import NoMatch from './NoMatch';
-import Explorer from './Explore';
+import Explore from './Explore';
 import Friends from './Friends';
 import Settings from './Settings';
 
@@ -145,7 +145,7 @@ function App() {
 			}
 		};
 
-		const onDestroyChat = (data: { chatId: string }) => {
+		const onDestroyChat = () => {
 			window.location.href = '/';
 		};
 
@@ -521,7 +521,7 @@ function App() {
 				<Route element={<RequireAuth />}>
 					<Route path="/" element={<Layout />}>
 						<Route index element={<Home />} />
-						<Route path="/explorer" element={<Explorer />} />
+						<Route path="/explorer" element={<Explore />} />
 						<Route path="/chat/:chatId" element={<Chat />} />
 						<Route path="/friends" element={<Friends />} />
 						<Route path="/settings" element={<Settings />} />

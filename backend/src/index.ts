@@ -15,8 +15,6 @@ import chatRoute from './routes/chatRoute';
 import messageRoute from './routes/messageRoute';
 import notificationRoute from './routes/notificationRoute';
 
-dotenv.config();
-
 interface Chat {
 	id: string;
 	name: string;
@@ -40,10 +38,20 @@ interface AttachmentInfo {
 	secure_url: string;
 }
 
-const prisma = new PrismaClient();
+interface UserWithSockets {
+	userId: string;
+	socketIds: string[];
+}
 
-// cloudinary picks up env and is now configured.
-cloudinary.v2.config({ secure: true });
+dotenv.config();
+
+cloudinary.v2.config({
+	cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+	api_key: process.env.CLOUDINARY_API_KEY,
+	api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
+const prisma = new PrismaClient();
 
 const app = express();
 
@@ -85,12 +93,7 @@ app.use('/api/chat', checkToken, chatRoute);
 app.use('/api/message', checkToken, messageRoute);
 app.use('/api/notification', checkToken, notificationRoute);
 
-interface UserWithSockets {
-	userId: string;
-	socketIds: string[];
-}
-
-const usersWithSockets: UserWithSockets[] = [];
+const onlineUsers: UserWithSockets[] = [];
 
 io.on('connect', (socket: Socket) => {
 	console.log(`🔌 socket id: ${socket.id}`);
@@ -103,27 +106,27 @@ io.on('connect', (socket: Socket) => {
 		socket.handshake.query.userId = userId;
 
 		//Control when there are multiple tabs
-		const isExistent = usersWithSockets.map((el) => el.userId).includes(userId as string);
+		const isExistent = onlineUsers.map((el) => el.userId).includes(userId as string);
 
 		if (!isExistent) {
 			io.emit('online', { userId });
 		}
 
-		// Add a user and socketId in the usersWIthSockets.
-		const targetIndex = usersWithSockets.findIndex((userWithSockets) => userWithSockets.userId === userId);
+		// Add a user and socketId in onlineUsers.
+		const targetIndex = onlineUsers.findIndex((userWithSockets) => userWithSockets.userId === userId);
 
 		if (targetIndex >= 0) {
 			// Whene there is an existing user.
-			usersWithSockets[targetIndex].socketIds.push(socket.id);
+			onlineUsers[targetIndex].socketIds.push(socket.id);
 		} else {
-			// A new user connection established.
-			usersWithSockets.push({
+			// A new user's connection established.
+			onlineUsers.push({
 				userId: userId as string,
 				socketIds: [socket.id],
 			});
 		}
 
-		console.log(usersWithSockets);
+		console.log(onlineUsers);
 
 		socket.join(chatIds);
 	});
@@ -139,13 +142,13 @@ io.on('connect', (socket: Socket) => {
 	});
 
 	socket.on('fetch_members', () => {
-		socket.emit('set_members_status', { userIds: usersWithSockets.map((el) => el.userId) });
+		socket.emit('set_members_status', { userIds: onlineUsers.map((el) => el.userId) });
 	});
 
 	socket.on('check_online', (data: { receiverId: string; chatId: string }) => {
 		const { receiverId, chatId } = data;
 
-		const isOnline = usersWithSockets.some((el) => el.userId === receiverId);
+		const isOnline = onlineUsers.some((el) => el.userId === receiverId);
 
 		socket.emit('is_online', { isOnline, chatId });
 	});
@@ -201,7 +204,7 @@ io.on('connect', (socket: Socket) => {
 				},
 			});
 
-			const target = usersWithSockets.filter((el) => {
+			const target = onlineUsers.filter((el) => {
 				return el.userId === receiverId;
 			});
 
@@ -268,7 +271,7 @@ io.on('connect', (socket: Socket) => {
 	socket.on('delete_chat', (data: { chatId: string }) => {
 		const { chatId } = data;
 
-		io.to(chatId).emit('destroy_chat', { chatId });
+		io.to(chatId).emit('destroy_chat');
 
 		socket.leave(chatId);
 	});
@@ -276,7 +279,7 @@ io.on('connect', (socket: Socket) => {
 	socket.on('send_notification', (data) => {
 		const { receiverId } = data;
 
-		const target = usersWithSockets.filter((el) => {
+		const target = onlineUsers.filter((el) => {
 			return el.userId === receiverId;
 		});
 
@@ -290,7 +293,7 @@ io.on('connect', (socket: Socket) => {
 	socket.on('accept_friend', (data: { id: string; avatar: string; username: string; receiverId: string }) => {
 		const { id, avatar, username, receiverId } = data;
 
-		const target = usersWithSockets.filter((el) => {
+		const target = onlineUsers.filter((el) => {
 			return el.userId === receiverId;
 		});
 
@@ -304,7 +307,7 @@ io.on('connect', (socket: Socket) => {
 	socket.on('remove_friend', (data: { receiverId: string; senderId: string }) => {
 		const { receiverId, senderId } = data;
 
-		const target = usersWithSockets.filter((el) => {
+		const target = onlineUsers.filter((el) => {
 			return el.userId === receiverId;
 		});
 
@@ -320,7 +323,7 @@ io.on('connect', (socket: Socket) => {
 
 		//Control when there are multiple tabs
 		if (userId) {
-			const socketLength = usersWithSockets.filter((el) => el.userId === userId)[0].socketIds.length;
+			const socketLength = onlineUsers.filter((el) => el.userId === userId)[0].socketIds.length;
 
 			if (socketLength === 1) {
 				io.emit('offline', { userId });
@@ -328,7 +331,7 @@ io.on('connect', (socket: Socket) => {
 		}
 
 		// Remove the socketId from usersWithSocketIds array.
-		for (const [index, userWithSockets] of usersWithSockets.entries()) {
+		for (const [index, userWithSockets] of onlineUsers.entries()) {
 			const targetIndex = userWithSockets.socketIds.findIndex((socketId) => {
 				return socketId === socket.id;
 			});
@@ -337,7 +340,7 @@ io.on('connect', (socket: Socket) => {
 				userWithSockets.socketIds.splice(targetIndex, 1);
 
 				if (userWithSockets.socketIds.length === 0) {
-					usersWithSockets.splice(index, 1);
+					onlineUsers.splice(index, 1);
 				}
 
 				break;
@@ -349,7 +352,7 @@ io.on('connect', (socket: Socket) => {
 		}
 
 		console.log(`👋 socket id: ${socket.id}`);
-		console.log(usersWithSockets);
+		console.log(onlineUsers);
 		console.log('------------------------------------------------------------- \n');
 	});
 });

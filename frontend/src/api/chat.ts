@@ -42,6 +42,15 @@ export const createChat = async (formData: FormData) => {
 	return data;
 };
 
+export const joinChat = async (chatName: string) => {
+	const { data } = await axios.get<Chat>('/chat/name', {
+		params: { chatName },
+		withCredentials: true,
+	});
+
+	return data;
+};
+
 export const createPrivateChat = async (senderId: string, receiverId: string) => {
 	const { data } = await axios.post<Chat | PreviousChat>(
 		'/chat/private',

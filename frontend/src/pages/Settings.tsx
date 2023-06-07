@@ -1,12 +1,12 @@
 import { ChangeEvent, useRef, useState } from 'react';
-import axios from 'axios';
-import { HiCamera, HiX } from 'react-icons/hi';
+import { HiCamera } from 'react-icons/hi';
 import toast, { Toaster } from 'react-hot-toast';
-import { useForm } from 'react-hook-form';
+import { SubmitHandler, useForm } from 'react-hook-form';
 
-import { AuthErrorResponse, AxiosResponseWithUsername, User } from '../types';
 import defaultImageUrl from '/default.jpg';
 import useUser from '../hooks/useUser';
+import useUpdateUser from '../hooks/useUpdateUser';
+import useUploadAvatar from '../hooks/useUploadAvatar';
 
 interface FormData {
 	email: string;
@@ -33,6 +33,8 @@ const Settings = () => {
 			username: currentUser!.username,
 		},
 	});
+	const { mutate: updateUserMutate } = useUpdateUser(setError);
+	const { mutate: uploadAvatarMutate } = useUploadAvatar(setIsUploading);
 
 	// Determining permission of submit button.
 	let isDisable = true;
@@ -44,8 +46,8 @@ const Settings = () => {
 		isDisable = false;
 	}
 
-	const onSubmit = handleSubmit(async (formData) => {
-		const { newPassword, confirmNewPassword, username } = formData;
+	const submitHandler: SubmitHandler<FormData> = async (data) => {
+		const { newPassword, confirmNewPassword, username } = data;
 
 		// Check if password and confirmPassword match
 		if (newPassword !== confirmNewPassword) {
@@ -69,23 +71,8 @@ const Settings = () => {
 			dataToUpdate.username = username;
 		}
 
-		try {
-			await axios.patch<AxiosResponseWithUsername>('/user', dataToUpdate, {
-				withCredentials: true,
-			});
-
-			window.location.href = '/';
-		} catch (error) {
-			if (axios.isAxiosError(error) && error.response?.status === 400) {
-				// Set an error into username field.
-				const serverError = error.response.data as AuthErrorResponse;
-
-				setError('username', { type: 'taken', message: serverError.message });
-			} else if (error instanceof Error) {
-				console.log(error);
-			}
-		}
-	});
+		updateUserMutate(dataToUpdate);
+	};
 
 	const uploadImage = async (image: File) => {
 		setIsUploading(true);
@@ -95,12 +82,7 @@ const Settings = () => {
 		formData.append('file', image!);
 		formData.append('public_id', currentUser!.public_id || '');
 
-		await axios.post<User>('/user/avatar', formData, {
-			withCredentials: true,
-		});
-
-		window.location.href = '/';
-		setIsUploading(false);
+		uploadAvatarMutate(formData);
 	};
 
 	const changeFileHandler = (event: ChangeEvent<HTMLInputElement>) => {
@@ -147,9 +129,7 @@ const Settings = () => {
 						</div>
 					</div>
 				</div>
-
 				{imageError && <span className="text-error">{imageError}</span>}
-
 				<input
 					type="file"
 					disabled={isUploading}
@@ -158,13 +138,11 @@ const Settings = () => {
 					className="hidden"
 					onChange={changeFileHandler}
 				/>
-
-				<form className="mt-5" onSubmit={onSubmit}>
+				<form className="mt-5" onSubmit={handleSubmit(submitHandler)}>
 					<div className="form-control w-full">
 						<label className="label">
 							<span className="label-text">Email</span>
 						</label>
-
 						<input
 							className="input-bordered input w-full border hover:cursor-not-allowed disabled:text-gray-400"
 							disabled
@@ -178,25 +156,21 @@ const Settings = () => {
 							aria-invalid={errors.email ? 'true' : 'false'}
 						/>
 					</div>
-
 					<div className="form-control w-full">
 						<label className="label">
 							<span className="label-text">New Password</span>
 						</label>
-
 						<input
 							className={`input-bordered input w-full border ${errors.newPassword && 'border-error'}`}
 							type="password"
 							{...register('newPassword')}
 						/>
-
 						{errors.newPassword?.type === 'match' && (
 							<span role="alert" className="text-error">
 								{errors.newPassword.message}
 							</span>
 						)}
 					</div>
-
 					<div className="form-control w-full">
 						<label className="label">
 							<span className="label-text">Confirm New Password</span>
@@ -204,32 +178,22 @@ const Settings = () => {
 
 						<input className="input-bordered input w-full border" type="password" {...register('confirmNewPassword')} />
 					</div>
-
 					<div className="form-controla w-full">
 						<label className="label">
 							<span className="label-text">Username</span>
 						</label>
-
 						<input
 							className={`input-bordered input w-full border ${errors.username && 'border-error'}`}
 							{...register('username', {
 								required: { value: true, message: 'Username is required' },
 							})}
 						/>
-
-						{errors.username?.type === 'required' && (
-							<span role="alert" className="text-error">
-								{errors.username.message}
-							</span>
-						)}
-
-						{errors.username?.type === 'taken' && (
+						{(errors.username?.type === 'required' || errors.username?.type === 'taken') && (
 							<span role="alert" className="text-error">
 								{errors.username.message}
 							</span>
 						)}
 					</div>
-
 					<div className="w-full text-right">
 						<button
 							type="submit"

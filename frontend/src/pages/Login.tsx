@@ -1,12 +1,12 @@
 import { Link, Navigate, useNavigate } from 'react-router-dom';
-import { useForm } from 'react-hook-form';
+import { SubmitHandler, useForm } from 'react-hook-form';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import axios, { AxiosError } from 'axios';
+import { SyncLoader } from 'react-spinners';
 
 import useUser from '../hooks/useUser';
 import { logInUser } from '../api/auth';
 import { User } from '../types';
-import { SyncLoader } from 'react-spinners';
 
 interface FormData {
 	email: string;
@@ -37,11 +37,11 @@ const Login = () => {
 		formState: { errors },
 	} = useForm<FormData>();
 
-	const onSubmit = handleSubmit(async (data) => {
+	const submitHandler: SubmitHandler<FormData> = (data) => {
 		const { email, password } = data;
 
 		logInMutate({ email, password });
-	});
+	};
 
 	if (currentUser) {
 		return <Navigate to={'/explorer'}></Navigate>;
@@ -53,7 +53,7 @@ const Login = () => {
 				<div className="bg-base-100 relative w-full rounded-lg p-10 shadow-none sm:border sm:shadow-lg">
 					{isLoading && <div className="absolute inset-0 cursor-not-allowed rounded-lg bg-gray-200 opacity-50"></div>}
 					<div className="text-center text-2xl font-bold">Welcome to chit-chat</div>
-					<form onSubmit={onSubmit} className="flex flex-col items-center justify-center gap-y-5">
+					<form onSubmit={handleSubmit(submitHandler)} className="flex flex-col items-center justify-center gap-y-5">
 						<div className="w-full">
 							<label className="label">Email</label>
 							<input
@@ -69,17 +69,9 @@ const Login = () => {
 								})}
 								aria-invalid={errors.email ? 'true' : 'false'}
 							/>
-							{errors.email?.type === 'required' && (
-								<p role="alert" className="text-error" data-cy="email-error">
-									{errors.email.message}
-								</p>
-							)}
-							{errors.email?.type === 'pattern' && (
-								<p role="alert" className="text-error" data-cy="email-error">
-									{errors.email.message}
-								</p>
-							)}
-							{errors.email?.type === 'incorrect' && (
+							{(errors.email?.type === 'required' ||
+								errors.email?.type === 'pattern' ||
+								errors.email?.type === 'incorrect') && (
 								<p role="alert" className="text-error" data-cy="email-error">
 									{errors.email.message}
 								</p>
@@ -96,12 +88,7 @@ const Login = () => {
 									required: { value: true, message: 'Password is required' },
 								})}
 							/>
-							{errors.password?.type === 'required' && (
-								<p role="alert" className="text-error" data-cy="password-error">
-									{errors.password.message}
-								</p>
-							)}
-							{errors.password?.type === 'incorrect' && (
+							{(errors.password?.type === 'required' || errors.password?.type === 'incorrect') && (
 								<p role="alert" className="text-error" data-cy="password-error">
 									{errors.password.message}
 								</p>

@@ -25,7 +25,7 @@ const useCreateNotification = () => {
 
 			socket.emit('send_notification', { ...data });
 		},
-		onError: (error: any) => {
+		onError: (error) => {
 			console.log(error);
 		},
 	});
