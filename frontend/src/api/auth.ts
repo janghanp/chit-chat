@@ -14,7 +14,7 @@ export const fetchUser = async () => {
     return data;
 };
 
-export const logInUser = async (email: string, password: string) => {
+export const loginUser = async (email: string, password: string) => {
     const { data } = await axios.post<User>(
         '/auth/login',
         {

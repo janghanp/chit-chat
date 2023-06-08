@@ -1,12 +1,9 @@
-import { Link, Navigate, useNavigate } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import { SubmitHandler, useForm } from 'react-hook-form';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import axios, { AxiosError } from 'axios';
 import { SyncLoader } from 'react-spinners';
 
 import useUser from '../hooks/useUser';
-import { logInUser } from '../api/auth';
-import { User } from '../types';
+import useLogin from '../hooks/useLogin';
 
 interface FormData {
     email: string;
@@ -14,29 +11,7 @@ interface FormData {
 }
 
 const Login = () => {
-    const navigate = useNavigate();
-    const queryClient = useQueryClient();
     const { data: currentUser } = useUser();
-    const { mutate: logInMutate, isLoading } = useMutation({
-        mutationFn: ({ email, password }: { email: string; password: string }) =>
-            logInUser(email, password),
-        async onSuccess() {
-            await queryClient.invalidateQueries<User>(['currentUser']);
-            navigate('/explorer');
-        },
-        onError(error: AxiosError | Error) {
-            if (axios.isAxiosError(error)) {
-                setError('email', {
-                    type: 'incorrect',
-                    message: error.response?.data.message,
-                });
-                setError('password', {
-                    type: 'incorrect',
-                    message: error.response?.data.message,
-                });
-            }
-        },
-    });
     const {
         register,
         handleSubmit,
@@ -44,10 +19,12 @@ const Login = () => {
         formState: { errors },
     } = useForm<FormData>();
 
+    const { mutate: loginMutate, isLoading } = useLogin(setError);
+
     const submitHandler: SubmitHandler<FormData> = (data) => {
         const { email, password } = data;
 
-        logInMutate({ email, password });
+        loginMutate({ email, password });
     };
 
     if (currentUser) {

@@ -1,53 +1,20 @@
-import { Link, Navigate, useNavigate } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import { SubmitHandler, useForm } from 'react-hook-form';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import axios, { AxiosError } from 'axios';
 import { SyncLoader } from 'react-spinners';
 
-import { FormData, User } from '../types';
+import { FormData } from '../types';
 import useUser from '../hooks/useUser';
-import { registerUser } from '../api/auth';
+import useRegister from '../hooks/useRegister';
 
 const Register = () => {
-    const navigate = useNavigate();
-    const queryClient = useQueryClient();
     const { data: currentUser } = useUser();
-    const { mutate: registerMutate, isLoading } = useMutation({
-        mutationFn: ({
-            email,
-            password,
-            username,
-        }: {
-            email: string;
-            password: string;
-            username: string;
-        }) => registerUser(email, password, username),
-        async onSuccess() {
-            await queryClient.invalidateQueries<User>(['currentUser']);
-            navigate('/explorer');
-        },
-        onError(error: AxiosError | Error) {
-            if (axios.isAxiosError(error)) {
-                if (error.response?.data.message.includes('email')) {
-                    setError('email', {
-                        type: 'taken',
-                        message: error.response?.data.message,
-                    });
-                } else if (error.response?.data.message.includes('username')) {
-                    setError('username', {
-                        type: 'taken',
-                        message: error.response?.data.message,
-                    });
-                }
-            }
-        },
-    });
     const {
         register,
         handleSubmit,
         setError,
         formState: { errors },
     } = useForm<FormData>();
+    const { mutate: registerMutate, isLoading } = useRegister(setError);
 
     const submitHandler: SubmitHandler<FormData> = (data) => {
         const { email, password, confirmPassword, username } = data;

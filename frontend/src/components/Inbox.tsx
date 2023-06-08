@@ -2,52 +2,19 @@ import { Fragment, useEffect, useState } from 'react';
 import { HiX } from 'react-icons/hi';
 import { HiBell } from 'react-icons/hi2';
 import { SyncLoader } from 'react-spinners';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import produce from 'immer';
 
 import useUser from '../hooks/useUser';
-import { fetchNotifications, readAllNotifications } from '../api/notification';
-import { Notification as NotificationType, User } from '../types';
-import { checkNotification } from '../api/user';
+import { Notification as NotificationType } from '../types';
 import Notification from './Notification';
+import useNotifications from '../hooks/useNotifications';
+import useCheckNotification from '../hooks/useCheckNotification';
+import useReadAllNotifications from '../hooks/useReadAllNotifications';
 
 const Inbox = () => {
-    const queryClient = useQueryClient();
     const { data: currentUser } = useUser();
-    const { isLoading, isError, data } = useQuery({
-        queryKey: ['notifications'],
-        queryFn: async () => fetchNotifications(currentUser!.id),
-    });
-    const { mutate: checkNotificationMutate } = useMutation({
-        mutationFn: async ({ userId }: { userId: string }) => checkNotification(userId),
-        onSuccess: () => {
-            queryClient.setQueryData<User>(['currentUser'], (old) => {
-                if (old) {
-                    return { ...old, hasNewNotification: false };
-                }
-            });
-        },
-        onError: (error) => {
-            console.log(error);
-        },
-    });
-    const { mutate: readAllNotificaionMutate } = useMutation({
-        mutationFn: async () => readAllNotifications(),
-        onSuccess: () => {
-            queryClient.setQueryData<NotificationType[]>(['notifications'], (old) => {
-                if (old) {
-                    return produce(old, (draftState) => {
-                        draftState.forEach((notification) => {
-                            notification.read = true;
-                        });
-                    });
-                }
-            });
-        },
-        onError: (error) => {
-            console.log(error);
-        },
-    });
+    const { isLoading, isError, data } = useNotifications(currentUser!.id);
+    const { mutate: checkNotificationMutate } = useCheckNotification();
+    const { mutate: readAllNotificaionMutate } = useReadAllNotifications();
     const [isOpen, setIsOpen] = useState<boolean>(false);
     const [filter, setFilter] = useState<'all' | 'unread'>('all');
 

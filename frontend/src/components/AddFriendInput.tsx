@@ -1,53 +1,29 @@
-import { useState } from 'react';
+import { ChangeEvent, FormEvent, useState } from 'react';
 
 import useCreateNotification from '../hooks/useCreateNotification';
 import useUser from '../hooks/useUser';
-import { useMutation } from '@tanstack/react-query';
-import { fetchUserByUsername } from '../api/user';
+import useSendFriendRequest from '../hooks/useSendFriendRequest';
 
 const AddFriendInput = () => {
     const { data: currentUser } = useUser();
     const { mutate: createNotificationMutate } = useCreateNotification();
-    const { mutate: getUserMutate } = useMutation({
-        mutationFn: ({ username }: { username: string }) => {
-            return fetchUserByUsername(username);
-        },
-        onSuccess: async ({ data, status }) => {
-            //if a receiver exists, create a notification for the receiver.
-            if (data && status === 200) {
-                createNotificationMutate({
-                    receiverId: data.id,
-                    message: `has sent you a friend request`,
-                    senderId: currentUser!.id,
-                });
-
-                setMessage('Your request has been sent successfully!');
-            }
-
-            if (status === 202) {
-                setError('You are already a friend of him/her');
-            }
-
-            if (status === 204) {
-                setError("Couldn't find the user...");
-            }
-        },
-        onError: (error) => {
-            console.log(error);
-            setMessage('Something went wrong. please try again...');
-        },
-    });
     const [username, setUsername] = useState<string>('');
     const [message, setMessage] = useState<string>('');
     const [error, setError] = useState<string>('');
+    const { mutate: sendFriendRequest } = useSendFriendRequest({
+        createNotificationMutate,
+        setError,
+        setMessage,
+        currentUserId: currentUser!.id,
+    });
 
-    const inputChangeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const inputChangeHandler = (e: ChangeEvent<HTMLInputElement>) => {
         setError('');
         setMessage('');
         setUsername(e.target.value);
     };
 
-    const submitHandler = (e: React.FormEvent<HTMLFormElement>) => {
+    const submitHandler = (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setError('');
         setMessage('');
@@ -61,7 +37,7 @@ const AddFriendInput = () => {
             return;
         }
 
-        getUserMutate({ username });
+        sendFriendRequest({ username });
     };
 
     return (

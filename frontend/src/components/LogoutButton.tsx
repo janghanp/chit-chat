@@ -1,11 +1,10 @@
 import { Dispatch, SetStateAction, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { HiOutlineLogout } from 'react-icons/hi';
-import axios, { AxiosError } from 'axios';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 
 import { socket } from '../socket';
-import { logOutUser } from '../api/auth';
+import useLogout from '../hooks/useLogout';
 
 interface Props {
     setIsDropdownOpen: Dispatch<SetStateAction<boolean>>;
@@ -13,27 +12,11 @@ interface Props {
 
 const LogoutButton = ({ setIsDropdownOpen }: Props) => {
     const queryClient = useQueryClient();
-    const { mutate } = useMutation({
-        mutationFn: () => logOutUser(),
-        onSuccess() {
-            queryClient.removeQueries({ queryKey: ['currentUser'] });
-            queryClient.removeQueries({ queryKey: ['groupChatRooms'] });
-            queryClient.removeQueries({ queryKey: ['privateChatRooms'] });
-            queryClient.removeQueries({ queryKey: ['chat'] });
-            queryClient.removeQueries({ queryKey: ['messages'] });
-
-            window.location.href = '/';
-        },
-        onError(error: AxiosError | Error) {
-            if (axios.isAxiosError(error)) {
-                console.log(error.response?.data);
-            }
-        },
-    });
+    const { mutate: logout } = useLogout();
     const [isOpen, setIsOpen] = useState<boolean>(false);
 
     const handleLogout = () => {
-        mutate();
+        logout();
         queryClient.removeQueries({ queryKey: ['currentUser'], exact: true });
 
         socket.disconnect();

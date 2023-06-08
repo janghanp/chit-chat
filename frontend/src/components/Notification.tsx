@@ -1,15 +1,15 @@
-import { Dispatch, SetStateAction, memo } from 'react';
+import { Dispatch, SetStateAction, memo, MouseEvent } from 'react';
 import { formatDistance, subDays } from 'date-fns';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 
-import { Friend, Notification as NotificationType } from '../types';
+import { Notification as NotificationType } from '../types';
 import defaultAvatar from '/default.jpg';
-import { addFriend } from '../api/user';
 import useCreateNotification from '../hooks/useCreateNotification';
-import { deleteNotification, readNotification } from '../api/notification';
+import useAccpetFriendRequest from '../hooks/useAccpetFriendRequest';
 import useUser from '../hooks/useUser';
+import useDeleteNotification from '../hooks/useDeleteNotification';
 import { socket } from '../socket';
+import useReadNotification from '../hooks/useReadNotification';
 
 interface Props {
     notification: NotificationType;
@@ -17,97 +17,20 @@ interface Props {
 }
 
 const Notification = ({ notification, setIsOepn }: Props) => {
-    const queryClient = useQueryClient();
     const navigate = useNavigate();
     const { data: currentUser } = useUser();
     const { mutate: createNotificationMutate } = useCreateNotification();
-    const { mutate: addFriendMutate } = useMutation({
-        mutationFn: async ({
-            receiverId,
-            senderId,
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            notification,
-        }: {
-            receiverId: string;
-            senderId: string;
-            notification: NotificationType;
-        }) => addFriend(senderId, receiverId),
-        onSuccess: (data, variables) => {
-            const { notification } = variables;
+    const { mutate: acceptFriendRequestMutate } = useAccpetFriendRequest();
+    const { mutate: deleteNotificationMutate } = useDeleteNotification();
+    const { mutate: readNotificationMutate } = useReadNotification();
 
-            queryClient.setQueryData<NotificationType[]>(['notifications'], (old) => {
-                if (old) {
-                    notification.message = `You accpeted ${notification.sender.username}' s friend request`;
-                    notification.createdAt = new Date().toISOString();
-                    notification.read = true;
-                    notification.temp = true;
-
-                    return [...old, notification];
-                }
-            });
-
-            queryClient.setQueryData<Friend[]>(['friends'], (old) => {
-                if (old) {
-                    return [
-                        ...old,
-                        {
-                            id: notification.senderId,
-                            avatar: notification.sender.avatar,
-                            username: notification.sender.username,
-                        },
-                    ];
-                }
-            });
-        },
-        onError: (error) => {
-            console.log(error);
-        },
-    });
-    const { mutate: deleteNotificationMutate } = useMutation({
-        mutationFn: async ({ notificationId }: { notificationId: string }) =>
-            deleteNotification(notificationId),
-        onSuccess: (data, variables) => {
-            const { notificationId } = variables;
-
-            queryClient.setQueryData<NotificationType[]>(['notifications'], (old) => {
-                if (old) {
-                    return old.filter((notificaion) => notificaion.id !== notificationId);
-                }
-            });
-        },
-        onError: (error) => {
-            console.log(error);
-        },
-    });
-    const { mutate: readNotificationMutate } = useMutation({
-        mutationFn: async ({ notificationId }: { notificationId: string }) =>
-            readNotification(notificationId),
-        onSuccess: (data, variables) => {
-            const { notificationId } = variables;
-            queryClient.setQueryData<NotificationType[]>(['notifications'], (old) => {
-                if (old) {
-                    const newNotification = old.map((notification) => {
-                        if (notification.id === notificationId) {
-                            notification.read = true;
-                            return { ...notification };
-                        }
-                        return notification;
-                    });
-
-                    return newNotification;
-                }
-            });
-        },
-        onError: (error) => {
-            console.log(error);
-        },
-    });
-
-    const acceptFriendRequest = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    const acceptFriendRequestHandler = (
+        e: MouseEvent<HTMLButtonElement, globalThis.MouseEvent>
+    ) => {
         e.stopPropagation();
 
         deleteNotificationMutate({ notificationId: notification.id });
-        addFriendMutate({
+        acceptFriendRequestMutate({
             receiverId: currentUser!.id,
             senderId: notification.senderId,
             notification,
@@ -174,7 +97,7 @@ const Notification = ({ notification, setIsOepn }: Props) => {
                     <div className="flex gap-x-2">
                         <button
                             className="btn-success btn-sm btn normal-case"
-                            onClick={acceptFriendRequest}
+                            onClick={acceptFriendRequestHandler}
                         >
                             Accept
                         </button>

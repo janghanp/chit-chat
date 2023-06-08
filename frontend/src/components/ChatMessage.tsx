@@ -10,9 +10,6 @@ interface Props {
 }
 
 const ChatMessage = ({ message, isOwner, firstElementRef }: Props) => {
-    console.log(message);
-    console.log(message.attachments);
-
     return (
         <div
             ref={firstElementRef}

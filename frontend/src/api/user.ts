@@ -2,7 +2,7 @@ import axios from 'axios';
 
 import { AxiosResponseWithUsername, Friend, User } from '../types';
 
-export const addFriend = async (senderId: string, receiverId: string) => {
+export const acceptFriendRequest = async (senderId: string, receiverId: string) => {
     const { data } = await axios.patch<'OK'>(
         '/user/friend',
         {

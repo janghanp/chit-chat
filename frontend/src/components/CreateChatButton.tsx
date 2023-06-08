@@ -1,11 +1,9 @@
-import { ChangeEvent, useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { ChangeEvent, FormEvent, useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { HiCamera, HiPlus } from 'react-icons/hi';
 import { SyncLoader } from 'react-spinners';
-import { useMutation } from '@tanstack/react-query';
 
-import { createPortal } from 'react-dom';
-import { createChat } from '../api/chat';
+import useCreateChat from '../hooks/useCreateChat';
 
 interface Props {
     currentUserId: string;
@@ -13,30 +11,17 @@ interface Props {
 }
 
 const CreateChatButton = ({ currentUserId, closeSidebar }: Props) => {
-    const navigate = useNavigate();
     const [roomName, setRoomName] = useState<string>('');
     const [error, setError] = useState<string>('');
     const [file, setFile] = useState<File | null>();
     const [preview, setPreview] = useState<string>();
     const [imageError, setImageError] = useState<string>();
-    const [isOpen, setIsOpen] = useState<boolean>();
+    const [isOpen, setIsOpen] = useState<boolean>(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
-    const { mutate, isLoading } = useMutation({
-        mutationFn: (formData: FormData) => {
-            return createChat(formData);
-        },
-        onSuccess: (data) => {
-            setIsOpen(false);
-
-            if (closeSidebar) {
-                closeSidebar();
-            }
-
-            navigate(`/chat/${data.id}`);
-        },
-        onError: (error) => {
-            setError(error.response.data.message);
-        },
+    const { mutate: createChat, isLoading } = useCreateChat({
+        setIsOpen,
+        closeSidebar: closeSidebar!,
+        setError,
     });
 
     useEffect(() => {
@@ -88,7 +73,7 @@ const CreateChatButton = ({ currentUserId, closeSidebar }: Props) => {
         setImageError('');
     };
 
-    const submitHandler = async (e: React.FormEvent<HTMLFormElement>) => {
+    const submitHandler = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
         if (!roomName) {
@@ -106,7 +91,7 @@ const CreateChatButton = ({ currentUserId, closeSidebar }: Props) => {
         formData.append('roomName', roomName);
         formData.append('ownerId', currentUserId);
 
-        mutate(formData);
+        createChat(formData);
     };
 
     return (

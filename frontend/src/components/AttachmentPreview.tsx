@@ -1,10 +1,9 @@
 import { Dispatch, SetStateAction } from 'react';
 import { HiTrash } from 'react-icons/hi2';
 import { BarLoader } from 'react-spinners';
-import { useMutation } from '@tanstack/react-query';
 
-import { deleteAttachments } from '../api/chat';
 import { Attachment } from '../types';
+import useDeleteAttachments from '../hooks/useDeleteAttachments';
 
 interface Props {
     attachment: Attachment;
@@ -13,21 +12,9 @@ interface Props {
 }
 
 const AttachmentPreview = ({ chatId, attachment, setAttachments }: Props) => {
-    const { mutate: deleteAttachmentsMutate } = useMutation({
-        mutationFn: ({ chatId, public_id }: { chatId: string; public_id: string }) => {
-            return deleteAttachments(chatId, public_id);
-        },
-        onMutate() {
-            setAttachments((prev) => {
-                return prev.filter((el) => el.id !== attachment.id);
-            });
-        },
-        onSuccess: (data) => {
-            console.log(data);
-        },
-        onError: (error) => {
-            console.log(error);
-        },
+    const { mutate: deleteAttachmentsMutate } = useDeleteAttachments({
+        attachmentId: attachment.id,
+        setAttachments,
     });
 
     const deleteAttachMentHandler = () => {
