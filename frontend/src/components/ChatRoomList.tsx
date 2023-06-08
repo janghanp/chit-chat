@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction, memo, useState } from 'react';
+import { memo, useState } from 'react';
 
 import GroupChatRoom from './GroupChatRoom';
 import PrivateChatRoom from './PrivateChatRoom';
@@ -6,11 +6,7 @@ import ChatRoomSkeleton from './ChatRoomSkeleton';
 import useGroupChatRooms from '../hooks/useGroupChatRooms';
 import usePrivateChatRooms from '../hooks/usePrivateChatRooms';
 
-interface Props {
-    setIsSidebarOpen: Dispatch<SetStateAction<boolean>>;
-}
-
-const ChatRoomList = ({ setIsSidebarOpen }: Props) => {
+const ChatRoomList = () => {
     const {
         isLoading: isGroupChatsLoading,
         isError: isGroupChatsError,
@@ -70,7 +66,6 @@ const ChatRoomList = ({ setIsSidebarOpen }: Props) => {
                                             <GroupChatRoom
                                                 key={groupChatRoom.id}
                                                 groupChatRoom={groupChatRoom}
-                                                setIsSidebarOpen={setIsSidebarOpen}
                                             />
                                         );
                                     })}
@@ -83,7 +78,6 @@ const ChatRoomList = ({ setIsSidebarOpen }: Props) => {
                                             <PrivateChatRoom
                                                 key={privateChatRoom.id}
                                                 privateChatRoom={privateChatRoom}
-                                                setIsSidebarOpen={setIsSidebarOpen}
                                             />
                                         );
                                     })}

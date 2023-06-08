@@ -11,8 +11,6 @@ interface Props {
 }
 
 const ChatMessage = ({ message, isOwner, firstElementRef }: Props) => {
-    console.log('ChatMessage.tsx render');
-
     return (
         <div
             ref={firstElementRef}
@@ -50,13 +48,12 @@ const ChatMessage = ({ message, isOwner, firstElementRef }: Props) => {
                         return (
                             <div
                                 key={attachment.public_id}
-                                className="bg-base-100 right-0 h-56 w-56 rounded-md border p-3 shadow-md"
+                                className="bg-base-100 right-0 h-72 w-72 rounded-md border p-3 shadow-md"
                             >
                                 <img
+                                    className="w-full h-full object-cover"
                                     src={attachment.secure_url}
                                     alt="attachment iamge"
-                                    width={250}
-                                    height={250}
                                 />
                             </div>
                         );

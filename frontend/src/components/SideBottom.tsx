@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { memo, useState } from 'react';
 
 import useUser from '../hooks/useUser';
 import UserProfileDropdown from './UserProfileDropdown';
@@ -33,8 +33,8 @@ const SideBottom = () => {
                 </div>
 
                 <div className="flex items-center gap-x-3 pt-1">
-                    <ExploreButton closeSidebar={() => console.log('test')} />
-                    <FriendsButton closeSidebar={() => console.log('test')} />
+                    <ExploreButton />
+                    <FriendsButton />
                     <Inbox />
                 </div>
             </div>
@@ -42,4 +42,4 @@ const SideBottom = () => {
     );
 };
 
-export default SideBottom;
+export default memo(SideBottom);

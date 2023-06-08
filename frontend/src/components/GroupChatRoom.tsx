@@ -1,4 +1,4 @@
-import { Dispatch, memo, SetStateAction, useEffect, useState } from 'react';
+import { memo, useEffect, useState } from 'react';
 import { format } from 'date-fns';
 import { useNavigate, useParams } from 'react-router-dom';
 import produce from 'immer';
@@ -7,18 +7,19 @@ import { useQueryClient } from '@tanstack/react-query';
 
 import { Chat } from '../types';
 import useUser from '../hooks/useUser';
+import { useToggleSidebarContext } from '../context/toggleSidebarContext';
 
 interface Props {
     groupChatRoom: Chat;
-    setIsSidebarOpen?: Dispatch<SetStateAction<boolean>>;
 }
 
-const GroupChatRoom = ({ groupChatRoom, setIsSidebarOpen }: Props) => {
+const GroupChatRoom = ({ groupChatRoom }: Props) => {
     const { chatId } = useParams();
     const navigate = useNavigate();
     const queryClient = useQueryClient();
     const { data: currentUser } = useUser();
     const [isNewMessage, setIsNewMessage] = useState<boolean>(false);
+    const { toggleSidebar } = useToggleSidebarContext();
 
     // Set new message indicator.
     useEffect(() => {
@@ -61,10 +62,7 @@ const GroupChatRoom = ({ groupChatRoom, setIsSidebarOpen }: Props) => {
     }, [chatId, queryClient, currentUser, groupChatRoom.id]);
 
     const clickHandler = async () => {
-        if (setIsSidebarOpen) {
-            setIsSidebarOpen(false);
-        }
-
+        toggleSidebar();
         navigate(`/chat/${groupChatRoom.id}`);
     };
 

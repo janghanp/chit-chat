@@ -71,7 +71,7 @@ const Inbox = () => {
                             {isError ? (
                                 <div>Error...</div>
                             ) : (
-                                <div className="fixed top-5 left-5 bottom-[75px] z-30 w-full md:max-w-[320px]">
+                                <div className="fixed inset-0 md:top-5 md:left-5 bottom-[75px] z-30 w-full md:max-w-[320px]">
                                     <div className="flex h-full w-full flex-col rounded-md bg-base-100">
                                         <div className="rounded-none border-b bg-base-300 p-5 sm:rounded-t-md">
                                             <div className="flex justify-between">

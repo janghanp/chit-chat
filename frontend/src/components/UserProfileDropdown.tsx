@@ -19,10 +19,7 @@ const UserProfileDropdown = ({ setIsDropdownOpen }: Props) => {
             >
                 <ul className="menu bg-base-100 rounded-box menu-compact w-52 border p-2 shadow">
                     <li>
-                        <SettingsButton
-                            closeSidebar={() => console.log('test')}
-                            setIsDropdownOpen={setIsDropdownOpen}
-                        />
+                        <SettingsButton setIsDropdownOpen={setIsDropdownOpen} />
                     </li>
                     <li>
                         <LogoutButton setIsDropdownOpen={setIsDropdownOpen} />

@@ -31,8 +31,6 @@ const ChatBody = () => {
         }
     }, [inView, hasNextPage, fetchNextPage]);
 
-    console.log('ChatBody.tsx');
-
     return (
         <div
             id="chat-body"

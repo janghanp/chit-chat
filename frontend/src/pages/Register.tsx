@@ -69,6 +69,7 @@ const Register = () => {
                             />
                             {(errors.email?.type === 'required' ||
                                 errors.email?.type === 'pattern' ||
+                                errors.email?.type === 'taken' ||
                                 errors.email?.type === 'incorrect') && (
                                 <p role="alert" className="text-error" data-cy="email-error">
                                     {errors.email.message}

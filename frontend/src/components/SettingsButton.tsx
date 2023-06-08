@@ -2,18 +2,19 @@ import { Dispatch, SetStateAction } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { HiCog } from 'react-icons/hi';
 
+import { useToggleSidebarContext } from '../context/toggleSidebarContext';
+
 interface Props {
-    closeSidebar: () => void;
     setIsDropdownOpen: Dispatch<SetStateAction<boolean>>;
 }
 
-const SettingsButton = ({ closeSidebar, setIsDropdownOpen }: Props) => {
+const SettingsButton = ({ setIsDropdownOpen }: Props) => {
     const navigate = useNavigate();
+    const { toggleSidebar } = useToggleSidebarContext();
 
     const handleClick = async () => {
-        closeSidebar();
         setIsDropdownOpen(false);
-
+        toggleSidebar();
         navigate('/settings');
     };
 

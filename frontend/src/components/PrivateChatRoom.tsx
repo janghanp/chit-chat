@@ -1,4 +1,4 @@
-import { Dispatch, memo, SetStateAction, useEffect, useState } from 'react';
+import { memo, useEffect, useState } from 'react';
 import { format } from 'date-fns';
 import { useNavigate, useParams } from 'react-router-dom';
 import produce from 'immer';
@@ -9,18 +9,19 @@ import { Chat } from '../types';
 import useUser from '../hooks/useUser';
 import defaultAvatar from '/default.jpg';
 import { socket } from '../socket';
+import { useToggleSidebarContext } from '../context/toggleSidebarContext';
 
 interface Props {
     privateChatRoom: Chat;
-    setIsSidebarOpen?: Dispatch<SetStateAction<boolean>>;
 }
 
-const PrivateChatRoom = ({ privateChatRoom, setIsSidebarOpen }: Props) => {
+const PrivateChatRoom = ({ privateChatRoom }: Props) => {
     const { chatId } = useParams();
     const navigate = useNavigate();
     const queryClient = useQueryClient();
     const { data: currentUser } = useUser();
     const [isNewMessage, setIsNewMessage] = useState<boolean>(false);
+    const { toggleSidebar } = useToggleSidebarContext();
 
     useEffect(() => {
         socket.emit('check_online', {
@@ -70,10 +71,7 @@ const PrivateChatRoom = ({ privateChatRoom, setIsSidebarOpen }: Props) => {
     }, [chatId, queryClient, currentUser, privateChatRoom.id]);
 
     const clickHandler = async () => {
-        if (setIsSidebarOpen) {
-            setIsSidebarOpen(false);
-        }
-
+        toggleSidebar();
         navigate(`/chat/${privateChatRoom.id}`);
     };
 

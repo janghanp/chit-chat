@@ -1,12 +1,15 @@
 import { Outlet } from 'react-router-dom';
 
+import { ToggleSidebarProvider } from '../context/toggleSidebarContext';
 import Sidebar from '../components/Sidebar';
 
 const Layout = () => {
     return (
         <div className="flex h-screen gap-x-0 p-0 md:gap-x-5 md:p-5">
             <div>
-                <Sidebar />
+                <ToggleSidebarProvider>
+                    <Sidebar />
+                </ToggleSidebarProvider>
             </div>
             <div className="w-full flex-1 rounded-md border shadow-md">
                 <Outlet />

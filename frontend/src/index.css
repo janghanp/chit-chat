@@ -24,3 +24,21 @@ html {
 body {
     min-height: 100%;
 }
+
+.open {
+    z-index: 10;
+    width: 100%;
+    transition: width;
+    transition-duration: 300ms;
+    opacity: 100;
+    animation: ease-in-out;
+}
+
+.close {
+    z-index: -10;
+    width: 0px;
+    transition: all;
+    transition-duration: 300ms;
+    opacity: 100;
+    animation: ease-in-out;
+}

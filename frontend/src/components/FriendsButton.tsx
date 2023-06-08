@@ -1,16 +1,14 @@
 import { useNavigate } from 'react-router-dom';
 import { HiOutlineUsers } from 'react-icons/hi';
 
-interface Props {
-    closeSidebar: () => void;
-}
+import { useToggleSidebarContext } from '../context/toggleSidebarContext';
 
-const FriendsButton = ({ closeSidebar }: Props) => {
+const FriendsButton = () => {
     const navigate = useNavigate();
+    const { toggleSidebar } = useToggleSidebarContext();
 
     const handleClick = async () => {
-        closeSidebar();
-
+        toggleSidebar();
         navigate('/friends');
     };
 

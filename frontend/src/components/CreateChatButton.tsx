@@ -1,16 +1,17 @@
-import { ChangeEvent, FormEvent, useEffect, useRef, useState } from 'react';
+import { ChangeEvent, FormEvent, memo, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { HiCamera, HiPlus } from 'react-icons/hi';
+import { HiOutlinePencilSquare } from 'react-icons/hi2';
 import { SyncLoader } from 'react-spinners';
 
 import useCreateChat from '../hooks/useCreateChat';
+import { useToggleSidebarContext } from '../context/toggleSidebarContext';
 
 interface Props {
     currentUserId: string;
-    closeSidebar?: () => void;
 }
 
-const CreateChatButton = ({ currentUserId, closeSidebar }: Props) => {
+const CreateChatButton = ({ currentUserId }: Props) => {
     const [roomName, setRoomName] = useState<string>('');
     const [error, setError] = useState<string>('');
     const [file, setFile] = useState<File | null>();
@@ -18,9 +19,10 @@ const CreateChatButton = ({ currentUserId, closeSidebar }: Props) => {
     const [imageError, setImageError] = useState<string>();
     const [isOpen, setIsOpen] = useState<boolean>(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const { toggleSidebar } = useToggleSidebarContext();
     const { mutate: createChat, isLoading } = useCreateChat({
         setIsOpen,
-        closeSidebar: closeSidebar!,
+        closeSidebar: toggleSidebar,
         setError,
     });
 
@@ -96,9 +98,9 @@ const CreateChatButton = ({ currentUserId, closeSidebar }: Props) => {
 
     return (
         <div data-cy="create-chat-button">
-            <div className="tooltip tooltip-top" data-tip="Create a chat">
+            <div className="tooltip tooltip-left md:tooltip-top" data-tip="Create a chat">
                 <button className="btn-ghost btn-sm btn btn-circle" onClick={() => setIsOpen(true)}>
-                    <HiPlus className="text-2xl" />
+                    <HiOutlinePencilSquare className="text-2xl" />
                 </button>
             </div>
 
@@ -228,4 +230,4 @@ const CreateChatButton = ({ currentUserId, closeSidebar }: Props) => {
     );
 };
 
-export default CreateChatButton;
+export default memo(CreateChatButton);

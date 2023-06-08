@@ -1,16 +1,14 @@
 import { useNavigate } from 'react-router-dom';
 import { IoCompassSharp } from 'react-icons/io5';
 
-interface Props {
-    closeSidebar: () => void;
-}
+import { useToggleSidebarContext } from '../context/toggleSidebarContext';
 
-const ExploreButton = ({ closeSidebar }: Props) => {
+const ExploreButton = () => {
     const navigate = useNavigate();
+    const { toggleSidebar } = useToggleSidebarContext();
 
     const handleClick = async () => {
-        closeSidebar();
-
+        toggleSidebar();
         navigate('/explorer');
     };
 

@@ -1,15 +1,17 @@
-/* eslint-disable no-mixed-spaces-and-tabs */
 import { PrismaClient } from '@prisma/client';
 import { Request, Response, Router } from 'express';
 import cloudinary from 'cloudinary';
 import multer from 'multer';
+import { DeleteObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3';
+import { v4 as uuid } from 'uuid';
 
 import { exclude } from '../utils/exclude';
+import { s3 } from '../utils/s3';
 
 const prisma = new PrismaClient();
 
 const uploader = multer({
-    storage: multer.diskStorage({}),
+    storage: multer.memoryStorage(),
     limits: { fieldSize: 1000000 },
 });
 
@@ -647,14 +649,25 @@ router.post(
         }
 
         try {
-            // Upload an image to cloudinary.
-            const upload = await cloudinary.v2.uploader.upload(req.file.path, {
-                folder: `/chit-chat/chat/${chatId}`,
-            });
+            //Upload an image to s3
+            const type = req.file.mimetype;
+            const fileExtension = req.file.mimetype.split('/')[1];
+            const Key = `${uuid()}.${fileExtension}`;
+
+            const input = {
+                Bucket: process.env.AWS_S3_BUCKET,
+                Key: `chat/${chatId}/${Key}`,
+                Body: req.file.buffer,
+                ContentType: type,
+            };
+
+            const putCommand = new PutObjectCommand(input);
+
+            await s3.send(putCommand);
 
             const attachment = {
-                public_id: upload.public_id,
-                secure_url: upload.secure_url,
+                public_id: input.Key,
+                secure_url: `https://chit-chat-demo.s3.ap-southeast-2.amazonaws.com/${input.Key}`,
             };
 
             return res.status(200).json(attachment);
@@ -671,7 +684,14 @@ router.delete('/:chatId/attachments', async (req: Request, res: Response) => {
 
     try {
         if (public_id) {
-            const result = await cloudinary.v2.uploader.destroy(public_id);
+            const input = {
+                Bucket: process.env.AWS_S3_BUCKET,
+                Key: public_id,
+            };
+
+            const deleteCommand = new DeleteObjectCommand(input);
+
+            const result = await s3.send(deleteCommand);
 
             return res.status(204).json(result);
         }
