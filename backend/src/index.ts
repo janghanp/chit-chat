@@ -15,66 +15,74 @@ import chatRoute from './routes/chatRoute';
 import messageRoute from './routes/messageRoute';
 import notificationRoute from './routes/notificationRoute';
 
-dotenv.config();
-
 interface Chat {
-	id: string;
-	name: string;
-	icon?: string;
-	public_id?: string;
-	ownerId: string;
+    id: string;
+    name: string;
+    icon?: string;
+    public_id?: string;
+    ownerId: string;
 }
 
 interface CurrentUser {
-	id: string;
-	username: string;
-	email: string;
-	avatar?: string;
-	public_id?: string;
-	isOnline?: boolean;
-	chats: Chat[];
+    id: string;
+    username: string;
+    email: string;
+    avatar?: string;
+    public_id?: string;
+    isOnline?: boolean;
+    chats: Chat[];
 }
 
 interface AttachmentInfo {
-	public_id: string;
-	secure_url: string;
+    public_id: string;
+    secure_url: string;
 }
 
-const prisma = new PrismaClient();
+interface UserWithSockets {
+    userId: string;
+    socketIds: string[];
+}
 
-// cloudinary picks up env and is now configured.
-cloudinary.v2.config({ secure: true });
+dotenv.config();
+
+cloudinary.v2.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
+const prisma = new PrismaClient();
 
 const app = express();
 
 const server = http.createServer(app);
 
 const io = new Server(server, {
-	cors: {
-		origin: [
-			'http://localhost:5173',
-			'http://localhost:4173',
-			'http://localhost',
-			'https://www.chitchat.lat',
-			'https://chitchat.lat',
-		],
-		methods: ['GET', 'POST'],
-		credentials: true,
-	},
+    cors: {
+        origin: [
+            'http://localhost:5173',
+            'http://localhost:4173',
+            'http://localhost',
+            'https://www.chitchat.lat',
+            'https://chitchat.lat',
+        ],
+        methods: ['GET', 'POST'],
+        credentials: true,
+    },
 });
 
 app.use(morgan('dev'));
 app.use(
-	cors({
-		origin: [
-			'http://localhost:5173',
-			'http://localhost:4173',
-			'http://localhost',
-			'https://www.chitchat.lat',
-			'https://chitchat.lat',
-		],
-		credentials: true,
-	})
+    cors({
+        origin: [
+            'http://localhost:5173',
+            'http://localhost:4173',
+            'http://localhost',
+            'https://www.chitchat.lat',
+            'https://chitchat.lat',
+        ],
+        credentials: true,
+    })
 );
 app.use(express.json());
 app.use(cookieParser());
@@ -85,277 +93,281 @@ app.use('/api/chat', checkToken, chatRoute);
 app.use('/api/message', checkToken, messageRoute);
 app.use('/api/notification', checkToken, notificationRoute);
 
-interface UserWithSockets {
-	userId: string;
-	socketIds: string[];
-}
-
-const usersWithSockets: UserWithSockets[] = [];
+const onlineUsers: UserWithSockets[] = [];
 
 io.on('connect', (socket: Socket) => {
-	console.log(`🔌 socket id: ${socket.id}`);
+    console.log(`🔌 socket id: ${socket.id}`);
 
-	// Make another layer to get username.
-	socket.on('user_connect', (data: { userId: string; chatIds: string[] }) => {
-		const { userId, chatIds } = data;
+    // Make another layer to get username.
+    socket.on('user_connect', (data: { userId: string; chatIds: string[] }) => {
+        const { userId, chatIds } = data;
 
-		// For disconnecting.
-		socket.handshake.query.userId = userId;
+        // For disconnecting.
+        socket.handshake.query.userId = userId;
 
-		//Control when there are multiple tabs
-		const isExistent = usersWithSockets.map((el) => el.userId).includes(userId as string);
+        //Control when there are multiple tabs
+        const isExistent = onlineUsers.map((el) => el.userId).includes(userId as string);
 
-		if (!isExistent) {
-			io.emit('online', { userId });
-		}
+        if (!isExistent) {
+            io.emit('online', { userId });
+        }
 
-		// Add a user and socketId in the usersWIthSockets.
-		const targetIndex = usersWithSockets.findIndex((userWithSockets) => userWithSockets.userId === userId);
+        // Add a user and socketId in onlineUsers.
+        const targetIndex = onlineUsers.findIndex(
+            (userWithSockets) => userWithSockets.userId === userId
+        );
 
-		if (targetIndex >= 0) {
-			// Whene there is an existing user.
-			usersWithSockets[targetIndex].socketIds.push(socket.id);
-		} else {
-			// A new user connection established.
-			usersWithSockets.push({
-				userId: userId as string,
-				socketIds: [socket.id],
-			});
-		}
+        if (targetIndex >= 0) {
+            // Whene there is an existing user.
+            onlineUsers[targetIndex].socketIds.push(socket.id);
+        } else {
+            // A new user's connection established.
+            onlineUsers.push({
+                userId: userId as string,
+                socketIds: [socket.id],
+            });
+        }
 
-		console.log(usersWithSockets);
+        console.log(onlineUsers);
 
-		socket.join(chatIds);
-	});
+        socket.join(chatIds);
+    });
 
-	socket.on('join_chat', (data: { chatId: string; currentUser: CurrentUser; isNewMember: boolean }) => {
-		const { chatId, currentUser, isNewMember } = data;
+    socket.on(
+        'join_chat',
+        (data: { chatId: string; currentUser: CurrentUser; isNewMember: boolean }) => {
+            const { chatId, currentUser, isNewMember } = data;
 
-		socket.join(chatId);
+            socket.join(chatId);
 
-		if (isNewMember) {
-			socket.to(chatId).emit('enter_new_member', { newUser: currentUser, chatId });
-		}
-	});
+            if (isNewMember) {
+                socket.to(chatId).emit('enter_new_member', { newUser: currentUser, chatId });
+            }
+        }
+    );
 
-	socket.on('fetch_members', () => {
-		socket.emit('set_members_status', { userIds: usersWithSockets.map((el) => el.userId) });
-	});
+    socket.on('fetch_members', () => {
+        socket.emit('set_members_status', { userIds: onlineUsers.map((el) => el.userId) });
+    });
 
-	socket.on('check_online', (data: { receiverId: string; chatId: string }) => {
-		const { receiverId, chatId } = data;
+    socket.on('check_online', (data: { receiverId: string; chatId: string }) => {
+        const { receiverId, chatId } = data;
 
-		const isOnline = usersWithSockets.some((el) => el.userId === receiverId);
+        const isOnline = onlineUsers.some((el) => el.userId === receiverId);
 
-		socket.emit('is_online', { isOnline, chatId });
-	});
+        socket.emit('is_online', { isOnline, chatId });
+    });
 
-	socket.on(
-		'private_message',
-		async (data: {
-			chatId: string;
-			messageId: string;
-			text: string;
-			sender: CurrentUser;
-			createdAt: string;
-			attachments: AttachmentInfo[];
-		}) => {
-			const { chatId, messageId, text, sender, createdAt, attachments } = data;
+    socket.on(
+        'private_message',
+        async (data: {
+            chatId: string;
+            messageId: string;
+            text: string;
+            sender: CurrentUser;
+            createdAt: string;
+            attachments: AttachmentInfo[];
+        }) => {
+            const { chatId, messageId, text, sender, createdAt, attachments } = data;
 
-			// Find a receiverId
-			const chat = await prisma.chat.findUnique({
-				where: {
-					id: chatId,
-				},
-				select: {
-					users: {
-						where: {
-							NOT: {
-								id: sender.id,
-							},
-						},
-						select: {
-							id: true,
-						},
-					},
-				},
-			});
+            // Find a receiverId
+            const chat = await prisma.chat.findUnique({
+                where: {
+                    id: chatId,
+                },
+                select: {
+                    users: {
+                        where: {
+                            NOT: {
+                                id: sender.id,
+                            },
+                        },
+                        select: {
+                            id: true,
+                        },
+                    },
+                },
+            });
 
-			const receiverId = chat?.users[0].id;
+            const receiverId = chat?.users[0].id;
 
-			const receiver = await prisma.user.findUnique({
-				where: {
-					id: receiverId,
-				},
-			});
+            const receiver = await prisma.user.findUnique({
+                where: {
+                    id: receiverId,
+                },
+            });
 
-			// A receiver needs to connect the private chat room.
-			await prisma.user.update({
-				where: {
-					id: receiverId,
-				},
-				data: {
-					leftPrivateChatIds: {
-						set: receiver?.leftPrivateChatIds.filter((id) => id !== chatId),
-					},
-				},
-			});
+            // A receiver needs to connect the private chat room.
+            await prisma.user.update({
+                where: {
+                    id: receiverId,
+                },
+                data: {
+                    leftPrivateChatIds: {
+                        set: receiver?.leftPrivateChatIds.filter((id) => id !== chatId),
+                    },
+                },
+            });
 
-			const target = usersWithSockets.filter((el) => {
-				return el.userId === receiverId;
-			});
+            const target = onlineUsers.filter((el) => {
+                return el.userId === receiverId;
+            });
 
-			// When a receiver has a socket connection.
-			if (target.length > 0) {
-				if (target[0].socketIds?.length > 0) {
-					//Connect a receiver's sockets to the chat so that the person can get message.
-					socket.to(target[0].socketIds).socketsJoin(chatId);
-				}
-			}
+            // When a receiver has a socket connection.
+            if (target.length > 0) {
+                if (target[0].socketIds?.length > 0) {
+                    //Connect a receiver's sockets to the chat so that the person can get message.
+                    socket.to(target[0].socketIds).socketsJoin(chatId);
+                }
+            }
 
-			io.to(chatId).emit('receive_message', {
-				chatId,
-				messageId,
-				text,
-				sender,
-				createdAt,
-				attachments,
-				isPrivate: true,
-			});
-		}
-	);
+            io.to(chatId).emit('receive_message', {
+                chatId,
+                messageId,
+                text,
+                sender,
+                createdAt,
+                attachments,
+                isPrivate: true,
+            });
+        }
+    );
 
-	socket.on(
-		'send_message',
-		async (data: {
-			messageId: string;
-			text: string;
-			chatId: string;
-			sender: CurrentUser;
-			createdAt: string;
-			attachments: AttachmentInfo[];
-		}) => {
-			const { messageId, text, sender, chatId, createdAt, attachments } = data;
+    socket.on(
+        'send_message',
+        async (data: {
+            messageId: string;
+            text: string;
+            chatId: string;
+            sender: CurrentUser;
+            createdAt: string;
+            attachments: AttachmentInfo[];
+        }) => {
+            const { messageId, text, sender, chatId, createdAt, attachments } = data;
 
-			io.to(chatId).emit('receive_message', {
-				chatId,
-				messageId,
-				text,
-				sender,
-				createdAt,
-				attachments,
-				isPrivate: false,
-			});
-		}
-	);
+            io.to(chatId).emit('receive_message', {
+                chatId,
+                messageId,
+                text,
+                sender,
+                createdAt,
+                attachments,
+                isPrivate: false,
+            });
+        }
+    );
 
-	socket.on('leave_chat', async (data: { userId: string; chatId: string }) => {
-		const { userId, chatId } = data;
+    socket.on('leave_chat', async (data: { userId: string; chatId: string }) => {
+        const { userId, chatId } = data;
 
-		const chat = await prisma.chat.findUnique({
-			where: {
-				id: chatId,
-			},
-		});
+        const chat = await prisma.chat.findUnique({
+            where: {
+                id: chatId,
+            },
+        });
 
-		const isPrivate = chat?.type === 'PRIVATE' ? true : false;
+        const isPrivate = chat?.type === 'PRIVATE' ? true : false;
 
-		socket.to(chatId).emit('leave_member', { userId, chatId, isPrivate });
+        socket.to(chatId).emit('leave_member', { userId, chatId, isPrivate });
 
-		socket.leave(chatId);
-	});
+        socket.leave(chatId);
+    });
 
-	socket.on('delete_chat', (data: { chatId: string }) => {
-		const { chatId } = data;
+    socket.on('delete_chat', (data: { chatId: string }) => {
+        const { chatId } = data;
 
-		io.to(chatId).emit('destroy_chat', { chatId });
+        io.to(chatId).emit('destroy_chat');
 
-		socket.leave(chatId);
-	});
+        socket.leave(chatId);
+    });
 
-	socket.on('send_notification', (data) => {
-		const { receiverId } = data;
+    socket.on('send_notification', (data) => {
+        const { receiverId } = data;
 
-		const target = usersWithSockets.filter((el) => {
-			return el.userId === receiverId;
-		});
+        const target = onlineUsers.filter((el) => {
+            return el.userId === receiverId;
+        });
 
-		if (target.length > 0) {
-			if (target[0].socketIds?.length > 0) {
-				socket.to(target[0].socketIds).emit('receive_notification', { ...data });
-			}
-		}
-	});
+        if (target.length > 0) {
+            if (target[0].socketIds?.length > 0) {
+                socket.to(target[0].socketIds).emit('receive_notification', { ...data });
+            }
+        }
+    });
 
-	socket.on('accept_friend', (data: { id: string; avatar: string; username: string; receiverId: string }) => {
-		const { id, avatar, username, receiverId } = data;
+    socket.on(
+        'accept_friend',
+        (data: { id: string; avatar: string; username: string; receiverId: string }) => {
+            const { id, avatar, username, receiverId } = data;
 
-		const target = usersWithSockets.filter((el) => {
-			return el.userId === receiverId;
-		});
+            const target = onlineUsers.filter((el) => {
+                return el.userId === receiverId;
+            });
 
-		if (target.length > 0) {
-			if (target[0].socketIds?.length > 0) {
-				socket.to(target[0].socketIds).emit('accept_friend', { id, avatar, username });
-			}
-		}
-	});
+            if (target.length > 0) {
+                if (target[0].socketIds?.length > 0) {
+                    socket.to(target[0].socketIds).emit('accept_friend', { id, avatar, username });
+                }
+            }
+        }
+    );
 
-	socket.on('remove_friend', (data: { receiverId: string; senderId: string }) => {
-		const { receiverId, senderId } = data;
+    socket.on('remove_friend', (data: { receiverId: string; senderId: string }) => {
+        const { receiverId, senderId } = data;
 
-		const target = usersWithSockets.filter((el) => {
-			return el.userId === receiverId;
-		});
+        const target = onlineUsers.filter((el) => {
+            return el.userId === receiverId;
+        });
 
-		if (target.length > 0) {
-			if (target[0].socketIds?.length > 0) {
-				socket.to(target[0].socketIds).emit('remove_friend', { senderId });
-			}
-		}
-	});
+        if (target.length > 0) {
+            if (target[0].socketIds?.length > 0) {
+                socket.to(target[0].socketIds).emit('remove_friend', { senderId });
+            }
+        }
+    });
 
-	socket.on('disconnect', () => {
-		const userId = socket.handshake.query.userId;
+    socket.on('disconnect', () => {
+        const userId = socket.handshake.query.userId;
 
-		//Control when there are multiple tabs
-		if (userId) {
-			const socketLength = usersWithSockets.filter((el) => el.userId === userId)[0].socketIds.length;
+        //Control when there are multiple tabs
+        if (userId) {
+            const socketLength = onlineUsers.filter((el) => el.userId === userId)[0].socketIds
+                .length;
 
-			if (socketLength === 1) {
-				io.emit('offline', { userId });
-			}
-		}
+            if (socketLength === 1) {
+                io.emit('offline', { userId });
+            }
+        }
 
-		// Remove the socketId from usersWithSocketIds array.
-		for (const [index, userWithSockets] of usersWithSockets.entries()) {
-			const targetIndex = userWithSockets.socketIds.findIndex((socketId) => {
-				return socketId === socket.id;
-			});
+        // Remove the socketId from usersWithSocketIds array.
+        for (const [index, userWithSockets] of onlineUsers.entries()) {
+            const targetIndex = userWithSockets.socketIds.findIndex((socketId) => {
+                return socketId === socket.id;
+            });
 
-			if (targetIndex >= 0) {
-				userWithSockets.socketIds.splice(targetIndex, 1);
+            if (targetIndex >= 0) {
+                userWithSockets.socketIds.splice(targetIndex, 1);
 
-				if (userWithSockets.socketIds.length === 0) {
-					usersWithSockets.splice(index, 1);
-				}
+                if (userWithSockets.socketIds.length === 0) {
+                    onlineUsers.splice(index, 1);
+                }
 
-				break;
-			}
-		}
+                break;
+            }
+        }
 
-		for (const room of socket.rooms) {
-			socket.leave(room);
-		}
+        for (const room of socket.rooms) {
+            socket.leave(room);
+        }
 
-		console.log(`👋 socket id: ${socket.id}`);
-		console.log(usersWithSockets);
-		console.log('------------------------------------------------------------- \n');
-	});
+        console.log(`👋 socket id: ${socket.id}`);
+        console.log(onlineUsers);
+        console.log('------------------------------------------------------------- \n');
+    });
 });
 
 const port = process.env.PORT || 9000;
 
 server.listen(port, () => {
-	console.log(`Listening on port ${port}`);
+    console.log(`Listening on port ${port}`);
 });

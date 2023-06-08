@@ -10,18 +10,18 @@ import './index.css';
 axios.defaults.baseURL = 'http://localhost:9000/api';
 
 const queryClient = new QueryClient({
-	defaultOptions: {
-		queries: {
-			staleTime: 1000 * 60,
-		},
-	},
+    defaultOptions: {
+        queries: {
+            staleTime: 1000 * 60,
+        },
+    },
 });
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
-	<BrowserRouter>
-		<QueryClientProvider client={queryClient}>
-			<App />
-			{/* <ReactQueryDevtools initialIsOpen={false} /> */}
-		</QueryClientProvider>
-	</BrowserRouter>
+    <BrowserRouter>
+        <QueryClientProvider client={queryClient}>
+            <App />
+            {/* <ReactQueryDevtools initialIsOpen={false} /> */}
+        </QueryClientProvider>
+    </BrowserRouter>
 );

@@ -1,37 +1,38 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
+import { AxiosError } from 'axios';
 
 import { createPrivateChat } from '../api/chat';
-import { isPreviousChat } from '../types';
+import { Chat } from '../types';
 
 const useCreatePrivateChat = () => {
-	const navigate = useNavigate();
-	const queryClient = useQueryClient();
+    const navigate = useNavigate();
+    const queryClient = useQueryClient();
 
-	const { mutate } = useMutation({
-		mutationFn: ({ senderId, receiverId }: { senderId: string; receiverId: string }) => {
-			return createPrivateChat(senderId, receiverId);
-		},
-		onSuccess: async (data) => {
-			if (isPreviousChat(data)) {
-				navigate(`/chat/${data.previousChat.id}`);
-				return;
-			}
+    const { mutate } = useMutation({
+        mutationFn: ({ senderId, receiverId }: { senderId: string; receiverId: string }) => {
+            return createPrivateChat(senderId, receiverId);
+        },
+        onSuccess: async (data) => {
+            queryClient.setQueryData<Chat[]>(['privateChatRooms'], (old) => {
+                if (old) {
+                    const chat = old.find((chat) => chat.id === data.id);
 
-			console.log(data);
-			queryClient.setQueryData(['privateChatRooms'], (old: any) => {
-				return [...old, data];
-			});
+                    if (!chat) {
+                        return [...old, data];
+                    }
+                }
+            });
 
-			navigate(`/chat/${data.id}`);
-			return;
-		},
-		onError: (error: any) => {
-			console.log(error);
-		},
-	});
+            navigate(`/chat/${data.id}`);
+            return;
+        },
+        onError: (error: AxiosError | Error) => {
+            console.log(error);
+        },
+    });
 
-	return { mutate };
+    return { mutate };
 };
 
 export default useCreatePrivateChat;

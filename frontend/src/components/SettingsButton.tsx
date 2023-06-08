@@ -2,27 +2,28 @@ import { Dispatch, SetStateAction } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { HiCog } from 'react-icons/hi';
 
+import { useToggleSidebarContext } from '../context/toggleSidebarContext';
+
 interface Props {
-	closeSidebar: () => void;
-	setIsDropdownOpen: Dispatch<SetStateAction<boolean>>;
+    setIsDropdownOpen: Dispatch<SetStateAction<boolean>>;
 }
 
-const SettingsButton = ({ closeSidebar, setIsDropdownOpen }: Props) => {
-	const navigate = useNavigate();
+const SettingsButton = ({ setIsDropdownOpen }: Props) => {
+    const navigate = useNavigate();
+    const { toggleSidebar } = useToggleSidebarContext();
 
-	const handleClick = async () => {
-		closeSidebar();
-		setIsDropdownOpen(false);
+    const handleClick = async () => {
+        setIsDropdownOpen(false);
+        toggleSidebar();
+        navigate('/settings');
+    };
 
-		navigate('/settings');
-	};
-
-	return (
-		<button className="flex" onClick={handleClick}>
-			<HiCog className="text-xl" />
-			<span className="ml-3">Settings</span>
-		</button>
-	);
+    return (
+        <button className="flex" onClick={handleClick}>
+            <HiCog className="text-xl" />
+            <span className="ml-3">Settings</span>
+        </button>
+    );
 };
 
 export default SettingsButton;

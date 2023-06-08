@@ -1,51 +1,73 @@
 import axios from 'axios';
 
-import { Friend, User } from '../types';
+import { AxiosResponseWithUsername, Friend, User } from '../types';
 
-export const addFriend = async (senderId: string, receiverId: string) => {
-	const { data } = await axios.patch<'OK'>(
-		'/user/friend',
-		{
-			senderId,
-			receiverId,
-		},
-		{ withCredentials: true }
-	);
+export const acceptFriendRequest = async (senderId: string, receiverId: string) => {
+    const { data } = await axios.patch<'OK'>(
+        '/user/friend',
+        {
+            senderId,
+            receiverId,
+        },
+        { withCredentials: true }
+    );
 
-	return data;
+    return data;
 };
 
 export const checkNotification = async (userId: string) => {
-	const { data } = await axios.patch<'OK'>('/user/notification', { userId }, { withCredentials: true });
+    const { data } = await axios.patch<'OK'>(
+        '/user/notification',
+        { userId },
+        { withCredentials: true }
+    );
 
-	return data;
+    return data;
 };
 
 export const fetchFriends = async () => {
-	const { data } = await axios.get<Friend[]>('/user/friends', { withCredentials: true });
+    const { data } = await axios.get<Friend>('/user/friends', {
+        withCredentials: true,
+    });
 
-	return data;
+    return data;
 };
 
 export const deleteFriend = async (senderId: string, receiverId: string) => {
-	const { data } = await axios.delete<'OK'>('/user/friend', {
-		data: {
-			senderId,
-			receiverId,
-		},
-		withCredentials: true,
-	});
+    const { data } = await axios.delete<'OK'>('/user/friend', {
+        data: {
+            senderId,
+            receiverId,
+        },
+        withCredentials: true,
+    });
 
-	return data;
+    return data;
 };
 
 export const fetchUserByUsername = async (username: string) => {
-	const { data, status } = await axios.get<User>('/user/username', {
-		params: {
-			username,
-		},
-		withCredentials: true,
-	});
+    const { data, status } = await axios.get<User>('/user/username', {
+        params: {
+            username,
+        },
+        withCredentials: true,
+    });
 
-	return { data, status };
+    return { data, status };
+};
+
+export const updateUser = async (dataToUpdate: { newPassword?: string; username?: string }) => {
+    const { data } = await axios.patch<AxiosResponseWithUsername>('/user', dataToUpdate, {
+        withCredentials: true,
+    });
+
+    return data;
+};
+
+export const uploadAvatar = async (formData: FormData) => {
+    const { data } = await axios.post<User>('/user/avatar', formData, {
+        withCredentials: true,
+    });
+
+    return data;
 };
