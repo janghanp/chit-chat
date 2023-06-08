@@ -20,9 +20,10 @@ CREATE TABLE "User" (
 -- CreateTable
 CREATE TABLE "Message" (
     "id" TEXT NOT NULL,
-    "text" TEXT NOT NULL,
+    "text" TEXT,
     "senderId" TEXT NOT NULL,
     "chatId" TEXT NOT NULL,
+    "attachments" JSONB[],
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "Message_pkey" PRIMARY KEY ("id")
@@ -47,6 +48,7 @@ CREATE TABLE "Chat" (
 CREATE TABLE "Notification" (
     "id" TEXT NOT NULL,
     "message" TEXT NOT NULL,
+    "link" TEXT,
     "read" BOOLEAN NOT NULL DEFAULT false,
     "receiverId" TEXT NOT NULL,
     "senderId" TEXT NOT NULL,

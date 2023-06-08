@@ -118,12 +118,12 @@ export async function main() {
         },
     });
 
-    fs.outputFile(
-        path.resolve('../cypress/fixtures', `users.json`),
-        JSON.stringify([user1, user2])
-    );
+    // fs.outputFile(
+    //     path.resolve('../cypress/fixtures', `users.json`),
+    //     JSON.stringify([user1, user2])
+    // );
 
-    fs.outputFile(path.resolve('../cypress/fixtures', `chats.json`), JSON.stringify([chat]));
+    // fs.outputFile(path.resolve('../cypress/fixtures', `chats.json`), JSON.stringify([chat]));
 
     console.timeEnd(`🌱 Database has been seeded`);
 }

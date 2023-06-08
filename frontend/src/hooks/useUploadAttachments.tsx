@@ -31,8 +31,6 @@ const useUploadAttachments = (setAttachements: (value: SetStateAction<Attachment
             });
         },
         onSuccess: (data, variables) => {
-            console.log(data);
-
             setAttachements((prev) => {
                 return prev.map((attachment) => {
                     if (attachment.id === variables.id) {

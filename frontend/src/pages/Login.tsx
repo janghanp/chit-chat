@@ -109,7 +109,7 @@ const Login = () => {
                     </form>
 
                     <div className="mt-5 text-center text-sm font-semibold">
-                        <span>Don`&apos;`t have an account?</span>
+                        <span>Don&apos;t have an account?</span>
                         <Link to="/register">
                             <span className="ml-3 underline">register</span>
                         </Link>

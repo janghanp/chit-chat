@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { format } from 'date-fns';
 
 import { Message } from '../types';
@@ -10,6 +11,8 @@ interface Props {
 }
 
 const ChatMessage = ({ message, isOwner, firstElementRef }: Props) => {
+    console.log('ChatMessage.tsx render');
+
     return (
         <div
             ref={firstElementRef}
@@ -64,4 +67,4 @@ const ChatMessage = ({ message, isOwner, firstElementRef }: Props) => {
     );
 };
 
-export default ChatMessage;
+export default memo(ChatMessage);
