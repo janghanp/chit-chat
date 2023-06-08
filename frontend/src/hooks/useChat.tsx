@@ -5,7 +5,7 @@ import { fetchChat } from '../api/chat';
 const useChat = (chatId: string, currentUserId: string) => {
     const { isLoading, isError, data, isSuccess } = useQuery({
         queryKey: ['chat', chatId],
-        queryFn: async () => fetchChat(chatId, currentUserId),
+        queryFn: async () => fetchChat(chatId),
         enabled: chatId && currentUserId ? true : false,
     });
 

@@ -1,6 +1,7 @@
 import { Dispatch, SetStateAction } from 'react';
 import { UseMutateFunction, useMutation } from '@tanstack/react-query';
 import { fetchUserByUsername } from '../api/user';
+import { AxiosError } from 'axios';
 
 import { User } from '../types';
 
@@ -51,7 +52,7 @@ const useSendFriendRequest = ({
                 setError("Couldn't find the user...");
             }
         },
-        onError: (error) => {
+        onError: (error: AxiosError | Error) => {
             console.log(error);
             setMessage('Something went wrong. please try again...');
         },

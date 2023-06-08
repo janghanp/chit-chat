@@ -12,7 +12,7 @@ import useReadAllNotifications from '../hooks/useReadAllNotifications';
 
 const Inbox = () => {
     const { data: currentUser } = useUser();
-    const { isLoading, isError, data } = useNotifications(currentUser!.id);
+    const { isLoading, isError, data } = useNotifications();
     const { mutate: checkNotificationMutate } = useCheckNotification();
     const { mutate: readAllNotificaionMutate } = useReadAllNotifications();
     const [isOpen, setIsOpen] = useState<boolean>(false);

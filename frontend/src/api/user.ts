@@ -26,7 +26,7 @@ export const checkNotification = async (userId: string) => {
 };
 
 export const fetchFriends = async () => {
-    const { data } = await axios.get<Friend[]>('/user/friends', {
+    const { data } = await axios.get<Friend>('/user/friends', {
         withCredentials: true,
     });
 

@@ -1,6 +1,6 @@
 import { useMutation } from '@tanstack/react-query';
 import { UseFormSetError } from 'react-hook-form';
-import axios from 'axios';
+import { AxiosError, isAxiosError } from 'axios';
 
 import { updateUser } from '../api/user';
 import { AuthErrorResponse } from '../types';
@@ -20,8 +20,8 @@ const useUpdateUser = (setError: UseFormSetError<FormData>) => {
         onSuccess: () => {
             window.location.href = '/';
         },
-        onError: (error) => {
-            if (axios.isAxiosError(error) && error.response?.status === 400) {
+        onError: (error: AxiosError | Error) => {
+            if (isAxiosError(error) && error.response?.status === 400) {
                 // Set an error into username field.
                 const serverError = error.response.data as AuthErrorResponse;
 

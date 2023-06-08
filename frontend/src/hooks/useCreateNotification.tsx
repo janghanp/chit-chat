@@ -1,4 +1,5 @@
 import { useMutation } from '@tanstack/react-query';
+import { AxiosError } from 'axios';
 
 import { createNotification } from '../api/notification';
 import { socket } from '../socket';
@@ -25,7 +26,7 @@ const useCreateNotification = () => {
 
             socket.emit('send_notification', { ...data });
         },
-        onError: (error) => {
+        onError: (error: AxiosError | Error) => {
             console.log(error);
         },
     });

@@ -2,10 +2,10 @@ import { useQuery } from '@tanstack/react-query';
 
 import { fetchNotifications } from '../api/notification';
 
-const useNotifications = (currentUserId: string) => {
+const useNotifications = () => {
     const { isLoading, isError, data } = useQuery({
         queryKey: ['notifications'],
-        queryFn: async () => fetchNotifications(currentUserId),
+        queryFn: async () => fetchNotifications(),
     });
 
     return { isLoading, isError, data };

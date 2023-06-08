@@ -167,7 +167,7 @@ router.get('/refresh', async (req: Request, res: Response) => {
         return res.status(500).json({ message: 'Somthing went wrong, please try again...' });
     }
 
-    return res.status(200).json({ status: 'ok' });
+    return res.sendStatus(204);
 });
 
 router.delete('/logout', (req: Request, res: Response) => {

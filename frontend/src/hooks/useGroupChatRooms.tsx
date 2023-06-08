@@ -8,7 +8,7 @@ const useGroupChatRooms = () => {
 
     const { isLoading, isError, data } = useQuery({
         queryKey: ['groupChatRooms'],
-        queryFn: async () => fetchGroupChatRooms(currentUser!.id),
+        queryFn: async () => fetchGroupChatRooms(),
         // 1 min
         staleTime: 1000 * 60,
         enabled: currentUser ? true : false,

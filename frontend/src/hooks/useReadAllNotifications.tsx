@@ -1,5 +1,6 @@
 import produce from 'immer';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { AxiosError } from 'axios';
 
 import { Notification } from '../types';
 import { readAllNotifications } from '../api/notification';
@@ -20,7 +21,7 @@ const useReadAllNotifications = () => {
                 }
             });
         },
-        onError: (error) => {
+        onError: (error: AxiosError | Error) => {
             console.log(error);
         },
     });

@@ -16,7 +16,8 @@ const uploader = multer({
 const router = Router();
 
 router.get('/', async (req: Request, res: Response) => {
-    const { chatId, userId } = req.query;
+    const userId = req.token.id;
+    const { chatId } = req.query;
 
     try {
         const chat = await prisma.chat.findUnique({
@@ -42,7 +43,7 @@ router.get('/', async (req: Request, res: Response) => {
                     {
                         users: {
                             some: {
-                                id: userId as string,
+                                id: userId,
                             },
                         },
                     },
@@ -64,7 +65,7 @@ router.get('/', async (req: Request, res: Response) => {
                         : {
                               where: {
                                   NOT: {
-                                      id: userId as string,
+                                      id: userId,
                                   },
                               },
                               select: {
@@ -88,11 +89,11 @@ router.get('/', async (req: Request, res: Response) => {
                 },
                 data: {
                     readBy: {
-                        push: userId as string,
+                        push: userId,
                     },
                     users: {
                         connect: {
-                            id: userId as string,
+                            id: userId,
                         },
                     },
                 },
@@ -112,7 +113,7 @@ router.get('/', async (req: Request, res: Response) => {
                             : {
                                   where: {
                                       NOT: {
-                                          id: userId as string,
+                                          id: userId,
                                       },
                                   },
                                   select: {
@@ -160,12 +161,12 @@ router.get('/search', async (req: Request, res: Response) => {
 });
 
 router.get('/group', async (req: Request, res: Response) => {
-    const { userId } = req.query;
+    const userId = req.token.id;
 
     try {
         const userWithGroupChats = await prisma.user.findUnique({
             where: {
-                id: userId as string,
+                id: userId,
             },
             include: {
                 chats: {
@@ -203,12 +204,12 @@ router.get('/group', async (req: Request, res: Response) => {
 });
 
 router.get('/private', async (req: Request, res: Response) => {
-    const { userId } = req.query;
+    const userId = req.token.id;
 
     try {
         const userWithPrivateChats = await prisma.user.findUnique({
             where: {
-                id: userId as string,
+                id: userId,
             },
             include: {
                 chats: {
@@ -231,7 +232,7 @@ router.get('/private', async (req: Request, res: Response) => {
                         users: {
                             where: {
                                 NOT: {
-                                    id: userId as string,
+                                    id: userId,
                                 },
                             },
                             select: {
@@ -517,7 +518,7 @@ router.post('/private', async (req: Request, res: Response) => {
 
     try {
         //Check if there is already a private chat between users.
-        const previousChat = await prisma.chat.findFirst({
+        const existingChat = await prisma.chat.findFirst({
             where: {
                 AND: [
                     { name: null },
@@ -547,8 +548,8 @@ router.post('/private', async (req: Request, res: Response) => {
             },
         });
 
-        if (previousChat) {
-            return res.status(200).json({ previousChat, isPrevious: true });
+        if (existingChat) {
+            return res.status(200).json(existingChat);
         }
 
         // Create a private chat.
@@ -580,7 +581,7 @@ router.post('/private', async (req: Request, res: Response) => {
             },
         });
 
-        // Not showing the private chat initially to the receiver.
+        // Don't show the private chat initially to the receiver.
         await prisma.user.update({
             where: {
                 id: receiverId,
@@ -599,33 +600,6 @@ router.post('/private', async (req: Request, res: Response) => {
         return res.sendStatus(500);
     }
 });
-
-// router.get('/private', async (req: Request, res: Response) => {
-// 	const { chatId, userId } = req.query;
-
-// 	try {
-// 		const chatWithReciver = await prisma.chat.findUnique({
-// 			where: {
-// 				id: chatId as string,
-// 			},
-// 			select: {
-// 				users: {
-// 					where: {
-// 						NOT: {
-// 							id: userId as string,
-// 						},
-// 					},
-// 				},
-// 			},
-// 		});
-
-// 		return res.status(200).json(chatWithReciver?.users[0]);
-// 	} catch (error) {
-// 		console.log(error);
-
-// 		return res.sendStatus(500);
-// 	}
-// });
 
 router.patch('/read', async (req: Request, res: Response) => {
     const { chatId, userId } = req.body;

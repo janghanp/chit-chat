@@ -1,9 +1,9 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { UseFormSetError } from 'react-hook-form';
+import { AxiosError, isAxiosError } from 'axios';
 
 import { registerUser } from '../api/auth';
-import { AxiosError, isAxiosError } from 'axios';
 import { FormData, User } from '../types';
 
 const useRegister = (setError: UseFormSetError<FormData>) => {

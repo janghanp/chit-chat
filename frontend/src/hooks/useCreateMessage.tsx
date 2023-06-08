@@ -1,5 +1,6 @@
 import { InfiniteData, useMutation, useQueryClient } from '@tanstack/react-query';
 import produce from 'immer';
+import { AxiosError } from 'axios';
 
 import { AttachmentInfo, ChatWithIsNewMember, Message, User } from '../types';
 import { createMessage } from '../api/message';
@@ -79,7 +80,7 @@ const useCreateMessage = (currentUser: User, currentChat: ChatWithIsNewMember) =
                 });
             }
         },
-        onError(error, variables, context) {
+        onError(error: AxiosError | Error, variables, context) {
             console.log(error);
 
             // Revert optimistic update.

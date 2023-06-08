@@ -1,5 +1,6 @@
 import { SetStateAction } from 'react';
 import { useMutation } from '@tanstack/react-query';
+import { AxiosError } from 'axios';
 
 import { uploadAvatar } from '../api/user';
 
@@ -12,7 +13,7 @@ const useUploadAvatar = (setIsUploading: (value: SetStateAction<boolean>) => voi
             setIsUploading(false);
             window.location.href = '/';
         },
-        onError: (error) => {
+        onError: (error: AxiosError | Error) => {
             console.log(error);
         },
     });

@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
+import { AxiosError } from 'axios';
 
 import { leaveChat } from '../api/chat';
 import { Chat } from '../types';
@@ -44,7 +45,7 @@ const useLeaveChat = (chatId: string, currentUserId: string) => {
 
             navigate('/');
         },
-        onError(error) {
+        onError(error: AxiosError | Error) {
             console.log(error);
         },
     });

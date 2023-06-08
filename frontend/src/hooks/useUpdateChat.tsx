@@ -1,5 +1,6 @@
 import { SetStateAction } from 'react';
 import { useMutation } from '@tanstack/react-query';
+import { AxiosError, isAxiosError } from 'axios';
 
 import { updateChat } from '../api/chat';
 
@@ -11,9 +12,11 @@ const useUpdateChat = (setError: (value: SetStateAction<string>) => void) => {
         onSuccess: () => {
             window.location.href = '/';
         },
-        onError: (error) => {
-            if (error.response.status === 400) {
-                setError(error.response.data.message);
+        onError: (error: AxiosError | Error) => {
+            if (isAxiosError(error)) {
+                if (error.response?.status === 400) {
+                    setError(error.response.data.message);
+                }
             }
 
             console.log(error);

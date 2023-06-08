@@ -101,11 +101,3 @@ export interface AuthErrorResponse {
 export interface AxiosResponseWithUsername {
     username: string;
 }
-
-export const isUser = (item: any): item is User => {
-    return 'id' in item;
-};
-
-export const isPreviousChat = (item: any): item is PreviousChat => {
-    return 'isPrevious' in item;
-};

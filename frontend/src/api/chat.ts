@@ -1,12 +1,11 @@
 import axios from 'axios';
 
-import { Chat, ChatWithIsNewMember, User, PreviousChat, Attachment } from '../types';
+import { Chat, ChatWithIsNewMember, User, Attachment } from '../types';
 
-export const fetchChat = async (chatId: string, userId: string) => {
+export const fetchChat = async (chatId: string) => {
     const { data } = await axios.get<ChatWithIsNewMember>('/chat', {
         params: {
             chatId,
-            userId,
         },
         withCredentials: true,
     });
@@ -14,22 +13,16 @@ export const fetchChat = async (chatId: string, userId: string) => {
     return data;
 };
 
-export const fetchGroupChatRooms = async (userId: string) => {
+export const fetchGroupChatRooms = async () => {
     const { data } = await axios.get<Chat[]>('/chat/group', {
-        params: {
-            userId,
-        },
         withCredentials: true,
     });
 
     return data;
 };
 
-export const fetchPrivateChatRooms = async (userId: string) => {
+export const fetchPrivateChatRooms = async () => {
     const { data } = await axios.get<Chat[]>('/chat/private', {
-        params: {
-            userId,
-        },
         withCredentials: true,
     });
 
@@ -54,7 +47,7 @@ export const joinChat = async (chatName: string) => {
 };
 
 export const createPrivateChat = async (senderId: string, receiverId: string) => {
-    const { data } = await axios.post<Chat | PreviousChat>(
+    const { data } = await axios.post<Chat>(
         '/chat/private',
         { senderId, receiverId },
         { withCredentials: true }

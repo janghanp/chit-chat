@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { AxiosError } from 'axios';
 
 import { deleteFriend } from '../api/user';
 import { socket } from '../socket';
@@ -22,7 +23,7 @@ const useRemoveFriend = (friend: Friend) => {
 
             socket.emit('remove_friend', { receiverId, senderId });
         },
-        onError: (error) => {
+        onError: (error: AxiosError | Error) => {
             console.log(error);
         },
     });

@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
+import { AxiosError, isAxiosError } from 'axios';
 
 import { createChat } from '../api/chat';
 import { Dispatch, SetStateAction } from 'react';
@@ -26,8 +27,10 @@ const useCreateChat = ({ setIsOpen, setError, closeSidebar }: Props) => {
 
             navigate(`/chat/${data.id}`);
         },
-        onError: (error: any) => {
-            setError(error.response.data.message);
+        onError: (error: AxiosError | Error) => {
+            if (isAxiosError(error)) {
+                setError(error.response?.data.message);
+            }
         },
     });
     return { mutate, isLoading };

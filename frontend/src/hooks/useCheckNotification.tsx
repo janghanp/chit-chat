@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { AxiosError } from 'axios';
 
 import { checkNotification } from '../api/user';
 import { User } from '../types';
@@ -15,7 +16,7 @@ const useCheckNotification = () => {
                 }
             });
         },
-        onError: (error) => {
+        onError: (error: AxiosError | Error) => {
             console.log(error);
         },
     });

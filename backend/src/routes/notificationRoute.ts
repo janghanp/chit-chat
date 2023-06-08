@@ -88,12 +88,12 @@ router.post('/', async (req: Request, res: Response) => {
 });
 
 router.get('/all', async (req: Request, res: Response) => {
-    const { userId } = req.query;
+    const userId = req.token.id;
 
     try {
         const notifications = await prisma.notification.findMany({
             where: {
-                receiverId: userId as string,
+                receiverId: userId,
             },
             include: {
                 sender: {

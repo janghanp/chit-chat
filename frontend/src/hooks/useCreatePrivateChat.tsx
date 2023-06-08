@@ -1,8 +1,9 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
+import { AxiosError } from 'axios';
 
 import { createPrivateChat } from '../api/chat';
-import { Chat, isPreviousChat } from '../types';
+import { Chat } from '../types';
 
 const useCreatePrivateChat = () => {
     const navigate = useNavigate();
@@ -13,22 +14,20 @@ const useCreatePrivateChat = () => {
             return createPrivateChat(senderId, receiverId);
         },
         onSuccess: async (data) => {
-            if (isPreviousChat(data)) {
-                navigate(`/chat/${data.previousChat.id}`);
-                return;
-            }
-
-            console.log(data);
             queryClient.setQueryData<Chat[]>(['privateChatRooms'], (old) => {
                 if (old) {
-                    return [...old, data];
+                    const chat = old.find((chat) => chat.id === data.id);
+
+                    if (!chat) {
+                        return [...old, data];
+                    }
                 }
             });
 
             navigate(`/chat/${data.id}`);
             return;
         },
-        onError: (error) => {
+        onError: (error: AxiosError | Error) => {
             console.log(error);
         },
     });

@@ -1,5 +1,6 @@
 import { useMutation } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
+import { AxiosError } from 'axios';
 
 import { joinChat } from '../api/chat';
 
@@ -13,7 +14,7 @@ const useJoinChat = () => {
         onSuccess: (data) => {
             navigate(`/chat/${data.id}`);
         },
-        onError: (error) => {
+        onError: (error: AxiosError | Error) => {
             console.log(error);
         },
     });

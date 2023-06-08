@@ -8,7 +8,7 @@ const usePrivateChatRooms = () => {
 
     const { isLoading, isError, data } = useQuery({
         queryKey: ['privateChatRooms'],
-        queryFn: async () => fetchPrivateChatRooms(currentUser!.id),
+        queryFn: async () => fetchPrivateChatRooms(),
         // 1 min
         staleTime: 1000 * 60,
         enabled: currentUser ? true : false,

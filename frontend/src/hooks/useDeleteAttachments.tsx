@@ -1,5 +1,6 @@
 import { Dispatch, SetStateAction } from 'react';
 import { useMutation } from '@tanstack/react-query';
+import { AxiosError } from 'axios';
 
 import { deleteAttachments } from '../api/chat';
 import { Attachment } from '../types';
@@ -22,7 +23,7 @@ const useDeleteAttachments = ({ setAttachments, attachmentId }: Props) => {
         onSuccess: (data) => {
             console.log(data);
         },
-        onError: (error) => {
+        onError: (error: AxiosError | Error) => {
             console.log(error);
         },
     });

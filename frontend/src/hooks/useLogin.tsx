@@ -1,10 +1,10 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { UseFormSetError } from 'react-hook-form';
+import { AxiosError, isAxiosError } from 'axios';
 
 import { loginUser } from '../api/auth';
 import { User } from '../types';
-import { AxiosError, isAxiosError } from 'axios';
 
 interface FormData {
     email: string;

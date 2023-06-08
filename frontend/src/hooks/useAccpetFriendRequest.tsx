@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { AxiosError } from 'axios';
 
 import { acceptFriendRequest } from '../api/user';
 import { Friend, Notification as NotificationType } from '../types';
@@ -44,7 +45,7 @@ const useAccpetFriendRequest = () => {
                 }
             });
         },
-        onError: (error) => {
+        onError: (error: AxiosError | Error) => {
             console.log(error);
         },
     });

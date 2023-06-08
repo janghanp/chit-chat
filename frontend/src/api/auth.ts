@@ -1,13 +1,13 @@
 import axios from 'axios';
 
-import { User, isUser } from '../types';
+import { User } from '../types';
 
 export const fetchUser = async () => {
-    const { data } = await axios.get<User | 'OK'>('/auth/refresh', {
+    const { data, status } = await axios.get<User>('/auth/refresh', {
         withCredentials: true,
     });
 
-    if (!isUser(data)) {
+    if (status === 204) {
         return null;
     }
 

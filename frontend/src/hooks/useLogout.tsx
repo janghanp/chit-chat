@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { AxiosError } from 'axios';
 
 import { logOutUser } from '../api/auth';
-import { AxiosError, isAxiosError } from 'axios';
 
 const useLogout = () => {
     const queryClient = useQueryClient();
@@ -18,9 +18,7 @@ const useLogout = () => {
             window.location.href = '/';
         },
         onError(error: AxiosError | Error) {
-            if (isAxiosError(error)) {
-                console.log(error.response?.data);
-            }
+            console.log(error);
         },
     });
 

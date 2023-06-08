@@ -1,5 +1,6 @@
 import { SetStateAction } from 'react';
 import { useMutation } from '@tanstack/react-query';
+import { AxiosError } from 'axios';
 
 import { uploadAttachments } from '../api/chat';
 import { Attachment } from '../types';
@@ -44,7 +45,7 @@ const useUploadAttachments = (setAttachements: (value: SetStateAction<Attachment
                 });
             });
         },
-        onError: (error) => {
+        onError: (error: AxiosError | Error) => {
             console.log(error);
         },
     });

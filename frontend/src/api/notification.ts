@@ -22,11 +22,8 @@ export const createNotification = async (
     return data;
 };
 
-export const fetchNotifications = async (userId: string) => {
+export const fetchNotifications = async () => {
     const { data } = await axios.get<Notification[]>('/notification/all', {
-        params: {
-            userId,
-        },
         withCredentials: true,
     });
 
