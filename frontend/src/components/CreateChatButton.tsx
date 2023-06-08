@@ -1,6 +1,6 @@
 import { ChangeEvent, FormEvent, memo, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { HiCamera, HiPlus } from 'react-icons/hi';
+import { HiCamera } from 'react-icons/hi';
 import { HiOutlinePencilSquare } from 'react-icons/hi2';
 import { SyncLoader } from 'react-spinners';
 

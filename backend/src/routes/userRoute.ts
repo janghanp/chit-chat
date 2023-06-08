@@ -1,5 +1,4 @@
 import { Request, Response, Router } from 'express';
-import cloudinary from 'cloudinary';
 import { DeleteObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3';
 import multer from 'multer';
 import bcrypt from 'bcryptjs';
