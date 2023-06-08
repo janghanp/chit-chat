@@ -11,7 +11,7 @@ const Layout = () => {
                     <Sidebar />
                 </ToggleSidebarProvider>
             </div>
-            <div className="w-full flex-1 rounded-md border shadow-md">
+            <div className="w-full flex-1 rounded-md border shadow-md fixed md:relative inset-0">
                 <Outlet />
             </div>
             <div className="fixed right-0 -ml-5 h-full md:relative" id="chat-member-list"></div>

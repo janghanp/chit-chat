@@ -26,14 +26,12 @@ const Sidebar = () => {
                 <SideBottom />
             </div>
             {/* Hamber menu for mobile */}
-            <div className="absolute left-0 right-0 top-[10px] block border-b pl-3 shadow-md md:hidden">
-                <button
-                    className="btn-ghost btn-sm btn btn-square relative"
-                    onClick={toggleSidebar}
-                >
-                    <HiBars3 className="text-2xl" />
-                </button>
-            </div>
+            <button
+                className="btn-ghost btn-sm btn btn-square fixed z-[5] left-3 top-3"
+                onClick={toggleSidebar}
+            >
+                <HiBars3 className="text-2xl" />
+            </button>
         </>
     );
 };

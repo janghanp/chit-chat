@@ -48,12 +48,14 @@ const ChatMessage = ({ message, isOwner, firstElementRef }: Props) => {
                         return (
                             <div
                                 key={attachment.public_id}
-                                className="bg-base-100 right-0 h-72 w-72 rounded-md border p-3 shadow-md"
+                                className="bg-base-100 right-0 rounded-md border p-1 shadow-md"
                             >
                                 <img
-                                    className="w-full h-full object-cover"
+                                    className="object-cover"
                                     src={attachment.secure_url}
                                     alt="attachment iamge"
+                                    width={270}
+                                    height={270}
                                 />
                             </div>
                         );

@@ -36,7 +36,7 @@ body {
 
 .close {
     z-index: -10;
-    width: 0px;
+    width: 200px;
     transition: all;
     transition-duration: 300ms;
     opacity: 100;

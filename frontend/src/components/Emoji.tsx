@@ -65,10 +65,11 @@ const Emoji = ({ setInputMessage, inputRef }: Props) => {
                 <>
                     <div onClick={() => setIsOpen(false)} className="fixed inset-0"></div>
 
-                    <div className="absolute bottom-0 right-0 shadow-lg sm:right-24">
+                    <div className="absolute bottom-0 -right-10 shadow-lg">
                         <EmojiPicker
                             onEmojiClick={changeHandler}
-                            width={300}
+                            width={250}
+                            height={400}
                             autoFocusSearch={false}
                         />
                     </div>

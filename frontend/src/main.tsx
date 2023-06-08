@@ -2,12 +2,12 @@ import ReactDOM from 'react-dom/client';
 import App from './pages/App';
 import { BrowserRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+// import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import axios from 'axios';
 
 import './index.css';
 
-axios.defaults.baseURL = 'http://localhost:9000/api';
+axios.defaults.baseURL = 'https://chitchat.lat/api';
 
 const queryClient = new QueryClient({
     defaultOptions: {

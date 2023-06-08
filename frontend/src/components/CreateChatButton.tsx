@@ -114,8 +114,8 @@ const CreateChatButton = ({ currentUserId }: Props) => {
                                 setIsOpen(false);
                             }}
                         ></div>
-                        <div className="card bg-base-100 fixed inset-0 z-50 mx-auto my-auto h-[470px] w-[500px] shadow-xl">
-                            <div className="card-body">
+                        <div className="card bg-base-100 fixed inset-0 z-50 mx-auto my-auto h-auto md:h-[470px] w-full md:w-[500px] shadow-xl">
+                            <div className="card-body flex justify-center items-center">
                                 <div className="relative">
                                     {isLoading && (
                                         <div className="absolute inset-0 z-30 cursor-not-allowed rounded-lg bg-gray-200 opacity-50"></div>
