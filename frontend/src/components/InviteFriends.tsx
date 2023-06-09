@@ -27,9 +27,9 @@ const InviteFriends = ({ setIsInviteOpen, chatId }: Props) => {
     const friendsNotInTheChat = friends?.filter((friend) => !memberIds?.includes(friend.id));
 
     return (
-        <div className="fixed inset-0 z-30 flex items-center justify-center">
-            <div className="fixed inset-0 z-20 bg-gray-400/50" onClick={closeModal}></div>
-            <div className="relative z-30 w-full max-w-lg rounded-xl border bg-white p-5 shadow-lg">
+        <div className="fixed inset-0 z-40 flex items-center justify-center">
+            <div className="fixed inset-0 z-30 bg-gray-400/50" onClick={closeModal}></div>
+            <div className="relative z-30 w-full max-w-lg rounded-md border bg-white p-5 shadow-lg">
                 <div className="mb-5 text-2xl font-bold">Invite Friends</div>
                 <div className="w-full">
                     <div className="w-full">

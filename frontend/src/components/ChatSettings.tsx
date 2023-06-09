@@ -24,7 +24,7 @@ const ChatSettings = ({ chatId, currentUserId, setIsSettingOpen }: Props) => {
     useEffect(() => {
         if (data) {
             setRoomName(data.chat.name!);
-            setPreview(data.chat.icon_url || '');
+            setPreview(data.chat.icon_url);
         }
     }, [data]);
 
@@ -101,9 +101,9 @@ const ChatSettings = ({ chatId, currentUserId, setIsSettingOpen }: Props) => {
     };
 
     return (
-        <div className="fixed inset-0 z-30 flex items-center justify-center">
-            <div className="fixed inset-0 z-20 bg-gray-400/50" onClick={closeModal}></div>
-            <div className="relative z-30 w-full max-w-lg rounded-xl border bg-white p-10 shadow-lg">
+        <div className="fixed inset-0 z-40 flex items-center justify-center">
+            <div className="fixed inset-0 z-30 bg-gray-400/50" onClick={closeModal}></div>
+            <div className="relative z-30 w-full max-w-lg rounded-md border bg-white p-10 shadow-lg">
                 <span
                     className="btn-sm btn-ghost btn-outline btn-circle btn absolute right-5 top-5"
                     onClick={closeModal}
@@ -172,7 +172,10 @@ const ChatSettings = ({ chatId, currentUserId, setIsSettingOpen }: Props) => {
                         <button
                             type="submit"
                             className={`btn ${isLoading && 'pointer-events-none'}`}
-                            disabled={data?.chat.name === roomName || !roomName}
+                            disabled={
+                                (data?.chat.name === roomName && preview === data?.chat.icon_url) ||
+                                !roomName
+                            }
                         >
                             {isLoading ? (
                                 <SyncLoader color="#A3C6FF" size={10} margin={4} />

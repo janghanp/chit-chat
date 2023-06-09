@@ -17,7 +17,7 @@ const UserProfileDropdown = ({ setIsDropdownOpen }: Props) => {
                 animate={{ opacity: 1, y: 0 }}
                 className="absolute bottom-12 z-30"
             >
-                <ul className="menu bg-base-100 rounded-box menu-compact w-52 border p-2 shadow">
+                <ul className="menu bg-base-100 rounded-md menu-compact w-52 border p-2 shadow">
                     <li>
                         <SettingsButton setIsDropdownOpen={setIsDropdownOpen} />
                     </li>

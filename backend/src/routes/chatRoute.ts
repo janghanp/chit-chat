@@ -287,7 +287,6 @@ router.get('/name', async (req: Request, res: Response) => {
     }
 });
 
-//TODO: s3 instead of cloudinary
 router.post('/', uploader.single('file'), async (req: Request, res: Response) => {
     const { roomName, ownerId }: { roomName?: string; ownerId?: string } = req.body;
 
@@ -406,7 +405,6 @@ router.patch('/leave', async (req: Request, res: Response) => {
     }
 });
 
-//TODO: s3 instead of cloudinary
 router.delete('/', async (req: Request, res: Response) => {
     const { chatId } = req.body;
 
@@ -461,7 +459,6 @@ router.get('/members', async (req: Request, res: Response) => {
     }
 });
 
-//TODO: s3 instead of cloudinary
 router.patch('/', uploader.single('file'), async (req: Request, res: Response) => {
     const { roomName, chatId }: { roomName: string; chatId: string } = req.body;
 
