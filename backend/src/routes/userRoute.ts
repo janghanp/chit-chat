@@ -224,7 +224,7 @@ router.post('/avatar', uploader.single('file'), async (req: Request, res: Respon
                 email,
             },
             data: {
-                avatar: `https://chit-chat-demo.s3.ap-southeast-2.amazonaws.com/${input.Key}`,
+                avatar: `${process.env.AWS_S3_URL}/${input.Key}`,
                 public_id: input.Key,
             },
             include: {

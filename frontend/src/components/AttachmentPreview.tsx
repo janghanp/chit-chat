@@ -22,7 +22,7 @@ const AttachmentPreview = ({ chatId, attachment, setAttachments }: Props) => {
     };
 
     return (
-        <div className="relative flex h-56 w-56 items-center justify-center rounded-md border p-3 shadow-sm transition duration-300 hover:bg-gray-200">
+        <div className="relative flex w-60 h-60 items-center justify-center rounded-md border p-3 shadow-sm transition duration-300 hover:bg-gray-200">
             {attachment.isUploading ? (
                 <div>
                     <BarLoader color="#394E6A" />
@@ -37,7 +37,7 @@ const AttachmentPreview = ({ chatId, attachment, setAttachments }: Props) => {
                             <HiTrash />
                         </button>
                     </div>
-                    <img src={attachment.preview} alt="Loading..." />
+                    <img className='w-full h-full object-contain' src={attachment.preview} alt="Loading..." />
                 </>
             )}
         </div>

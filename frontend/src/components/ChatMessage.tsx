@@ -31,37 +31,28 @@ const ChatMessage = ({ message, isOwner, firstElementRef }: Props) => {
                     {format(new Date(message.createdAt), 'PP p')}
                 </time>
             </div>
-            {message.text && (
-                <div
-                    className={`chat-bubble break-all ${message.id === 'temp' && 'text-gray-500'}`}
-                >
-                    {message.text}
-                </div>
-            )}
-            {message.attachments && message.attachments.length > 0 && (
-                <div
-                    className={`chat-footer chat-end mt-3 flex flex-wrap gap-3 ${
-                        isOwner ? 'justify-end' : 'justify-start'
-                    }`}
-                >
-                    {message.attachments.map((attachment) => {
-                        return (
-                            <div
-                                key={attachment.public_id}
-                                className="bg-base-100 right-0 rounded-md border p-1 shadow-md"
-                            >
-                                <img
-                                    className="object-cover"
-                                    src={attachment.secure_url}
-                                    alt="attachment iamge"
-                                    width={270}
-                                    height={270}
-                                />
-                            </div>
-                        );
-                    })}
-                </div>
-            )}
+            <div className={`chat-bubble break-all ${message.id === 'temp' && 'text-gray-500'}`}>
+                <div>{message.text || ''}</div>
+
+                {message.attachments && message.attachments.length > 0 && (
+                    <div className="flex gap-x-3">
+                        {message.attachments.map((attachment) => {
+                            return (
+                                <div
+                                    key={attachment.public_id}
+                                    className="overflow-hidden rounded-sm w-72 h-auto"
+                                >
+                                    <img
+                                        className="object-contain w-full h-full"
+                                        src={attachment.secure_url}
+                                        alt="attachment iamge"
+                                    />
+                                </div>
+                            );
+                        })}
+                    </div>
+                )}
+            </div>
         </div>
     );
 };

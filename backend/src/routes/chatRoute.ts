@@ -667,7 +667,7 @@ router.post(
 
             const attachment = {
                 public_id: input.Key,
-                secure_url: `https://chit-chat-demo.s3.ap-southeast-2.amazonaws.com/${input.Key}`,
+                secure_url: `${process.env.AWS_S3_URL}/${input.Key}`,
             };
 
             return res.status(200).json(attachment);

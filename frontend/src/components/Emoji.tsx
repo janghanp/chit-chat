@@ -1,6 +1,7 @@
-import EmojiPicker, { EmojiClickData } from 'emoji-picker-react';
 import { Dispatch, RefObject, SetStateAction, useEffect, useState } from 'react';
 import { HiOutlineEmojiHappy } from 'react-icons/hi';
+import data from '@emoji-mart/data';
+import Picker from '@emoji-mart/react';
 
 interface Props {
     setInputMessage: Dispatch<SetStateAction<string>>;
@@ -33,19 +34,17 @@ const Emoji = ({ setInputMessage, inputRef }: Props) => {
         setIsOpen(true);
     };
 
-    const changeHandler = (emojiData: EmojiClickData) => {
+    const emojiChangeHandler = (emojiData: any) => {
         const curosrPosition = inputRef.current?.selectionStart;
         const emoji = String.fromCodePoint(parseInt(emojiData.unified, 16));
 
         setInputMessage((prev) => {
             const letters = prev.split('');
             letters.splice(curosrPosition as number, 0, emoji);
-
             return letters.join('');
         });
 
         setIsOpen(false);
-
         inputRef.current?.focus();
     };
 
@@ -66,12 +65,7 @@ const Emoji = ({ setInputMessage, inputRef }: Props) => {
                     <div onClick={() => setIsOpen(false)} className="fixed inset-0"></div>
 
                     <div className="absolute bottom-0 -right-10 shadow-lg">
-                        <EmojiPicker
-                            onEmojiClick={changeHandler}
-                            width={250}
-                            height={400}
-                            autoFocusSearch={false}
-                        />
+                        <Picker data={data} onEmojiSelect={emojiChangeHandler} />
                     </div>
                 </>
             )}
