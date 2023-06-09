@@ -74,7 +74,7 @@ const Notification = ({ notification, setIsOepn }: Props) => {
             className="flex items-start gap-x-2 border-b p-2 transition duration-300 hover:cursor-pointer hover:bg-gray-200/50"
             onClick={readNotificationHandler}
         >
-            <div className="avatar_url">
+            <div className="avatar">
                 <div className="w-10 rounded-full border">
                     <img src={notification.sender.avatar_url || defaultAvatar} alt={'?'} />
                 </div>

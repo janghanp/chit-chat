@@ -40,7 +40,7 @@ const ChatMessage = ({ message, isOwner, firstElementRef }: Props) => {
                             return (
                                 <div
                                     key={attachment.Key}
-                                    className="overflow-hidden rounded-sm w-72 h-auto"
+                                    className="overflow-hidden rounded-sm w-auto max-w-[288px] h-auto"
                                 >
                                     <img
                                         className="object-contain w-full h-full"
