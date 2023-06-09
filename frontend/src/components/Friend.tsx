@@ -58,7 +58,7 @@ const Friend = ({ friend, isInviting }: Props) => {
                         } `}
                     ></div>
                     <div className="w-10 rounded-full border">
-                        <img src={friend.avatar || defaultAvatar} alt={'avatar'} />
+                        <img src={friend.avatar_url || defaultAvatar} alt={'avatar'} />
                     </div>
                 </div>
                 <span className="ml-2 font-bold">{friend.username}</span>

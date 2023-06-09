@@ -83,7 +83,7 @@ const SearchInChat = () => {
                                         <div className="avatar">
                                             <div className="border-base-content w-7 rounded-full">
                                                 <img
-                                                    src={member.avatar || defaultAvatar}
+                                                    src={member.avatar_url || defaultAvatar}
                                                     width={20}
                                                     height={20}
                                                     alt="avatar"

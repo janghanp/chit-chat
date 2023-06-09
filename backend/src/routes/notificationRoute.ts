@@ -63,7 +63,7 @@ router.post('/', async (req: Request, res: Response) => {
             include: {
                 sender: {
                     select: {
-                        avatar: true,
+                        avatar_url: true,
                         username: true,
                     },
                 },
@@ -99,7 +99,7 @@ router.get('/all', async (req: Request, res: Response) => {
                 sender: {
                     select: {
                         id: true,
-                        avatar: true,
+                        avatar_url: true,
                         username: true,
                     },
                 },
@@ -125,7 +125,7 @@ router.delete('/', async (req: Request, res: Response) => {
             include: {
                 sender: {
                     select: {
-                        avatar: true,
+                        avatar_url: true,
                         username: true,
                     },
                 },

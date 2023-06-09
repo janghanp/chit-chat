@@ -59,7 +59,7 @@ const Member = ({ member, setIsOpenMemberList }: Props) => {
                         } `}
                     ></div>
                     <div className="w-8 rounded-full">
-                        <img src={member.avatar || defaultAvatar} alt="avatar" />
+                        <img src={member.avatar_url || defaultAvatar} alt="avatar" />
                     </div>
                 </div>
                 <span className="text-sm font-semibold">{member.username}</span>

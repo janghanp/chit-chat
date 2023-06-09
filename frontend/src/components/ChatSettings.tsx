@@ -24,7 +24,7 @@ const ChatSettings = ({ chatId, currentUserId, setIsSettingOpen }: Props) => {
     useEffect(() => {
         if (data) {
             setRoomName(data.chat.name!);
-            setPreview(data.chat.icon || '');
+            setPreview(data.chat.icon_url || '');
         }
     }, [data]);
 

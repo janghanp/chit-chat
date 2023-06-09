@@ -44,7 +44,7 @@ const Notification = ({ notification, setIsOepn }: Props) => {
 
         socket.emit('accept_friend', {
             id: currentUser!.id,
-            avatar: currentUser!.avatar,
+            avatar_url: currentUser!.avatar_url,
             username: currentUser!.username,
             receiverId: notification.senderId,
         });
@@ -74,9 +74,9 @@ const Notification = ({ notification, setIsOepn }: Props) => {
             className="flex items-start gap-x-2 border-b p-2 transition duration-300 hover:cursor-pointer hover:bg-gray-200/50"
             onClick={readNotificationHandler}
         >
-            <div className="avatar">
+            <div className="avatar_url">
                 <div className="w-10 rounded-full border">
-                    <img src={notification.sender.avatar || defaultAvatar} alt={'?'} />
+                    <img src={notification.sender.avatar_url || defaultAvatar} alt={'?'} />
                 </div>
             </div>
             <div className={`flex flex-col items-start ${notification.read && 'text-gray-400'}`}>

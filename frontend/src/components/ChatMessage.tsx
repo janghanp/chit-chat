@@ -20,7 +20,7 @@ const ChatMessage = ({ message, isOwner, firstElementRef }: Props) => {
             <div className="chat-image avatar">
                 <div className="w-10 rounded-full border">
                     <img
-                        src={message.sender.avatar || defaultImageUrl}
+                        src={message.sender.avatar_url || defaultImageUrl}
                         alt={message.sender.username}
                     />
                 </div>
@@ -39,12 +39,12 @@ const ChatMessage = ({ message, isOwner, firstElementRef }: Props) => {
                         {message.attachments.map((attachment) => {
                             return (
                                 <div
-                                    key={attachment.public_id}
+                                    key={attachment.Key}
                                     className="overflow-hidden rounded-sm w-72 h-auto"
                                 >
                                     <img
                                         className="object-contain w-full h-full"
-                                        src={attachment.secure_url}
+                                        src={attachment.url}
                                         alt="attachment iamge"
                                     />
                                 </div>

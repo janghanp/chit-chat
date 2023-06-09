@@ -18,8 +18,8 @@ import notificationRoute from './routes/notificationRoute';
 interface Chat {
     id: string;
     name: string;
-    icon?: string;
-    public_id?: string;
+    icon_url?: string;
+    Key?: string;
     ownerId: string;
 }
 
@@ -27,15 +27,15 @@ interface CurrentUser {
     id: string;
     username: string;
     email: string;
-    avatar?: string;
-    public_id?: string;
+    avatar_url?: string;
+    Key?: string;
     isOnline?: boolean;
     chats: Chat[];
 }
 
 interface AttachmentInfo {
-    public_id: string;
-    secure_url: string;
+    Key: string;
+    url: string;
 }
 
 interface UserWithSockets {
@@ -297,8 +297,8 @@ io.on('connect', (socket: Socket) => {
 
     socket.on(
         'accept_friend',
-        (data: { id: string; avatar: string; username: string; receiverId: string }) => {
-            const { id, avatar, username, receiverId } = data;
+        (data: { id: string; avatar_url: string; username: string; receiverId: string }) => {
+            const { id, avatar_url, username, receiverId } = data;
 
             const target = onlineUsers.filter((el) => {
                 return el.userId === receiverId;
@@ -306,7 +306,7 @@ io.on('connect', (socket: Socket) => {
 
             if (target.length > 0) {
                 if (target[0].socketIds?.length > 0) {
-                    socket.to(target[0].socketIds).emit('accept_friend', { id, avatar, username });
+                    socket.to(target[0].socketIds).emit('accept_friend', { id, avatar_url, username });
                 }
             }
         }

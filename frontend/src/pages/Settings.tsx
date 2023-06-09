@@ -17,7 +17,7 @@ interface FormData {
 
 const Settings = () => {
     const { data: currentUser } = useUser();
-    const [preview, setPreview] = useState<string>(currentUser!.avatar || '');
+    const [preview, setPreview] = useState<string>(currentUser!.avatar_url || '');
     const [imageError, setImageError] = useState<string>();
     const [isUploading, setIsUploading] = useState<boolean>(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -84,7 +84,7 @@ const Settings = () => {
         const formData = new FormData();
 
         formData.append('file', image!);
-        formData.append('public_id', currentUser!.public_id || '');
+        formData.append('Key', currentUser!.Key || '');
 
         uploadAvatarMutate(formData);
     };

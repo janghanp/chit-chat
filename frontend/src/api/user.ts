@@ -65,7 +65,7 @@ export const updateUser = async (dataToUpdate: { newPassword?: string; username?
 };
 
 export const uploadAvatar = async (formData: FormData) => {
-    const { data } = await axios.post<User>('/user/avatar', formData, {
+    const { data } = await axios.post<User>('/user/avatar_url', formData, {
         withCredentials: true,
     });
 

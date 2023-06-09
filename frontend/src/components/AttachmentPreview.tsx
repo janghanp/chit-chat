@@ -18,7 +18,7 @@ const AttachmentPreview = ({ chatId, attachment, setAttachments }: Props) => {
     });
 
     const deleteAttachMentHandler = () => {
-        deleteAttachmentsMutate({ chatId, public_id: attachment.public_id! });
+        deleteAttachmentsMutate({ chatId, Key: attachment.Key! });
     };
 
     return (

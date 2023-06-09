@@ -22,7 +22,7 @@ interface Props {
 const Settings = ({ closeSettings }: Props) => {
     const { data: currentUser } = useUser();
 
-    const [preview, setPreview] = useState<string>(currentUser!.avatar || '');
+    const [preview, setPreview] = useState<string>(currentUser!.avatar_url || '');
     const [imageError, setImageError] = useState<string>();
     const [isUploading, setIsUploading] = useState<boolean>(false);
 
@@ -126,7 +126,7 @@ const Settings = ({ closeSettings }: Props) => {
         const formData = new FormData();
 
         formData.append('file', image!);
-        formData.append('public_id', currentUser!.public_id || '');
+        formData.append('Key', currentUser!.Key || '');
 
         await axios.post<User>('/user/avatar', formData, {
             withCredentials: true,

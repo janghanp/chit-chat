@@ -38,7 +38,7 @@ const useAccpetFriendRequest = () => {
                         ...old,
                         {
                             id: notification.senderId,
-                            avatar: notification.sender.avatar,
+                            avatar_url: notification.sender.avatar_url,
                             username: notification.sender.username,
                         },
                     ];

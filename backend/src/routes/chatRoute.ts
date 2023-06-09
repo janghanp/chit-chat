@@ -1,6 +1,5 @@
 import { PrismaClient } from '@prisma/client';
 import { Request, Response, Router } from 'express';
-import cloudinary from 'cloudinary';
 import multer from 'multer';
 import { DeleteObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3';
 import { v4 as uuid } from 'uuid';
@@ -73,7 +72,7 @@ router.get('/', async (req: Request, res: Response) => {
                               select: {
                                   id: true,
                                   username: true,
-                                  avatar: true,
+                                  avatar_url: true,
                               },
                           },
             },
@@ -121,7 +120,7 @@ router.get('/', async (req: Request, res: Response) => {
                                   select: {
                                       id: true,
                                       username: true,
-                                      avatar: true,
+                                      avatar_url: true,
                                   },
                               },
                 },
@@ -239,7 +238,7 @@ router.get('/private', async (req: Request, res: Response) => {
                             },
                             select: {
                                 id: true,
-                                avatar: true,
+                                avatar_url: true,
                                 username: true,
                             },
                         },
@@ -288,6 +287,7 @@ router.get('/name', async (req: Request, res: Response) => {
     }
 });
 
+//TODO: s3 instead of cloudinary
 router.post('/', uploader.single('file'), async (req: Request, res: Response) => {
     const { roomName, ownerId }: { roomName?: string; ownerId?: string } = req.body;
 
@@ -306,16 +306,27 @@ router.post('/', uploader.single('file'), async (req: Request, res: Response) =>
         let newChat;
 
         if (req.file) {
-            const upload = await cloudinary.v2.uploader.upload(req.file.path, {
-                folder: '/chit-chat/icon',
-            });
+            const type = req.file.mimetype;
+            const fileExtension = req.file.mimetype.split('/')[1];
+            const filename = `${uuid()}.${fileExtension}`;
+
+            const input = {
+                Bucket: process.env.AWS_S3_BUCKET,
+                Key: `icon/${filename}`,
+                Body: req.file.buffer,
+                ContentType: type,
+            };
+
+            const putCommand = new PutObjectCommand(input);
+
+            await s3.send(putCommand);
 
             const result = await prisma.chat.create({
                 data: {
                     name: roomName,
                     ownerId,
-                    icon: upload.secure_url,
-                    public_id: upload.public_id,
+                    icon_url: `${process.env.AWS_S3_URL}/${input.Key}`,
+                    Key: input.Key,
                     readBy: {
                         set: [ownerId as string],
                     },
@@ -395,6 +406,7 @@ router.patch('/leave', async (req: Request, res: Response) => {
     }
 });
 
+//TODO: s3 instead of cloudinary
 router.delete('/', async (req: Request, res: Response) => {
     const { chatId } = req.body;
 
@@ -405,8 +417,15 @@ router.delete('/', async (req: Request, res: Response) => {
             },
         });
 
-        if (chat && chat.public_id) {
-            await cloudinary.v2.uploader.destroy(chat.public_id);
+        if (chat && chat.Key) {
+            const input = {
+                Bucket: process.env.AWS_S3_BUCKET,
+                Key: chat.Key,
+            };
+
+            const deleteCommand = new DeleteObjectCommand(input);
+
+            await s3.send(deleteCommand);
         }
 
         return res.sendStatus(200);
@@ -442,6 +461,7 @@ router.get('/members', async (req: Request, res: Response) => {
     }
 });
 
+//TODO: s3 instead of cloudinary
 router.patch('/', uploader.single('file'), async (req: Request, res: Response) => {
     const { roomName, chatId }: { roomName: string; chatId: string } = req.body;
 
@@ -473,15 +493,33 @@ router.patch('/', uploader.single('file'), async (req: Request, res: Response) =
 
         if (currentChat) {
             // Delete the existing image from cloudinary.
-            if (currentChat.public_id) {
-                await cloudinary.v2.uploader.destroy(currentChat.public_id);
+            if (currentChat.Key) {
+                const input = {
+                    Bucket: process.env.AWS_S3_BUCKET,
+                    Key: currentChat.Key,
+                };
+
+                const deleteCommand = new DeleteObjectCommand(input);
+
+                await s3.send(deleteCommand);
             }
 
             if (req.file) {
                 // Upload a new image.
-                const upload = await cloudinary.v2.uploader.upload(req.file.path, {
-                    folder: '/chit-chat/icon',
-                });
+                const type = req.file.mimetype;
+                const fileExtension = req.file.mimetype.split('/')[1];
+                const filename = `${uuid()}.${fileExtension}`;
+
+                const input = {
+                    Bucket: process.env.AWS_S3_BUCKET,
+                    Key: `icon/${filename}`,
+                    Body: req.file.buffer,
+                    ContentType: type,
+                };
+
+                const putCommand = new PutObjectCommand(input);
+
+                await s3.send(putCommand);
 
                 await prisma.chat.update({
                     where: {
@@ -489,8 +527,8 @@ router.patch('/', uploader.single('file'), async (req: Request, res: Response) =
                     },
                     data: {
                         name: roomName,
-                        icon: upload.secure_url,
-                        public_id: upload.public_id,
+                        icon_url: `${process.env.AWS_S3_URL}/${input.Key}`,
+                        Key: input.Key,
                     },
                 });
             } else {
@@ -500,8 +538,8 @@ router.patch('/', uploader.single('file'), async (req: Request, res: Response) =
                     },
                     data: {
                         name: roomName,
-                        public_id: null,
-                        icon: null,
+                        Key: null,
+                        icon_url: null,
                     },
                 });
             }
@@ -524,7 +562,7 @@ router.post('/private', async (req: Request, res: Response) => {
             where: {
                 AND: [
                     { name: null },
-                    { icon: null },
+                    { icon_url: null },
                     { users: { some: { id: senderId as string } } },
                     { users: { some: { id: receiverId as string } } },
                 ],
@@ -543,7 +581,7 @@ router.post('/private', async (req: Request, res: Response) => {
                     },
                     select: {
                         id: true,
-                        avatar: true,
+                        avatar_url: true,
                         username: true,
                     },
                 },
@@ -576,7 +614,7 @@ router.post('/private', async (req: Request, res: Response) => {
                     },
                     select: {
                         id: true,
-                        avatar: true,
+                        avatar_url: true,
                         username: true,
                     },
                 },
@@ -666,8 +704,8 @@ router.post(
             await s3.send(putCommand);
 
             const attachment = {
-                public_id: input.Key,
-                secure_url: `${process.env.AWS_S3_URL}/${input.Key}`,
+                Key: input.Key,
+                url: `${process.env.AWS_S3_URL}/${input.Key}`,
             };
 
             return res.status(200).json(attachment);
@@ -680,13 +718,13 @@ router.post(
 );
 
 router.delete('/:chatId/attachments', async (req: Request, res: Response) => {
-    const { public_id } = req.body;
+    const { Key } = req.body;
 
     try {
-        if (public_id) {
+        if (Key) {
             const input = {
                 Bucket: process.env.AWS_S3_BUCKET,
-                Key: public_id,
+                Key: Key,
             };
 
             const deleteCommand = new DeleteObjectCommand(input);

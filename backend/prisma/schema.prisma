@@ -15,8 +15,8 @@ model User {
   email              String   @unique
   username           String   @unique
   password           String
-  avatar             String?
-  public_id          String?
+  avatar_url         String?
+  Key                String?
   leftPrivateChatIds String[]
   hasNewNotification Boolean  @default(false)
   createdAt          DateTime @default(now())
@@ -47,10 +47,10 @@ model Chat {
   id String @id @unique @default(cuid())
 
   //The belows should be empty when a chat is private.
-  name      String?
-  icon      String?
-  public_id String?
-  ownerId   String?
+  name     String?
+  icon_url String?
+  Key      String?
+  ownerId  String?
 
   type      Type     @default(GROUP)
   readBy    String[]

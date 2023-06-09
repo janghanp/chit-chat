@@ -112,7 +112,7 @@ const PrivateChatRoom = ({ privateChatRoom }: Props) => {
                             ></div>
                             <div className="w-10 rounded-full border">
                                 <img
-                                    src={privateChatRoom.users![0].avatar || defaultAvatar}
+                                    src={privateChatRoom.users![0].avatar_url || defaultAvatar}
                                     alt="receiver"
                                 />
                             </div>

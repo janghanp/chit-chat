@@ -64,8 +64,8 @@ router.post('/register', async (req: Request, res: Response) => {
             id: user.id,
             username: user.username,
             email: user.email,
-            avatar: user.avatar,
-            public_id: user.public_id,
+            avatar_url: user.avatar_url,
+            Key: user.Key,
             hasNewNotification: false,
         });
     } catch (error) {
@@ -107,8 +107,8 @@ router.post('/login', async (req: Request, res: Response) => {
             id: user.id,
             username: user.username,
             email: user.email,
-            avatar: user.avatar,
-            public_id: user.public_id,
+            avatar_url: user.avatar_url,
+            Key: user.Key,
             hasNewNotification: false,
         });
     } catch (error) {
@@ -132,7 +132,7 @@ router.get('/refresh', async (req: Request, res: Response) => {
                 // Generate a new token
                 const newToken = generateToken(username, email, id);
 
-                // Find a user to get avatar and public_id.
+                // Find a user to get avatar_url and Key.
                 const user = await prisma.user.findUnique({
                     where: {
                         email,
@@ -155,8 +155,8 @@ router.get('/refresh', async (req: Request, res: Response) => {
                     id: user.id,
                     username: user.username,
                     email: user.email,
-                    avatar: user.avatar,
-                    public_id: user.public_id,
+                    avatar_url: user.avatar_url,
+                    Key: user.Key,
                     hasNewNotification: user.hasNewNotification,
                 });
             }

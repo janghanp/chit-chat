@@ -90,10 +90,10 @@ const GroupChatRoom = ({ groupChatRoom }: Props) => {
                                 isNewMessage ? 'block' : 'hidden'
                             }`}
                         ></span>
-                        {groupChatRoom.icon ? (
+                        {groupChatRoom.icon_url ? (
                             <div className="avatar">
                                 <div className="w-10 rounded-full border">
-                                    <img src={groupChatRoom.icon} alt={groupChatRoom.name} />
+                                    <img src={groupChatRoom.icon_url} alt={groupChatRoom.name} />
                                 </div>
                             </div>
                         ) : (

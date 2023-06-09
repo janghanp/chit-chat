@@ -2,8 +2,8 @@ export interface User {
     id: string;
     username: string;
     email: string;
-    avatar?: string;
-    public_id?: string;
+    avatar_url?: string;
+    Key?: string;
     isOnline?: boolean;
     hasNewNotification: boolean;
 }
@@ -16,15 +16,15 @@ export interface ChatWithIsNewMember {
 export interface Chat {
     id: string;
     name?: string;
-    icon?: string;
-    public_id?: string;
+    icon_url?: string;
+    Key?: string;
     type: 'GROUP' | 'PRIVATE';
     ownerId?: string;
     createdAt: string;
     readBy: string[];
     messages?: Message[];
     isReceiverOnline?: boolean;
-    users?: { id: string; username: string; avatar?: string }[];
+    users?: { id: string; username: string; avatar_url?: string }[];
 }
 
 export interface PreviousChat {
@@ -49,7 +49,7 @@ export interface Notification {
     read: boolean;
     receiverId: string;
     senderId: string;
-    sender: { avatar?: string; username: string; id: string };
+    sender: { avatar_url?: string; username: string; id: string };
     createdAt: string;
     temp?: boolean;
 }
@@ -69,29 +69,29 @@ export interface AuthSuccessResponse {
     id: string;
     email: string;
     username: string;
-    avatar: string;
-    public_id: string;
+    avatar_url: string;
+    Key: string;
     chats: Chat[];
 }
 
 export interface Friend {
     id: string;
     username: string;
-    avatar?: string;
+    avatar_url?: string;
     isOnline?: boolean;
 }
 
 export interface Attachment {
     id: string;
-    public_id?: string;
-    secure_url?: string;
+    Key?: string;
+    url?: string;
     preview?: string;
     isUploading: boolean;
 }
 
 export interface AttachmentInfo {
-    public_id: string;
-    secure_url: string;
+    Key: string;
+    url: string;
 }
 
 export interface AuthErrorResponse {

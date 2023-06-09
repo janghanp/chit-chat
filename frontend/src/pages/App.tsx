@@ -309,7 +309,7 @@ function App() {
                                         {
                                             id: sender.id,
                                             username: sender.username,
-                                            avatar: sender.avatar,
+                                            avatar_url: sender.avatar_url,
                                         },
                                     ],
                                 };

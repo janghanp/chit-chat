@@ -102,9 +102,9 @@ export const uploadAttachments = async (chatId: string, formData: FormData) => {
     return data;
 };
 
-export const deleteAttachments = async (chatId: string, public_id: string) => {
+export const deleteAttachments = async (chatId: string, Key: string) => {
     const { data } = await axios.delete(`/chat/${chatId}/attachments`, {
-        data: { public_id },
+        data: { Key },
         withCredentials: true,
     });
 

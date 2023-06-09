@@ -12,8 +12,8 @@ interface Props {
 
 const useDeleteAttachments = ({ setAttachments, attachmentId }: Props) => {
     const { mutate } = useMutation({
-        mutationFn: ({ chatId, public_id }: { chatId: string; public_id: string }) => {
-            return deleteAttachments(chatId, public_id);
+        mutationFn: ({ chatId, Key }: { chatId: string; Key: string }) => {
+            return deleteAttachments(chatId, Key);
         },
         onMutate() {
             setAttachments((prev) => {

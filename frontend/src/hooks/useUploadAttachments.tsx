@@ -34,8 +34,8 @@ const useUploadAttachments = (setAttachements: (value: SetStateAction<Attachment
             setAttachements((prev) => {
                 return prev.map((attachment) => {
                     if (attachment.id === variables.id) {
-                        attachment.public_id = data.public_id;
-                        attachment.secure_url = data.secure_url;
+                        attachment.Key = data.Key;
+                        attachment.url = data.url;
                         attachment.isUploading = false;
                     }
 

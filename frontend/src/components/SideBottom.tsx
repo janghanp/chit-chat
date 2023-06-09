@@ -23,7 +23,7 @@ const SideBottom = () => {
                             className={`absolute -top-0.5 right-0 z-10 h-3 w-3 rounded-full border bg-green-500`}
                         ></div>
                         <div className="w-8 rounded-full">
-                            <img src={currentUser!.avatar || defaultAvatar} alt="avatar" />
+                            <img src={currentUser!.avatar_url || defaultAvatar} alt="avatar_url" />
                         </div>
                     </div>
                     <span className="text-sm font-bold">{currentUser?.username}</span>

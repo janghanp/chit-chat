@@ -83,10 +83,10 @@ const MessageInputBox = ({ currentChat, currentUser }: Props) => {
         }
 
         const newAttachments = attachments.map((attachment) => {
-            const newAttachment = { public_id: '', secure_url: '' };
+            const newAttachment = { Key: '', url: '' };
 
-            newAttachment.public_id = attachment.public_id!;
-            newAttachment.secure_url = attachment.secure_url!;
+            newAttachment.Key = attachment.Key!;
+            newAttachment.url = attachment.url!;
 
             return newAttachment;
         });

@@ -72,7 +72,7 @@ router.get('/friends', async (req: Request, res: Response) => {
                     select: {
                         id: true,
                         username: true,
-                        avatar: true,
+                        avatar_url: true,
                     },
                 },
             },
@@ -181,20 +181,20 @@ router.patch('/', async (req: Request, res: Response) => {
     }
 });
 
-router.post('/avatar', uploader.single('file'), async (req: Request, res: Response) => {
+router.post('/avatar_url', uploader.single('file'), async (req: Request, res: Response) => {
     const { email } = req.token;
-    const { public_id }: { public_id: string } = req.body;
+    const { Key }: { Key: string } = req.body;
 
     if (!req.file) {
         return res.status(500).json({ message: 'Something went wrong, please try again...' });
     }
 
     try {
-        // Delete a previous avatar from s3.
-        if (public_id) {
+        // Delete a previous avatar_url from s3.
+        if (Key) {
             const input = {
                 Bucket: process.env.AWS_S3_BUCKET,
-                Key: public_id,
+                Key: Key,
             };
 
             const deleteCommand = new DeleteObjectCommand(input);
@@ -205,11 +205,11 @@ router.post('/avatar', uploader.single('file'), async (req: Request, res: Respon
         //Upload an image to s3
         const type = req.file.mimetype;
         const fileExtension = req.file.mimetype.split('/')[1];
-        const Key = `${uuid()}.${fileExtension}`;
+        const filename = `${uuid()}.${fileExtension}`;
 
         const input = {
             Bucket: process.env.AWS_S3_BUCKET,
-            Key: `avatar/${Key}`,
+            Key: `avatar_url/${filename}`,
             Body: req.file.buffer,
             ContentType: type,
         };
@@ -224,8 +224,8 @@ router.post('/avatar', uploader.single('file'), async (req: Request, res: Respon
                 email,
             },
             data: {
-                avatar: `${process.env.AWS_S3_URL}/${input.Key}`,
-                public_id: input.Key,
+                avatar_url: `${process.env.AWS_S3_URL}/${input.Key}`,
+                Key: input.Key,
             },
             include: {
                 chats: true,
@@ -236,8 +236,8 @@ router.post('/avatar', uploader.single('file'), async (req: Request, res: Respon
             id: user.id,
             email: user.email,
             username: user.username,
-            avatar: user.avatar,
-            public_id: user.public_id,
+            avatar_url: user.avatar_url,
+            Key: user.Key,
             chats: user.chats,
         });
     } catch (error) {
