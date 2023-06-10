@@ -5,7 +5,7 @@ import Sidebar from '../components/Sidebar';
 
 const Layout = () => {
     return (
-        <div className="flex h-screen gap-x-0 p-0 md:gap-x-5 md:p-5">
+        <div className="flex h-[calc(100dvh)] gap-x-0 p-0 md:gap-x-5 md:p-5">
             <div>
                 <ToggleSidebarProvider>
                     <Sidebar />

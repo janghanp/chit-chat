@@ -36,9 +36,9 @@ const Register = () => {
     }
 
     return (
-        <div className="bg-base-100 min-h-screen">
-            <div className="container mx-auto flex min-h-screen max-w-lg flex-col items-center justify-center">
-                <div className="bg-base-100 relative w-full rounded-lg p-10 shadow-none sm:border sm:shadow-lg">
+        <div className="bg-base-100 h-[calc(100dvh)]">
+            <div className="container mx-auto flex h-[calc(100dvh)] max-w-lg flex-col items-center justify-center">
+                <div className="bg-base-100 relative w-full rounded-lg p-5 md:p-10 shadow-none sm:border sm:shadow-lg">
                     {isLoading && (
                         <div className="absolute inset-0 cursor-not-allowed rounded-lg bg-gray-200 opacity-50"></div>
                     )}

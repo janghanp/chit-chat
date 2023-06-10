@@ -20,14 +20,14 @@ const Sidebar = () => {
                     <h1 className="text-3xl font-bold">Chats</h1>
                     <CreateChatButton currentUserId={currentUser!.id} />
                 </div>
-                <div className="no-scrollbar max-h-screen overflow-y-auto">
+                <div className="no-scrollbar max-h-[calc(100dvh)] overflow-y-auto">
                     <ChatRoomList />
                 </div>
                 <SideBottom />
             </div>
             {/* Hamber menu for mobile */}
             <button
-                className="btn-ghost btn-sm btn btn-square fixed z-[5] left-3 top-3"
+                className="btn-ghost btn-sm btn btn-square fixed z-[5] left-4 top-3"
                 onClick={toggleSidebar}
             >
                 <HiBars3 className="text-2xl" />

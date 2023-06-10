@@ -65,6 +65,7 @@ const io = new Server(server, {
             'http://localhost',
             'https://www.chitchat.lat',
             'https://chitchat.lat',
+            'http://192.168.18.13:5173',
         ],
         methods: ['GET', 'POST'],
         credentials: true,
@@ -80,6 +81,7 @@ app.use(
             'http://localhost',
             'https://www.chitchat.lat',
             'https://chitchat.lat',
+            'http://192.168.18.13:5173',
         ],
         credentials: true,
     })
@@ -306,7 +308,9 @@ io.on('connect', (socket: Socket) => {
 
             if (target.length > 0) {
                 if (target[0].socketIds?.length > 0) {
-                    socket.to(target[0].socketIds).emit('accept_friend', { id, avatar_url, username });
+                    socket
+                        .to(target[0].socketIds)
+                        .emit('accept_friend', { id, avatar_url, username });
                 }
             }
         }

@@ -35,7 +35,7 @@ const LogoutButton = ({ setIsDropdownOpen }: Props) => {
             </button>
             {isOpen &&
                 createPortal(
-                    <div className="fixed inset-0 z-20 flex items-center justify-center">
+                    <div className="fixed inset-0 z-40 flex items-center justify-center">
                         <div
                             className="fixed inset-0 bg-gray-500/50"
                             onClick={() => {

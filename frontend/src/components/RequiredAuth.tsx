@@ -28,7 +28,7 @@ const RequireAuth = () => {
 
     if (!isSet) {
         return (
-            <div className="flex h-screen w-full items-center justify-center">
+            <div className="flex h-[calc(100dvh)] w-full items-center justify-center">
                 <HashLoader color="#394E6A" />
             </div>
         );

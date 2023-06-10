@@ -32,9 +32,9 @@ const Login = () => {
     }
 
     return (
-        <div className="min-h-screen bg-base-100">
-            <div className="container mx-auto flex min-h-screen max-w-lg flex-col items-center justify-center">
-                <div className="relative w-full rounded-lg bg-base-100 p-10 shadow-none sm:border sm:shadow-lg">
+        <div className="h-[calc(100dvh)] bg-base-100">
+            <div className="container h-[calc(100dvh)] mx-auto flex max-w-lg flex-col items-center justify-center">
+                <div className="relative w-full rounded-lg bg-base-100 p-5 md:p-10 shadow-none sm:border sm:shadow-lg">
                     {isLoading && (
                         <div className="absolute inset-0 cursor-not-allowed rounded-lg bg-gray-200 opacity-50"></div>
                     )}
