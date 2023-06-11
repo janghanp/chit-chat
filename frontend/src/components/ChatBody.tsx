@@ -1,4 +1,4 @@
-import { Fragment, useEffect } from 'react';
+import { Fragment, useEffect, useRef, useState } from 'react';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { useParams } from 'react-router';
 import { useInView } from 'react-intersection-observer';
@@ -6,11 +6,15 @@ import { useInView } from 'react-intersection-observer';
 import { fetchMessages } from '../api/message';
 import useUser from '../hooks/useUser';
 import ChatMessage from './ChatMessage';
+import NewMessageAlert from './NewMessageAlert';
 
 const ChatBody = () => {
     const { chatId } = useParams();
-    const { ref, inView } = useInView();
+    const { ref: firstMessageRef, inView: firstMessageInView } = useInView();
+    const { ref: lastMessageRef, inView: lastMessageInView } = useInView();
     const { data: currentUser } = useUser();
+    const firstPageMessagesRef = useRef<number>();
+    const [hasNewMessage, setHasNewMessage] = useState<boolean>(false);
     const { data, fetchNextPage, hasNextPage, status } = useInfiniteQuery({
         queryKey: ['messages', chatId],
         queryFn: async ({ pageParam }) => fetchMessages(chatId as string, pageParam),
@@ -25,11 +29,42 @@ const ChatBody = () => {
         staleTime: 1000 * 60,
     });
 
+    // Fetch more messages.
     useEffect(() => {
-        if (inView && hasNextPage) {
+        if (firstMessageInView && hasNextPage) {
             fetchNextPage();
         }
-    }, [inView, hasNextPage, fetchNextPage]);
+    }, [firstMessageInView, hasNextPage, fetchNextPage]);
+
+    // Show new message alert when getting a new message from other people and when it is not shoing the last message on the screen.
+    useEffect(() => {
+        if (
+            data &&
+            data.pages[0].length > 20 &&
+            data.pages[0].length !== firstPageMessagesRef.current &&
+            !lastMessageInView &&
+            data.pages[0][0].senderId !== currentUser!.id
+        ) {
+            setHasNewMessage(true);
+        }
+    }, [lastMessageInView, data]);
+
+    useEffect(() => {
+        setHasNewMessage(false);
+    }, [lastMessageInView]);
+
+    useEffect(() => {
+        if (data) {
+            firstPageMessagesRef.current = data.pages[0].length;
+        }
+    }, [data]);
+
+    const newMessageClickHandler = () => {
+        setHasNewMessage(false);
+        const chatBody = document.getElementById('chat-body')!;
+
+        chatBody.scroll({ top: chatBody.scrollHeight, behavior: 'smooth' });
+    };
 
     return (
         <div
@@ -59,7 +94,12 @@ const ChatBody = () => {
                                                         firstElementRef={
                                                             indexP === data.pages.length - 1 &&
                                                             index === page.length - 1
-                                                                ? ref
+                                                                ? firstMessageRef
+                                                                : undefined
+                                                        }
+                                                        lastElementRef={
+                                                            indexP === 0 && index === 0
+                                                                ? lastMessageRef
                                                                 : undefined
                                                         }
                                                     />
@@ -72,6 +112,14 @@ const ChatBody = () => {
                         </Fragment>
                     )}
                 </Fragment>
+            )}
+            {hasNewMessage && (
+                <>
+                    <NewMessageAlert
+                        newMessageClickHandler={newMessageClickHandler}
+                        message={data!.pages[0][0]}
+                    />
+                </>
             )}
         </div>
     );

@@ -8,9 +8,10 @@ interface Props {
     message: Message;
     isOwner: boolean;
     firstElementRef?: (node?: Element | null) => void;
+    lastElementRef?: (node?: Element | null) => void;
 }
 
-const ChatMessage = ({ message, isOwner, firstElementRef }: Props) => {
+const ChatMessage = ({ message, isOwner, firstElementRef, lastElementRef }: Props) => {
     return (
         <div
             ref={firstElementRef}
@@ -31,7 +32,10 @@ const ChatMessage = ({ message, isOwner, firstElementRef }: Props) => {
                     {format(new Date(message.createdAt), 'PP p')}
                 </time>
             </div>
-            <div className={`chat-bubble break-all ${message.id === 'temp' && 'text-gray-500'}`}>
+            <div
+                ref={lastElementRef}
+                className={`chat-bubble break-all ${message.id === 'temp' && 'text-gray-500'}`}
+            >
                 <div>{message.text || ''}</div>
 
                 {message.attachments && message.attachments.length > 0 && (

@@ -120,10 +120,12 @@ const Settings = () => {
         <div className="bg-base-100 flex h-full w-full flex-col items-center justify-center rounded-md p-3">
             <div className="w-full md:w-[400px] max-w-[400px]">
                 <div className="flex flex-row items-center justify-between">
-                    <div className="text-base-content text-3xl font-bold">User Settings</div>
+                    <div className="text-base-content text-3xl font-bold my-5 w-full text-center">
+                        User Settings
+                    </div>
                 </div>
                 <Toaster />
-                <div className="mt-14 w-full text-center">
+                <div className="w-full text-center">
                     <div
                         className="avatar relative hover:cursor-pointer"
                         onClick={() => fileInputRef.current?.click()}
