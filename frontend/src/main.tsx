@@ -7,7 +7,7 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 
 import './index.css';
 
-axios.defaults.baseURL = 'http://localhost:9000/api';
+axios.defaults.baseURL = 'https://chitchat.lat/api';
 
 const queryClient = new QueryClient({
     defaultOptions: {
