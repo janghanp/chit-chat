@@ -1,6 +1,7 @@
 {
     "extends": "@tsconfig/node18/tsconfig.json",
     "compilerOptions": {
+        "jsx": "react",
         "typeRoots": ["@types", "./node_modules/@types"],
         "module": "CommonJS"
     }

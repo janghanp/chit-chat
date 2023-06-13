@@ -1,8 +1,11 @@
 import { Request, Response, Router } from 'express';
 import bcrypt from 'bcryptjs';
+import nodemailer from 'nodemailer';
 
 import { PrismaClient } from '@prisma/client';
 import { generateToken, verifyToken } from '../utils/token';
+import { Email } from '../utils/email';
+import { render } from '@react-email/render';
 
 const router = Router();
 
@@ -178,6 +181,112 @@ router.delete('/logout', (req: Request, res: Response) => {
     }
 
     return res.sendStatus(200);
+});
+
+router.post('/password_reset', async (req: Request, res: Response) => {
+    const { email }: { email: string } = req.body;
+
+    try {
+        const user = await prisma.user.findUnique({
+            where: {
+                email,
+            },
+        });
+
+        if (!user) {
+            return res.status(400).json({ message: 'No user found' });
+        }
+
+        const token = generateToken(user.username, user.email, user.id);
+
+        const transporter = nodemailer.createTransport({
+            service: 'naver',
+            host: 'smtp.naver.com',
+            port: 465,
+            auth: {
+                user: process.env.NODEMAILER_EMAIL,
+                pass: process.env.NODEMAILER_PASSWORD,
+            },
+        });
+
+        const emailHtml = render(
+            Email({ url: `https://chitchat.lat/password_reset?token=${token}` })
+        );
+
+        const mailOptions = {
+            from: process.env.NODEMAILER_EMAIL,
+            to: email,
+            subject: '[Chit-chat] Please reset your password',
+            html: emailHtml,
+        };
+
+        transporter.sendMail(mailOptions, function (error, info) {
+            if (error) {
+                console.log(error);
+            } else {
+                console.log('Email sent: ' + info.response);
+            }
+        });
+
+        return res.sendStatus(200);
+    } catch (error) {
+        console.log(error);
+
+        return res.status(500).json({ message: 'Somthing went wrong, please try again...' });
+    }
+});
+
+router.get('/verify_token', async (req: Request, res: Response) => {
+    const { token } = req.query;
+
+    if (!token) {
+        return res.status(500).json({ message: 'Somthing went wrong, please try again...' });
+    }
+
+    try {
+        const decodedToken = verifyToken(token as string);
+
+        return res.status(200).json(decodedToken);
+    } catch (error) {
+        console.log(error);
+
+        return res.status(500).json({ message: 'Somthing went wrong, please try again...' });
+    }
+});
+
+router.patch('/password', async (req: Request, res: Response) => {
+    const { email, password } = req.body;
+
+    // Hash password
+    const salt = bcrypt.genSaltSync(10);
+    const hashedPassword = bcrypt.hashSync(password, salt);
+
+    try {
+        const user = await prisma.user.findUnique({
+            where: {
+                email,
+            },
+        });
+
+        if (!user) {
+            return res.status(500).json({ message: 'Somthing went wrong, please try again...' });
+        }
+
+        await prisma.user.update({
+            where: {
+                email,
+            },
+            data: {
+                password: hashedPassword,
+            },
+        });
+
+        return res.sendStatus(200);
+    } catch (error) {
+        console.log(error);
+
+        return res.status(500).json({ message: 'Somthing went wrong, please try again...' });
+    }
 });
 
 export default router;

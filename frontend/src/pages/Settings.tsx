@@ -1,6 +1,6 @@
 import { ChangeEvent, useRef, useState } from 'react';
 import { HiCamera } from 'react-icons/hi';
-import toast, { Toaster } from 'react-hot-toast';
+import toast from 'react-hot-toast';
 import { SubmitHandler, useForm } from 'react-hook-form';
 
 import defaultImageUrl from '/default.jpg';
@@ -124,7 +124,6 @@ const Settings = () => {
                         User Settings
                     </div>
                 </div>
-                <Toaster />
                 <div className="w-full text-center">
                     <div
                         className="avatar relative hover:cursor-pointer"

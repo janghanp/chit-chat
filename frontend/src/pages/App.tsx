@@ -16,6 +16,7 @@ import NoMatch from './NoMatch';
 import Explore from './Explore';
 import Friends from './Friends';
 import Settings from './Settings';
+import PasswordReset from './PasswordReset';
 
 function App() {
     const queryClient = useQueryClient();
@@ -584,6 +585,7 @@ function App() {
 
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
+                <Route path="/password_reset" element={<PasswordReset />} />
 
                 <Route path="*" element={<NoMatch />} />
             </Route>

@@ -86,7 +86,9 @@ const Explore = () => {
                                                     <div key={user.id} className="avatar border-0">
                                                         <div className="w-8 rounded-full border">
                                                             <img
-                                                                src={user.avatar_url || defaultAvatar}
+                                                                src={
+                                                                    user.avatar_url || defaultAvatar
+                                                                }
                                                                 alt={user.username}
                                                                 width={20}
                                                                 height={20}

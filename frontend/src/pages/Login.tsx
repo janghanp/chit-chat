@@ -1,6 +1,7 @@
 import { Link, Navigate } from 'react-router-dom';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { SyncLoader } from 'react-spinners';
+import { useNavigate } from 'react-router-dom';
 
 import useUser from '../hooks/useUser';
 import useLogin from '../hooks/useLogin';
@@ -11,6 +12,7 @@ interface FormData {
 }
 
 const Login = () => {
+    const navigate = useNavigate();
     const { data: currentUser } = useUser();
     const {
         register,
@@ -72,7 +74,15 @@ const Login = () => {
                             )}
                         </div>
                         <div className="w-full">
-                            <label className="label">Password</label>
+                            <label className="label">
+                                Password{' '}
+                                <span
+                                    className="text-blue-500 hover:cursor-pointer text-sm"
+                                    onClick={() => navigate('/password_reset')}
+                                >
+                                    Forgot password?
+                                </span>
+                            </label>
                             <input
                                 disabled={isLoading}
                                 data-cy="password-input"

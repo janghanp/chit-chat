@@ -34,6 +34,7 @@ const Emoji = ({ setInputMessage, inputRef }: Props) => {
         setIsOpen(true);
     };
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const emojiChangeHandler = (emojiData: any) => {
         const curosrPosition = inputRef.current?.selectionStart;
         const emoji = String.fromCodePoint(parseInt(emojiData.unified, 16));

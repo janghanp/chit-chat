@@ -37,7 +37,11 @@ const AttachmentPreview = ({ chatId, attachment, setAttachments }: Props) => {
                             <HiTrash />
                         </button>
                     </div>
-                    <img className='w-full h-full object-contain' src={attachment.preview} alt="Loading..." />
+                    <img
+                        className="w-full h-full object-contain"
+                        src={attachment.preview}
+                        alt="Loading..."
+                    />
                 </>
             )}
         </div>
