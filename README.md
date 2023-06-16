@@ -12,7 +12,7 @@
 
 </p>
 
-![alt text](https://github.com/janghanp/chit-chat/blob/main/images/screenshot.png?raw=true)
+![alt text](https://github.com/janghanp/chit-chat/blob/main/images/screenshot1.png?raw=true)
 
 
 #### Features
