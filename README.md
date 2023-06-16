@@ -15,7 +15,7 @@
 ![alt text](https://github.com/janghanp/chit-chat/blob/main/images/screenshot1.png?raw=true)
 
 
-#### Features
+## Features
 
 - Real-time chat with Socket.IO.
 - The forgot password functionality with JSON Web Token and Nodemailer.
@@ -25,7 +25,7 @@
 - Deployed to VPS (DigitalOcean) with Nginx.
 - Server state management with TanStack Query.
 
-### Tech Stack
+## Tech Stack
 
 - **Typescriptt**
 - **React & React Router**
