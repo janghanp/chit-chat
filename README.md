@@ -4,7 +4,7 @@
   <h1 align="center">Chit-chat</h1>
 
   <h3 align="center">
-   A Fullstack chit chat website.
+   A Fullstack chat website.
   </h3>
  <br />
  
