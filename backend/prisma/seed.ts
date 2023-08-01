@@ -1,8 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import { faker } from '@faker-js/faker';
 import bcrypt from 'bcryptjs';
-// import fs from 'fs-extra';
-// import path from 'path';
 
 const salt = bcrypt.genSaltSync(10);
 
