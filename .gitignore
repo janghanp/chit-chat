@@ -27,4 +27,3 @@ backend/.env.development
 *.njsproj
 *.sln
 *.sw?
-.idea
