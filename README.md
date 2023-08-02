@@ -27,7 +27,7 @@
 
 ## Tech Stack
 
-- **Typescriptt**
+- **Typescript**
 - **React & React Router**
 - **Tailwindcss (daisyui)**
 - **TanStack Query(React query)**
