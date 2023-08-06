@@ -22,7 +22,6 @@
 - Images are stored in Amazon S3 bucket.
 - Authentication with JSON Web Token.
 - Infinite scroll.
-- Deployed to VPS (DigitalOcean) with Nginx.
 - Server state management with TanStack Query.
 
 ## Tech Stack
