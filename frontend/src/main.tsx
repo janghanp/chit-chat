@@ -7,7 +7,7 @@ import { Toaster } from 'react-hot-toast';
 
 import './index.css';
 
-axios.defaults.baseURL = 'https://chit-chat-server-ivsg.onrender.com/api';
+axios.defaults.baseURL = 'https://server.chitchat.lat/api';
 
 const queryClient = new QueryClient({
     defaultOptions: {
