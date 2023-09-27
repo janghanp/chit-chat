@@ -11,7 +11,8 @@
         "dev": "nodemon src/index.ts",
         "start": "node dist/src/index.js",
         "lint": "eslint .",
-        "prettier": "prettier --write ."
+        "prettier": "prettier --write .",
+        "prisma:generate": "prisma generate"
     },
     "dependencies": {
         "@aws-sdk/client-s3": "^3.348.0",
