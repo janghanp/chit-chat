@@ -374,6 +374,11 @@ io.on('connect', (socket: Socket) => {
 
 const port = process.env.PORT || 9000;
 
-server.listen(port, () => {
-    console.log(`Listening on port ${port}`);
+
+server.listen(5555, () => {
+    console.log(`Websocket listening at 5555`);
+});
+
+app.listen(port, () => {
+    console.log(`Api listening at ${port}`);
 });
