@@ -71,7 +71,6 @@ const io = new Server(server, {
         methods: ['GET', 'POST'],
         credentials: true,
     },
-    path: '/sockets',
 });
 
 app.use(morgan('dev'));
