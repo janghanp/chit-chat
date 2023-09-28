@@ -14,7 +14,6 @@ import userRoute from './routes/userRoute';
 import chatRoute from './routes/chatRoute';
 import messageRoute from './routes/messageRoute';
 import notificationRoute from './routes/notificationRoute';
-import socketRoute from './routes/socketRoute';
 
 interface Chat {
     id: string;
@@ -92,7 +91,6 @@ app.use(
 app.use(express.json());
 app.use(cookieParser());
 
-app.use('/socket.io', socketRoute);
 app.use('/api/auth', authRoute);
 app.use('/api/user', checkToken, userRoute);
 app.use('/api/chat', checkToken, chatRoute);
