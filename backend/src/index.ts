@@ -14,7 +14,6 @@ import userRoute from './routes/userRoute';
 import chatRoute from './routes/chatRoute';
 import messageRoute from './routes/messageRoute';
 import notificationRoute from './routes/notificationRoute';
-import socketRoute from './routes/socketRoute';
 
 interface Chat {
     id: string;
@@ -72,7 +71,6 @@ const io = new Server(server, {
         methods: ['GET', 'POST'],
         credentials: true,
     },
-    path: '/',
 });
 
 app.use(morgan('dev'));
@@ -93,7 +91,6 @@ app.use(
 app.use(express.json());
 app.use(cookieParser());
 
-app.use('/socket.io', socketRoute);
 app.use('/api/auth', authRoute);
 app.use('/api/user', checkToken, userRoute);
 app.use('/api/chat', checkToken, chatRoute);
@@ -377,6 +374,6 @@ io.on('connect', (socket: Socket) => {
 
 const port = process.env.PORT || 9000;
 
-app.listen(port, () => {
+server.listen(port, () => {
     console.log(`Server listening at ${port}`);
 });
