@@ -66,11 +66,12 @@ const io = new Server(server, {
             'https://www.chitchat.lat',
             'https://chitchat.lat',
             'http://192.168.18.13:5173',
-            'https://chit-chat-client-tzj8.onrender.com'
+            'https://chit-chat-client-tzj8.onrender.com',
         ],
         methods: ['GET', 'POST'],
         credentials: true,
     },
+    path: '/socket.io',
 });
 
 app.use(morgan('dev'));
@@ -83,7 +84,7 @@ app.use(
             'https://www.chitchat.lat',
             'https://chitchat.lat',
             'http://192.168.18.13:5173',
-            'https://chit-chat-client-tzj8.onrender.com'
+            'https://chit-chat-client-tzj8.onrender.com',
         ],
         credentials: true,
     })
